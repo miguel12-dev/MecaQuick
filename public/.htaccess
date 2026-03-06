@@ -1,0 +1,16 @@
+# Proteger acceso directo a archivos sensibles; permitir assets y uploads
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /public/
+
+    # Si es un archivo o directorio real, servirlo
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Denegar acceso a archivos PHP excepto index.php (opcional, refuerzo seguridad)
+<FilesMatch "^(index\.php)$">
+    Require all granted
+</FilesMatch>

@@ -1,0 +1,12 @@
+# MecaQuick - Todo el tráfico hacia public/index.php
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # No reescribir archivos ni directorios existentes
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Redirigir todo a public/index.php
+    RewriteRule ^(.*)$ public/index.php [QSA,L]
+</IfModule>

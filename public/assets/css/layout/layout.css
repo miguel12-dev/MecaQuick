@@ -1,0 +1,46 @@
+/**
+ * Estilos de layout: contenedores y distribución de página.
+ */
+.layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.layout--landing {
+    padding: 2rem 1.25rem;
+    max-width: 800px;
+}
+
+.layout--centered {
+    align-items: center;
+}
+
+/* Página de formulario: ancho completo del viewport, panel ocupa bien el espacio */
+.layout--form-page {
+    max-width: 1080px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+    align-items: stretch;
+}
+
+.layout--form-page .panel--form {
+    width: 100%;
+    flex: 1;
+}
+
+@media (min-width: 768px) {
+    .layout {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .layout--form-page {
+        flex-direction: column;
+        padding: 2.5rem 1.5rem;
+    }
+}

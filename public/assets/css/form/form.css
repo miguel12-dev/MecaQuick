@@ -1,0 +1,324 @@
+/**
+ * Estilos de formularios: grupos, inputs, secciones e input con iconos.
+ */
+.form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+.form__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.form__group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.form__group input,
+.form__group select,
+.form__group textarea {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-soft);
+    padding: 0.4rem 0.5rem;
+    font-size: 0.9rem;
+    font-family: var(--font-main);
+}
+
+.form__group input:focus,
+.form__group select:focus,
+.form__group textarea:focus {
+    outline: none;
+    border-color: var(--sena-green);
+    box-shadow: 0 0 0 1px rgba(57, 169, 0, 0.2);
+}
+
+.form__help {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.form__actions {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Secciones del formulario (página formulario) */
+.form__section {
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.form__section:last-of-type {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.form__section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form__section-icon {
+    color: var(--sena-green);
+    font-size: 0.95rem;
+}
+
+.form--with-icons .form__section-fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+/* Campos a ancho completo (documento, correo, observaciones, bloque de fechas) */
+.form--with-icons .form__section-fields .form__group--full {
+    grid-column: 1 / -1;
+}
+
+/* Bloque de fechas: ancho completo del formulario */
+.form__date-block {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.form__date-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.form__date-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.form__date-card {
+    position: relative;
+    flex: 0 0 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 1rem 0.75rem;
+    border: 2px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-white);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    min-height: 5rem;
+    box-sizing: border-box;
+}
+
+.form__date-card:hover {
+    border-color: var(--sena-green);
+    background-color: #f9fdf7;
+}
+
+.form__date-card-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.form__date-card--selected,
+.form__date-card:has(.form__date-card-input:checked) {
+    border-color: var(--sena-green);
+    background-color: #f4fff0;
+}
+
+.form__date-card-day {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.form__date-card-date {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.form__date-card-icon {
+    font-size: 0.85rem;
+    color: var(--sena-green);
+    margin-top: 0.15rem;
+}
+
+/* Input con icono (wrapper) */
+.input-wrap {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-white);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-wrap:focus-within {
+    border-color: var(--sena-green);
+    box-shadow: 0 0 0 1px rgba(57, 169, 0, 0.2);
+}
+
+.input-wrap__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75rem;
+    color: var(--text-muted);
+    background-color: var(--bg-light);
+    border-right: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    font-size: 0.9rem;
+    min-width: 2.75rem;
+}
+
+.input-wrap input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.input-wrap input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.input-wrap--select .input-wrap__icon {
+    border-right: 1px solid var(--border-soft);
+}
+
+.input-wrap select {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background-color: var(--bg-white);
+}
+
+.input-wrap select:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.input-wrap--textarea {
+    align-items: flex-start;
+}
+
+.input-wrap--textarea .input-wrap__icon--top {
+    align-items: flex-start;
+    padding-top: 0.75rem;
+}
+
+.input-wrap--textarea textarea {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    resize: vertical;
+}
+
+.input-wrap--textarea textarea:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Resumen (página éxito) */
+.summary {
+    margin: 1rem 0;
+}
+
+.summary__title {
+    font-size: 1rem;
+    margin: 0.75rem 0 0.25rem;
+}
+
+.summary__list {
+    margin: 0;
+    padding: 0;
+}
+
+.summary__list div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.summary__list dt {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.summary__list dd {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-align: right;
+}
+
+@media (min-width: 768px) {
+    .form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Sección Cita y observaciones: ancho completo (no una sola columna del grid del form) */
+    .form .form__section--full {
+        grid-column: 1 / -1;
+    }
+
+    .form--with-icons .form__section-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .form__group:nth-child(1),
+    .form__group:nth-child(2),
+    .form__group:nth-child(3),
+    .form__group:nth-child(4),
+    .form__group:nth-child(5),
+    .form__group:nth-child(6),
+    .form__group:nth-child(7),
+    .form__group:nth-child(8),
+    .form__group:nth-child(9),
+    .form__group:nth-child(10),
+    .form__group:nth-child(11),
+    .form__group:nth-child(12) {
+        grid-column: span 1;
+    }
+
+    .form__group textarea,
+    .form__group:nth-last-child(2) {
+        grid-column: 1 / -1;
+    }
+
+    .form__actions {
+        grid-column: 1 / -1;
+    }
+}

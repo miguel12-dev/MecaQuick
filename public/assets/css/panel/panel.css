@@ -1,0 +1,106 @@
+/**
+ * Estilos de paneles (tarjetas de contenido).
+ */
+.panel {
+    background-color: var(--bg-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-soft);
+    padding: 1.25rem;
+}
+
+.panel--info {
+    order: 2;
+}
+
+.panel--form {
+    order: 1;
+}
+
+.panel--success,
+.panel--home {
+    width: 100%;
+    max-width: 720px;
+}
+
+.panel__title {
+    margin: 0 0 0.75rem;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.panel__title-icon {
+    color: var(--sena-green);
+    font-size: 1.1rem;
+}
+
+.panel__intro {
+    margin: 0 0 1rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.panel__subtitle {
+    font-size: 1rem;
+    margin: 1.25rem 0 0.5rem;
+    font-weight: 600;
+}
+
+.panel__text {
+    margin: 0 0 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.panel__list {
+    margin: 0 0 0.75rem 1.2rem;
+    padding: 0;
+    color: var(--text-muted);
+}
+
+.panel__list--icons {
+    list-style: none;
+    margin-left: 0;
+}
+
+.panel__list--icons li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.panel__list-icon {
+    color: var(--sena-green);
+    width: 1.1rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.panel__steps {
+    margin: 0 0 1rem 1.25rem;
+    padding: 0;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.panel__steps li {
+    margin-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .panel--info,
+    .panel--form {
+        flex: 1;
+    }
+
+    .panel--form {
+        order: 2;
+    }
+
+    .panel--info {
+        order: 1;
+    }
+}

@@ -1,0 +1,29 @@
+/**
+ * Estilos de mensajes de alerta (aviso, error).
+ */
+.alert {
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.alert--warning {
+    background-color: #fff7e0;
+    border: 1px solid #f0c36c;
+    color: #8a6d1b;
+}
+
+.alert--error {
+    background-color: #fdecea;
+    border: 1px solid #f5c2c2;
+    color: #a63a3a;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.alert__icon {
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+}
