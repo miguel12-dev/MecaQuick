@@ -11,6 +11,9 @@ $authUsuario = \App\Services\AuthService::getLoggedUser();
             <a href="/checklist" class="btn btn--secondary header__btn">Checklist vehículos</a>
             <?php if ($authUsuario !== null): ?>
                 <a href="/dashboard" class="btn btn--secondary header__btn">Panel</a>
+                <?php if (in_array($authUsuario['rol'] ?? '', ['admin', 'instructor'], true)): ?>
+                    <a href="/checklist/panel" class="btn btn--secondary header__btn">Panel de revisiones</a>
+                <?php endif; ?>
                 <?php if (($authUsuario['rol'] ?? '') === 'admin'): ?>
                     <a href="/usuarios/aprendices" class="btn btn--secondary header__btn">Gestión Aprendices</a>
                     <a href="/usuarios/instructores" class="btn btn--secondary header__btn">Gestión Instructores</a>

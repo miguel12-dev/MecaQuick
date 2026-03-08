@@ -111,3 +111,132 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+/* Panel de revisión (instructor) */
+.checklist-panel__filtro {
+    margin-bottom: 1rem;
+}
+
+.checklist-panel__filtro .form__label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+.checklist-panel__select {
+    max-width: 12rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+}
+
+.checklist-panel__mensaje {
+    margin-bottom: 1rem;
+}
+
+.checklist-panel__mensaje--hidden {
+    display: none;
+}
+
+.checklist-panel__tabla-wrap {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+.checklist-panel__tabla-wrap--hidden {
+    display: none;
+}
+
+.checklist-panel__tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.checklist-panel__tabla th,
+.checklist-panel__tabla td {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.checklist-panel__tabla th {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.checklist-panel__tabla td {
+    color: var(--text-muted);
+}
+
+.checklist-panel__vacio {
+    color: var(--text-muted);
+}
+
+.checklist-panel__vacio--hidden {
+    display: none;
+}
+
+.btn--small {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.85rem;
+}
+
+/* Detalle de revisión */
+.panel__back {
+    margin: 0 0 1rem;
+}
+
+.checklist-detalle__cabecera {
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-page, #f5f5f5);
+}
+
+.checklist-detalle__meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 1.5rem;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.checklist-detalle__meta dt {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.checklist-detalle__meta dd {
+    margin: 0;
+    color: var(--text-main);
+}
+
+.checklist-detalle__tabla-wrap {
+    overflow-x: auto;
+}
+
+.checklist-detalle__tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.checklist-detalle__tabla th,
+.checklist-detalle__tabla td {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.checklist-detalle__tabla th {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.checklist-detalle__tabla td {
+    color: var(--text-muted);
+}

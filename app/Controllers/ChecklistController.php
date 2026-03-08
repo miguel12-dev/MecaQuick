@@ -8,11 +8,128 @@ use App\Models\ChecklistDatosModel;
 use App\Models\InspeccionModel;
 use App\Models\PuntosCatalogoModel;
 use App\Models\ResultadosPuntosModel;
+use App\Services\AuthService;
 use Core\BaseController;
 use Throwable;
 
 final class ChecklistController extends BaseController
 {
+    /**
+     * Panel de revisión de checklists (solo instructor o admin).
+     */
+    public function panel(): void
+    {
+        AuthService::requireInstructor();
+        $this->view('Checklist.panel', [
+            'titulo' => 'MecaQuick - Panel de revisión de checklists',
+        ]);
+    }
+
+    /**
+     * JSON: fechas con al menos una revisión.
+     */
+    public function fechasDisponibles(): void
+    {
+        AuthService::requireInstructor();
+        $inspeccionModel = new InspeccionModel();
+        $fechas = $inspeccionModel->fechasConRevisiones();
+        $this->json(['fechas' => $fechas]);
+    }
+
+    /**
+     * JSON: revisiones del día (para filtro por fecha).
+     */
+    public function revisiones(): void
+    {
+        AuthService::requireInstructor();
+        $fecha = trim((string) ($_GET['fecha'] ?? ''));
+        if ($fecha === '') {
+            $this->json(['revisiones' => []]);
+            return;
+        }
+        $inspeccionModel = new InspeccionModel();
+        $revisiones = $inspeccionModel->listarRevisionesPorFecha($fecha);
+        $lista = [];
+        foreach ($revisiones as $r) {
+            $lista[] = [
+                'id' => (int) $r['id'],
+                'placa' => $r['placa'] ?? '—',
+                'encargado' => $r['encargado'] ?? 'Sin asignar',
+                'hora_inicio' => isset($r['inicio_at']) ? date('H:i', strtotime($r['inicio_at'])) : '—',
+                'porcentaje_avance' => (int) ($r['porcentaje_avance'] ?? 0),
+                'estado' => $r['estado'] ?? 'en_proceso',
+            ];
+        }
+        $this->json(['revisiones' => $lista]);
+    }
+
+    /**
+     * Detalle de una revisión (HTML o JSON según Accept / ajax=1 para polling).
+     *
+     * @param string $id ID de la inspección (primer segmento tras detalle)
+     */
+    public function detalle(string $id): void
+    {
+        AuthService::requireInstructor();
+        $inspeccionId = (int) $id;
+        if ($inspeccionId < 1) {
+            if ($this->esPeticionJson()) {
+                $this->json(['error' => 'ID inválido'], 400);
+            } else {
+                header('Location: /checklist/panel', true, 302);
+                exit;
+            }
+        }
+
+        $inspeccionModel = new InspeccionModel();
+        $detalle = $inspeccionModel->obtenerDetalleParaInstructor($inspeccionId);
+        if ($detalle === null) {
+            if ($this->esPeticionJson()) {
+                $this->json(['error' => 'Revisión no encontrada'], 404);
+            } else {
+                header('Location: /checklist/panel', true, 302);
+                exit;
+            }
+        }
+
+        if ($this->esPeticionJson()) {
+            $payload = [
+                'id' => (int) $detalle['id'],
+                'placa' => $detalle['placa'] ?? '—',
+                'encargado' => $detalle['encargado'] ?? 'Sin asignar',
+                'hora_inicio' => isset($detalle['inicio_at']) ? date('H:i', strtotime($detalle['inicio_at'])) : '—',
+                'porcentaje_avance' => (int) ($detalle['porcentaje_avance'] ?? 0),
+                'estado' => $detalle['estado'] ?? 'en_proceso',
+                'resultados' => array_map(static function (array $r): array {
+                    return [
+                        'numero_punto' => (int) ($r['numero_punto'] ?? 0),
+                        'descripcion' => $r['punto_descripcion'] ?? '',
+                        'estado' => $r['estado'] ?? '',
+                        'valor_medido' => $r['valor_medido'] ?? null,
+                        'observacion' => $r['observacion'] ?? null,
+                        'evidencias' => $r['evidencias'] ?? [],
+                    ];
+                }, $detalle['resultados'] ?? []),
+            ];
+            $this->json($payload);
+            return;
+        }
+
+        $this->view('Checklist.detalle', [
+            'titulo' => 'MecaQuick - Detalle de revisión',
+            'detalle' => $detalle,
+        ]);
+    }
+
+    private function esPeticionJson(): bool
+    {
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+        if (strpos($accept, 'application/json') !== false) {
+            return true;
+        }
+        return isset($_GET['ajax']) && (string) $_GET['ajax'] === '1';
+    }
+
     /**
      * Formulario público del checklist para pruebas.
      */

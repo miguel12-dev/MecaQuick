@@ -100,4 +100,17 @@ final class AuthService
             exit;
         }
     }
+
+    /**
+     * Exige sesión y rol instructor o admin. Redirige a /dashboard si no cumple.
+     */
+    public static function requireInstructor(): void
+    {
+        self::requireAuth();
+        $user = self::getLoggedUser();
+        if ($user === null || !in_array($user['rol'], ['instructor', 'admin'], true)) {
+            header('Location: /dashboard', true, 302);
+            exit;
+        }
+    }
 }
