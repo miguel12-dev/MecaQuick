@@ -1,0 +1,67 @@
+/**
+ * Gestión de usuarios (instructores y aprendices). Solo admin.
+ */
+.layout--usuarios {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+}
+
+.panel--usuarios {
+    width: 100%;
+}
+
+.usuarios__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.usuarios__header .panel__title {
+    margin: 0;
+}
+
+.usuarios__empty {
+    color: var(--text-muted);
+    margin: 1rem 0;
+}
+
+.usuarios__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+
+.usuarios__table th,
+.usuarios__table td {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.usuarios__table th {
+    font-weight: 600;
+    background-color: var(--bg-light);
+}
+
+.usuarios__table tbody tr:hover {
+    background-color: var(--bg-light);
+}
+
+.usuarios__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-soft);
+}
+
+.form--usuarios {
+    max-width: 400px;
+    margin-top: 1rem;
+}

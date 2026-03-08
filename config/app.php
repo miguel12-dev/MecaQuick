@@ -49,3 +49,8 @@ spl_autoload_register(static function (string $class): void {
     }
 });
 
+// Sesión para autenticación (usuarios del sistema)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
