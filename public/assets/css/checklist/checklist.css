@@ -1,0 +1,113 @@
+/**
+ * Estilos del modulo checklist.
+ * Se integra con tokens globales definidos en base.css.
+ */
+.checklist-form {
+    display: block;
+}
+
+.checklist-step {
+    display: none;
+}
+
+.checklist-step.is-active {
+    display: block;
+}
+
+.checklist-step__title {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+
+.checklist-step__hint {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.checklist-question__valor {
+    margin-bottom: 0.75rem;
+}
+
+.checklist-grid--cabecera .form__group {
+    min-width: 0;
+}
+
+.checklist-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+.checklist-question {
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    background-color: var(--bg-white);
+}
+
+.checklist-question__text {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.checklist-question__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.checklist-question__options label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+}
+
+.checklist-progress {
+    margin: 0 0 1rem;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-white);
+    padding: 0.75rem;
+}
+
+.checklist-progress__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.checklist-progress__track {
+    width: 100%;
+    height: 0.65rem;
+    border-radius: 999px;
+    background-color: var(--border-soft);
+    overflow: hidden;
+}
+
+.checklist-progress__bar {
+    width: 0;
+    height: 100%;
+    background-color: var(--sena-green);
+    transition: width 0.15s ease;
+}
+
+.checklist-message {
+    margin-bottom: 1rem;
+}
+
+.checklist-message--hidden {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .checklist-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

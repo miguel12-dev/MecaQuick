@@ -1,4 +1,9 @@
 -- ===================================
+-- MecaQuick - Schema base
+-- Instalación nueva: ejecutar este archivo y luego migrations/001_checklist_puntos_inspecciones.sql
+-- ===================================
+
+-- ===================================
 -- CONFIGURACIÓN DEL SISTEMA (clave-valor)
 -- ===================================
 CREATE TABLE configuracion (
@@ -100,7 +105,8 @@ CREATE TABLE usuarios_sistema (
 );
 
 -- ===================================
--- CATÁLOGO DE 25 PUNTOS DE INSPECCIÓN
+-- CATÁLOGO DE PUNTOS DE INSPECCIÓN
+-- Los 34 puntos del checklist se cargan vía migrations/001_checklist_puntos_inspecciones.sql
 -- ===================================
 CREATE TABLE puntos_catalogo (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -113,6 +119,7 @@ CREATE TABLE puntos_catalogo (
 
 -- ===================================
 -- INSPECCIONES (vincula cita + aprendiz)
+-- Para checklist standalone: ejecutar migrations/001_checklist_puntos_inspecciones.sql
 -- ===================================
 CREATE TABLE inspecciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
