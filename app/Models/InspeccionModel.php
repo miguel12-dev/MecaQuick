@@ -33,6 +33,24 @@ final class InspeccionModel extends BaseModel
         return (int) $this->lastInsertId();
     }
 
+    /**
+     * Crea una inspección desde el módulo de mantenimiento (aprendiz + tutor asignado).
+     */
+    public function crearDesdeMantenimiento(string $token, int $aprendizId, ?int $instructorId = null): int
+    {
+        $this->executeStatement(
+            'INSERT INTO inspecciones (token, cita_id, aprendiz_id, instructor_id, estado, porcentaje_avance, inicio_at)
+             VALUES (:token, NULL, :aprendiz_id, :instructor_id, :estado, 0, CURRENT_TIMESTAMP)',
+            [
+                ':token' => $token,
+                ':aprendiz_id' => $aprendizId,
+                ':instructor_id' => $instructorId,
+                ':estado' => 'en_proceso',
+            ]
+        );
+        return (int) $this->lastInsertId();
+    }
+
     public function actualizarAvance(int $inspeccionId, int $porcentajeAvance, bool $finalizada): void
     {
         $estado = $finalizada ? 'finalizada' : 'en_proceso';
@@ -157,5 +175,78 @@ final class InspeccionModel extends BaseModel
 
         $inspeccion['resultados'] = $resultados;
         return $inspeccion;
+    }
+
+    /**
+     * Lista inspecciones donde el aprendiz es responsable o ayudante.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function listarPorAprendiz(int $aprendizId): array
+    {
+        return $this->fetchAll(
+            'SELECT i.id, i.token, i.porcentaje_avance, i.estado,
+                    COALESCE(i.inicio_at, cd.created_at) AS inicio_at,
+                    cd.matricula AS placa,
+                    i.aprendiz_id = :aprendiz_id AS es_responsable
+             FROM inspecciones i
+             LEFT JOIN checklist_datos cd ON cd.inspeccion_id = i.id
+             LEFT JOIN inspeccion_ayudantes ia ON ia.inspeccion_id = i.id AND ia.aprendiz_id = :aprendiz_id2
+             WHERE i.token IS NOT NULL
+               AND (i.aprendiz_id = :aprendiz_id3 OR ia.inspeccion_id IS NOT NULL)
+             ORDER BY COALESCE(i.inicio_at, cd.created_at) DESC',
+            [
+                ':aprendiz_id' => $aprendizId,
+                ':aprendiz_id2' => $aprendizId,
+                ':aprendiz_id3' => $aprendizId,
+            ]
+        );
+    }
+
+    /**
+     * Comprueba si el aprendiz puede ver la inspección (es responsable o ayudante).
+     */
+    public function puedeVerAprendiz(int $inspeccionId, int $aprendizId): bool
+    {
+        $row = $this->fetchOne(
+            'SELECT 1 FROM inspecciones i
+             LEFT JOIN inspeccion_ayudantes ia ON ia.inspeccion_id = i.id AND ia.aprendiz_id = :aprendiz_id
+             WHERE i.id = :id AND (i.aprendiz_id = :aprendiz_id2 OR ia.inspeccion_id IS NOT NULL)
+             LIMIT 1',
+            [':id' => $inspeccionId, ':aprendiz_id' => $aprendizId, ':aprendiz_id2' => $aprendizId]
+        );
+        return $row !== null;
+    }
+
+    /**
+     * Detalle de una inspección para vista solo lectura del aprendiz.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function obtenerDetalleParaAprendiz(int $inspeccionId, int $aprendizId): ?array
+    {
+        if (!$this->puedeVerAprendiz($inspeccionId, $aprendizId)) {
+            return null;
+        }
+        return $this->obtenerDetalleParaInstructor($inspeccionId);
+    }
+
+    /**
+     * Obtiene una inspección por ID (solo campos básicos) para validar propiedad y estado.
+     *
+     * @return array{id: int, aprendiz_id: int|null, estado: string}|null
+     */
+    public function obtenerBasica(int $id): ?array
+    {
+        $row = $this->fetchOne(
+            'SELECT id, aprendiz_id, estado FROM inspecciones WHERE id = :id LIMIT 1',
+            [':id' => $id]
+        );
+        if ($row === null) {
+            return null;
+        }
+        $row['id'] = (int) $row['id'];
+        $row['aprendiz_id'] = isset($row['aprendiz_id']) ? (int) $row['aprendiz_id'] : null;
+        return $row;
     }
 }

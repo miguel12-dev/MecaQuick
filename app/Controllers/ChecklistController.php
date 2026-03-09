@@ -148,10 +148,30 @@ final class ChecklistController extends BaseController
             return;
         }
 
+        $tokenInicial = isset($_GET['token']) ? trim((string) $_GET['token']) : '';
+        $usuario = AuthService::getLoggedUser();
+        $redirectAprendizAlFinalizar = $usuario !== null && ($usuario['rol'] ?? '') === 'aprendiz';
+
+        $cabeceraPrecargada = null;
+        $skipPasoCabecera = false;
+        if ($tokenInicial !== '') {
+            $inspeccionModel = new InspeccionModel();
+            $inspeccion = $inspeccionModel->obtenerPorToken($tokenInicial);
+            if ($inspeccion !== null) {
+                $checklistDatosModel = new ChecklistDatosModel();
+                $cabeceraPrecargada = $checklistDatosModel->obtenerPorInspeccionId((int) $inspeccion['id']);
+                $skipPasoCabecera = $cabeceraPrecargada !== null;
+            }
+        }
+
         $this->view('Checklist.index', [
             'titulo' => 'MecaQuick - Checklist de mantenimiento',
             'puntos' => $puntos,
             'totalPuntos' => count($puntos),
+            'tokenInicial' => $tokenInicial,
+            'redirectAprendizAlFinalizar' => $redirectAprendizAlFinalizar,
+            'cabeceraPrecargada' => $cabeceraPrecargada,
+            'skipPasoCabecera' => $skipPasoCabecera,
         ]);
     }
 
@@ -249,7 +269,7 @@ final class ChecklistController extends BaseController
             $this->json(['ok' => false, 'message' => 'No fue posible guardar el avance.'], 500);
         }
 
-        $this->json([
+        $payload = [
             'ok' => true,
             'token' => $token,
             'progress' => [
@@ -257,7 +277,11 @@ final class ChecklistController extends BaseController
                 'total' => $totalPuntos,
                 'percentage' => $porcentajeAvance,
             ],
-        ]);
+        ];
+        if ($finalizado) {
+            $payload['inspeccion_id'] = $inspeccionId;
+        }
+        $this->json($payload);
     }
 
     /**

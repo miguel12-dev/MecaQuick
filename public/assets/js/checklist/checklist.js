@@ -147,6 +147,10 @@
             }
 
             showMessage(isFinal ? "Checklist finalizado y guardado correctamente." : "Avance guardado correctamente.");
+            if (isFinal && typeof result.inspeccion_id === "number" && form.dataset.redirectAprendiz === "1") {
+                window.location.href = "/mantenimiento/revision/" + result.inspeccion_id;
+                return true;
+            }
             return true;
         } catch (error) {
             showMessage("Error de red al guardar el avance.", true);
@@ -210,6 +214,7 @@
         updateProgress();
     });
 
-    showStep(0);
+    const skipCabecera = form.dataset.skipCabecera === "1";
+    showStep(skipCabecera ? 1 : 0);
     updateProgress();
 })();

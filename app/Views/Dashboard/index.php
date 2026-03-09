@@ -19,7 +19,11 @@
             </p>
 
             <div class="dashboard__actions">
-                <a href="/checklist" class="btn btn--primary">Checklist de vehículos</a>
+                <?php if (($usuario['rol'] ?? '') === 'aprendiz'): ?>
+                    <a href="/mantenimiento" class="btn btn--primary">Entrar al módulo de mantenimiento</a>
+                <?php else: ?>
+                    <a href="/checklist" class="btn btn--primary">Checklist de vehículos</a>
+                <?php endif; ?>
                 <?php if (in_array($usuario['rol'] ?? '', ['admin', 'instructor'], true)): ?>
                     <a href="/checklist/panel" class="btn btn--primary">Panel de revisiones</a>
                 <?php endif; ?>

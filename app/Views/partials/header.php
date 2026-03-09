@@ -8,7 +8,11 @@ $authUsuario = \App\Services\AuthService::getLoggedUser();
             <span class="header__title"><?= htmlspecialchars('MecaQuick') ?></span>
         </a>
         <nav class="header__nav">
-            <a href="/checklist" class="btn btn--secondary header__btn">Checklist vehículos</a>
+            <?php if ($authUsuario !== null && ($authUsuario['rol'] ?? '') === 'aprendiz'): ?>
+                <a href="/mantenimiento" class="btn btn--secondary header__btn">Módulo mantenimiento</a>
+            <?php else: ?>
+                <a href="/checklist" class="btn btn--secondary header__btn">Checklist vehículos</a>
+            <?php endif; ?>
             <?php if ($authUsuario !== null): ?>
                 <a href="/dashboard" class="btn btn--secondary header__btn">Panel</a>
                 <?php if (in_array($authUsuario['rol'] ?? '', ['admin', 'instructor'], true)): ?>

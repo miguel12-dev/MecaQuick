@@ -113,4 +113,17 @@ final class AuthService
             exit;
         }
     }
+
+    /**
+     * Exige sesión y rol aprendiz. Redirige a /dashboard si no cumple.
+     */
+    public static function requireAprendiz(): void
+    {
+        self::requireAuth();
+        $user = self::getLoggedUser();
+        if ($user === null || $user['rol'] !== 'aprendiz') {
+            header('Location: /dashboard', true, 302);
+            exit;
+        }
+    }
 }

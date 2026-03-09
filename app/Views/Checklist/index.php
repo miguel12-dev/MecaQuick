@@ -1,3 +1,7 @@
+<?php
+$c = $cabeceraPrecargada ?? [];
+$skipCabecera = !empty($skipPasoCabecera);
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,7 +19,11 @@
         <section class="panel panel--form">
             <h1 class="panel__title">Checklist de mantenimiento</h1>
             <p class="panel__intro">
-                Formulario de acceso libre para pruebas. Complete todos los campos obligatorios antes de continuar. Cada avance se guarda al pulsar "Siguiente".
+                <?php if ($skipCabecera): ?>
+                    Los datos del vehículo ya están registrados. Complete los puntos de inspección; cada avance se guarda al pulsar "Siguiente".
+                <?php else: ?>
+                    Formulario de acceso libre para pruebas. Complete todos los campos obligatorios antes de continuar. Cada avance se guarda al pulsar "Siguiente".
+                <?php endif; ?>
             </p>
 
             <div class="checklist-progress" aria-live="polite">
@@ -40,77 +48,79 @@
                 class="checklist-form"
                 data-total="<?= (int) ($totalPuntos ?? 0) ?>"
                 data-save-url="/checklist/guardar-paso"
+                <?= !empty($redirectAprendizAlFinalizar) ? ' data-redirect-aprendiz="1"' : '' ?>
+                <?= $skipCabecera ? ' data-skip-cabecera="1"' : '' ?>
                 novalidate
             >
-                <input type="hidden" id="checklistToken" name="token" value="">
+                <input type="hidden" id="checklistToken" name="token" value="<?= htmlspecialchars($tokenInicial ?? '') ?>">
 
-                <section class="checklist-step is-active" data-step="0">
+                <section class="checklist-step<?= $skipCabecera ? '' : ' is-active' ?>" data-step="0">
                     <h2 class="checklist-step__title">Datos generales</h2>
                     <p class="checklist-step__hint">Todos los campos marcados con * son obligatorios.</p>
                     <div class="checklist-grid checklist-grid--cabecera">
                         <div class="form__group">
                             <label for="numero_orden">Núm. de orden *</label>
-                            <input type="text" id="numero_orden" name="numero_orden" required placeholder="Ej. GAGBCW">
+                            <input type="text" id="numero_orden" name="numero_orden" required placeholder="Ej. GAGBCW" value="<?= htmlspecialchars($c['numero_orden'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="tipo_comercial_codigo">Tipo comercial (código) *</label>
-                            <input type="text" id="tipo_comercial_codigo" name="tipo_comercial_codigo" required placeholder="Ej. GAGBCW">
+                            <input type="text" id="tipo_comercial_codigo" name="tipo_comercial_codigo" required placeholder="Ej. GAGBCW" value="<?= htmlspecialchars($c['tipo_comercial_codigo'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="matricula">Matrícula *</label>
-                            <input type="text" id="matricula" name="matricula" required placeholder="Ej. NLZ988">
+                            <input type="text" id="matricula" name="matricula" required placeholder="Ej. NLZ988" value="<?= htmlspecialchars($c['matricula'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="matriculacion">Matriculación *</label>
-                            <input type="date" id="matriculacion" name="matriculacion" required>
+                            <input type="date" id="matriculacion" name="matriculacion" required value="<?= htmlspecialchars($c['matriculacion'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="bastidor">Número de bastidor *</label>
-                            <input type="text" id="bastidor" name="bastidor" required placeholder="Ej. WAUZZZGA9PA022533">
+                            <input type="text" id="bastidor" name="bastidor" required placeholder="Ej. WAUZZZGA9PA022533" value="<?= htmlspecialchars($c['bastidor'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="ldm">LDM</label>
-                            <input type="text" id="ldm" name="ldm" placeholder="Opcional">
+                            <input type="text" id="ldm" name="ldm" placeholder="Opcional" value="<?= htmlspecialchars($c['ldm'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="djka">DJKA</label>
-                            <input type="text" id="djka" name="djka" placeholder="Opcional">
+                            <input type="text" id="djka" name="djka" placeholder="Opcional" value="<?= htmlspecialchars($c['djka'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="kilometraje">Kilometraje *</label>
-                            <input type="number" id="kilometraje" name="kilometraje" min="0" required placeholder="Ej. 44454">
+                            <input type="number" id="kilometraje" name="kilometraje" min="0" required placeholder="Ej. 44454" value="<?= htmlspecialchars((string) ($c['kilometraje'] ?? '')) ?>">
                         </div>
                         <div class="form__group">
                             <label for="asesor">Asesor del servicio *</label>
-                            <input type="text" id="asesor" name="asesor" required placeholder="Ej. Vásquez, Luz Yamile">
+                            <input type="text" id="asesor" name="asesor" required placeholder="Ej. Vásquez, Luz Yamile" value="<?= htmlspecialchars($c['asesor'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="tipo_comercial_modelo">Tipo comercial (modelo) *</label>
-                            <input type="text" id="tipo_comercial_modelo" name="tipo_comercial_modelo" required placeholder="Ej. Q2 1,4 L4110 A8">
+                            <input type="text" id="tipo_comercial_modelo" name="tipo_comercial_modelo" required placeholder="Ej. Q2 1,4 L4110 A8" value="<?= htmlspecialchars($c['tipo_comercial_modelo'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="ldc">LDC</label>
-                            <input type="text" id="ldc" name="ldc" placeholder="Opcional">
+                            <input type="text" id="ldc" name="ldc" placeholder="Opcional" value="<?= htmlspecialchars($c['ldc'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="vhn">VHN</label>
-                            <input type="text" id="vhn" name="vhn" placeholder="Opcional">
+                            <input type="text" id="vhn" name="vhn" placeholder="Opcional" value="<?= htmlspecialchars($c['vhn'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="ano_modelo">Año de modelos *</label>
-                            <input type="number" id="ano_modelo" name="ano_modelo" min="1950" max="2030" required placeholder="Ej. 2023">
+                            <input type="number" id="ano_modelo" name="ano_modelo" min="1950" max="2030" required placeholder="Ej. 2023" value="<?= htmlspecialchars($c['ano_modelo'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="fecha_servicio">Fecha de servicio *</label>
-                            <input type="date" id="fecha_servicio" name="fecha_servicio" required>
+                            <input type="date" id="fecha_servicio" name="fecha_servicio" required value="<?= htmlspecialchars($c['fecha_servicio'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="tipo_inspeccion">Tipo de inspección *</label>
-                            <input type="text" id="tipo_inspeccion" name="tipo_inspeccion" required placeholder="Ej. Inspección con cambio de aceite">
+                            <input type="text" id="tipo_inspeccion" name="tipo_inspeccion" required placeholder="Ej. Inspección con cambio de aceite" value="<?= htmlspecialchars($c['tipo_inspeccion'] ?? '') ?>">
                         </div>
                         <div class="form__group form__group--full">
                             <label for="observaciones">Observaciones</label>
-                            <textarea id="observaciones" name="observaciones" rows="2" placeholder="Opcional"></textarea>
+                            <textarea id="observaciones" name="observaciones" rows="2" placeholder="Opcional"><?= htmlspecialchars($c['observaciones'] ?? '') ?></textarea>
                         </div>
                     </div>
                     <div class="form__actions">
@@ -125,8 +135,9 @@
                     $descripcion = (string) $punto['descripcion'];
                     $unidadMedida = (string) ($punto['unidad_medida'] ?? 'N/A');
                     $requiereValorMedido = $unidadMedida !== 'N/A';
+                    $esPrimerPunto = $indice === 0;
                     ?>
-                    <section class="checklist-step" data-step="<?= $puntoId ?>" data-punto-id="<?= $puntoId ?>">
+                    <section class="checklist-step<?= $skipCabecera && $esPrimerPunto ? ' is-active' : '' ?>" data-step="<?= $puntoId ?>" data-punto-id="<?= $puntoId ?>">
                         <h2 class="checklist-step__title">Punto <?= $numeroPunto ?> de <?= (int) ($totalPuntos ?? 0) ?></h2>
                         <article class="checklist-question">
                             <p class="checklist-question__text"><?= htmlspecialchars($descripcion) ?></p>
