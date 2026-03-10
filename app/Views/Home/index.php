@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($titulo ?? 'MecaQuick') ?></title>
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <?php require dirname(__DIR__, 2) . '/Views/partials/styles.php'; ?>
 </head>
 <body class="page">
     <header class="header">

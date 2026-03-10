@@ -106,7 +106,7 @@ CREATE TABLE usuarios_sistema (
 
 -- ===================================
 -- CATÁLOGO DE PUNTOS DE INSPECCIÓN
--- Los 34 puntos del checklist se cargan vía migrations/001_checklist_puntos_inspecciones.sql
+-- Los 25 puntos del checklist se cargan vía migrations/001_checklist_puntos_inspecciones.sql
 -- ===================================
 CREATE TABLE puntos_catalogo (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -155,13 +155,4 @@ CREATE TABLE resultados_puntos (
     UNIQUE KEY uq_inspeccion_punto (inspeccion_id, punto_id)
 );
 
--- ===================================
--- EVIDENCIAS FOTOGRÁFICAS
--- ===================================
-CREATE TABLE evidencias (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    resultado_punto_id INT NOT NULL,
-    ruta_archivo VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (resultado_punto_id) REFERENCES resultados_puntos(id)
-);
+-- Tabla evidencias: se crea en migrations/001 (evita error de FK si el orden de ejecución varía)

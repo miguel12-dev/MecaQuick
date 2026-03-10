@@ -9,7 +9,8 @@ $skipCabecera = !empty($skipPasoCabecera);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($titulo ?? 'MecaQuick') ?></title>
     <link rel="icon" type="image/png" href="/assets/img/logo_sena.png">
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <?php require dirname(__DIR__, 2) . '/Views/partials/styles.php'; ?>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <script src="/assets/js/checklist/checklist.js" defer></script>
 </head>
 <body class="page">
@@ -17,7 +18,10 @@ $skipCabecera = !empty($skipPasoCabecera);
 
     <main class="layout layout--form-page">
         <section class="panel panel--form">
-            <h1 class="panel__title">Checklist de mantenimiento</h1>
+            <h1 class="panel__title">
+                <i class="fa-solid fa-clipboard-list panel__title-icon" aria-hidden="true"></i>
+                Formato de checklist técnico – vehículos
+            </h1>
             <p class="panel__intro">
                 <?php if ($skipCabecera): ?>
                     Los datos del vehículo ya están registrados. Complete los puntos de inspección; cada avance se guarda al pulsar "Siguiente".
@@ -45,7 +49,7 @@ $skipCabecera = !empty($skipPasoCabecera);
 
             <form
                 id="checklistForm"
-                class="checklist-form"
+                class="form form--with-icons checklist-form"
                 data-total="<?= (int) ($totalPuntos ?? 0) ?>"
                 data-save-url="/checklist/guardar-paso"
                 <?= !empty($redirectAprendizAlFinalizar) ? ' data-redirect-aprendiz="1"' : '' ?>
@@ -141,25 +145,23 @@ $skipCabecera = !empty($skipPasoCabecera);
                         <h2 class="checklist-step__title">Punto <?= $numeroPunto ?> de <?= (int) ($totalPuntos ?? 0) ?></h2>
                         <article class="checklist-question">
                             <p class="checklist-question__text"><?= htmlspecialchars($descripcion) ?></p>
-                            <?php if ($requiereValorMedido): ?>
-                                <div class="form__group checklist-question__valor">
-                                    <label for="valor_medido_<?= $puntoId ?>">Valor (<?= htmlspecialchars($unidadMedida) ?>)</label>
-                                    <input type="text" id="valor_medido_<?= $puntoId ?>" name="valor_medido[<?= $puntoId ?>]" placeholder="Ej. 4, 09/2025">
-                                </div>
-                            <?php endif; ?>
                             <div class="checklist-question__options">
                                 <label>
-                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="si" required>
-                                    OK/realizado
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="bueno" required>
+                                    Bueno
                                 </label>
                                 <label>
-                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="no">
-                                    No OK
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="regular">
+                                    Regular
                                 </label>
                                 <label>
-                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="subsanado">
-                                    Subsanada
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="malo">
+                                    Malo
                                 </label>
+                            </div>
+                            <div class="form__group checklist-question__observacion">
+                                <label for="observaciones_punto_<?= $puntoId ?>">Observaciones</label>
+                                <input type="text" id="observaciones_punto_<?= $puntoId ?>" name="observaciones_punto[<?= $puntoId ?>]" placeholder="Opcional">
                             </div>
                         </article>
                         <div class="form__actions">
@@ -169,29 +171,42 @@ $skipCabecera = !empty($skipPasoCabecera);
                     </section>
                 <?php endforeach; ?>
 
-                <section class="checklist-step" data-step="final">
-                    <h2 class="checklist-step__title">Datos finales</h2>
-                    <p class="checklist-step__hint">Complete los campos obligatorios antes de finalizar.</p>
-                    <div class="checklist-grid">
-                        <div class="form__group">
-                            <label for="km_salida">Salida (km) *</label>
-                            <input type="number" id="km_salida" name="km_salida" min="0" required placeholder="Ej. 44454">
-                        </div>
-                        <div class="form__group">
-                            <label for="km_llegada">Llegada (km) *</label>
-                            <input type="number" id="km_llegada" name="km_llegada" min="0" required placeholder="Ej. 44463">
-                        </div>
-                        <div class="form__group form__group--full">
-                            <label for="nota_mantenimiento">Nota de mantenimiento *</label>
-                            <textarea id="nota_mantenimiento" name="nota_mantenimiento" rows="4" required placeholder="Describa los trabajos realizados..."></textarea>
-                        </div>
-                        <div class="form__group">
-                            <label for="fecha_firma_responsable">Fecha/firma (responsable) *</label>
-                            <input type="date" id="fecha_firma_responsable" name="fecha_firma_responsable" required>
-                        </div>
-                        <div class="form__group">
-                            <label for="fecha_firma_control">Fecha/firma (control final) *</label>
-                            <input type="date" id="fecha_firma_control" name="fecha_firma_control" required>
+                <section class="checklist-step" data-step="final" hidden>
+                    <div class="form__section">
+                        <h3 class="form__section-title">
+                            <i class="fa-solid fa-flag-checkered form__section-icon" aria-hidden="true"></i>
+                            3. Observaciones generales y 4. Firmas
+                        </h3>
+                        <p class="checklist-step__hint">Complete los campos obligatorios antes de finalizar.</p>
+                        <div class="form__section-fields">
+                            <div class="form__group form__group--full">
+                                <label for="observaciones_generales">Observaciones generales</label>
+                                <div class="input-wrap input-wrap--textarea">
+                                    <span class="input-wrap__icon input-wrap__icon--top" aria-hidden="true"><i class="fa-solid fa-comment-dots"></i></span>
+                                    <textarea id="observaciones_generales" name="observaciones_generales" rows="4" placeholder="Observaciones adicionales del servicio..."></textarea>
+                                </div>
+                            </div>
+                            <div class="form__group">
+                                <label for="firma_tecnico">Firma del técnico</label>
+                                <div class="input-wrap">
+                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-signature"></i></span>
+                                    <input type="text" id="firma_tecnico" name="firma_tecnico" placeholder="Nombre o referencia">
+                                </div>
+                            </div>
+                            <div class="form__group">
+                                <label for="nombre_tecnico">Nombre del técnico *</label>
+                                <div class="input-wrap">
+                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+                                    <input type="text" id="nombre_tecnico" name="nombre_tecnico" required placeholder="Ej. Carlos Rodríguez">
+                                </div>
+                            </div>
+                            <div class="form__group">
+                                <label for="firma_cliente">Firma del cliente</label>
+                                <div class="input-wrap">
+                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-signature"></i></span>
+                                    <input type="text" id="firma_cliente" name="firma_cliente" placeholder="Nombre o referencia">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="form__actions">

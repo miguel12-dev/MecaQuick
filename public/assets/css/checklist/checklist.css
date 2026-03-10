@@ -1,9 +1,15 @@
 /**
- * Estilos del modulo checklist.
- * Se integra con tokens globales definidos en base.css.
+ * Estilos del módulo checklist.
+ * Se integra con form.css para mantener coherencia con home/formulario.
  */
-.checklist-form {
-    display: block;
+.checklist-form.form {
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .checklist-form.form {
+        grid-template-columns: 1fr;
+    }
 }
 
 .checklist-step {
@@ -14,10 +20,23 @@
     display: block;
 }
 
+/* Fallback para navegadores: ocultar por atributo hidden */
+.checklist-step[hidden] {
+    display: none !important;
+}
+
 .checklist-step__title {
     margin: 0 0 0.75rem;
     font-size: 1rem;
     color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checklist-step__icon {
+    color: var(--sena-green);
+    font-size: 0.95rem;
 }
 
 .checklist-step__hint {
@@ -26,18 +45,9 @@
     color: var(--text-muted);
 }
 
-.checklist-question__valor {
-    margin-bottom: 0.75rem;
-}
-
-.checklist-grid--cabecera .form__group {
-    min-width: 0;
-}
-
-.checklist-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
+.checklist-question__valor,
+.checklist-question__observacion {
+    margin-top: 0.75rem;
 }
 
 .checklist-question {

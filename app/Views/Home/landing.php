@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($titulo ?? 'MecaQuick') ?></title>
     <link rel="icon" type="image/png" href="/assets/img/logo_sena.png">
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <?php require dirname(__DIR__, 2) . '/Views/partials/styles.php'; ?>
 </head>
 <body class="page">
     <?php require ROOT_PATH . '/app/Views/partials/header.php'; ?>

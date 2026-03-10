@@ -140,7 +140,7 @@ final class ChecklistController extends BaseController
             $puntos = $puntosModel->listarActivos();
         } catch (Throwable $e) {
             $this->view('Checklist.index', [
-                'titulo' => 'MecaQuick - Checklist de mantenimiento',
+                'titulo' => 'MecaQuick - Checklist técnico',
                 'puntos' => [],
                 'totalPuntos' => 0,
                 'errorDb' => 'Configure la base de datos: cree el archivo .env con DB_HOST, DB_NAME, DB_USER, DB_PASS y ejecute database/database.sql.',
@@ -165,7 +165,7 @@ final class ChecklistController extends BaseController
         }
 
         $this->view('Checklist.index', [
-            'titulo' => 'MecaQuick - Checklist de mantenimiento',
+            'titulo' => 'MecaQuick - Checklist técnico de vehículos',
             'puntos' => $puntos,
             'totalPuntos' => count($puntos),
             'tokenInicial' => $tokenInicial,
@@ -189,7 +189,7 @@ final class ChecklistController extends BaseController
         $totalPuntos = count($puntos);
         $idsPuntos = array_column($puntos, 'id');
 
-        $respuestasPermitidas = ['si', 'no', 'subsanado', 'bueno', 'regular', 'malo', 'no_aplica'];
+        $respuestasPermitidas = ['bueno', 'regular', 'malo', 'no_aplica'];
 
         $token = trim((string) ($_POST['token'] ?? ''));
         if ($token === '') {
@@ -223,15 +223,13 @@ final class ChecklistController extends BaseController
             }
             $resultados[$puntoId] = ['estado' => $valorLimpio];
 
-            $valorMedido = $_POST['valor_medido'][$puntoIdStr] ?? null;
-            if ($valorMedido !== null && trim((string) $valorMedido) !== '') {
-                $resultados[$puntoId]['valor_medido'] = trim((string) $valorMedido);
+            $observacion = $_POST['observaciones_punto'][$puntoIdStr] ?? null;
+            if ($observacion !== null && trim((string) $observacion) !== '') {
+                $resultados[$puntoId]['observacion'] = trim((string) $observacion);
             }
         }
 
         $preguntasRespondidas = count($resultados);
-        $ultimaPregunta = (int) ($_POST['ultima_pregunta'] ?? 0);
-        $ultimaPregunta = max(0, min($ultimaPregunta, $totalPuntos));
 
         if ($finalizado && $preguntasRespondidas !== $totalPuntos) {
             $this->json(
@@ -290,27 +288,19 @@ final class ChecklistController extends BaseController
     private function extraerDatosCabecera(array $post): array
     {
         return [
-            'numero_orden' => trim((string) ($post['numero_orden'] ?? '')),
-            'tipo_comercial_codigo' => trim((string) ($post['tipo_comercial_codigo'] ?? '')),
-            'matricula' => trim((string) ($post['matricula'] ?? '')),
-            'matriculacion' => trim((string) ($post['matriculacion'] ?? '')),
-            'bastidor' => trim((string) ($post['bastidor'] ?? '')),
-            'ldm' => trim((string) ($post['ldm'] ?? '')),
-            'djka' => trim((string) ($post['djka'] ?? '')),
+            'nombre_cliente' => trim((string) ($post['nombre_cliente'] ?? '')),
+            'cedula_nit' => trim((string) ($post['cedula_nit'] ?? '')),
+            'telefono' => preg_replace('/\D/', '', (string) ($post['telefono'] ?? '')),
+            'correo' => trim((string) ($post['correo'] ?? '')),
+            'modelo_vehiculo' => trim((string) ($post['modelo_vehiculo'] ?? '')),
+            'placa' => trim((string) ($post['placa'] ?? '')),
             'kilometraje' => (int) ($post['kilometraje'] ?? 0),
-            'asesor' => trim((string) ($post['asesor'] ?? '')),
-            'tipo_comercial_modelo' => trim((string) ($post['tipo_comercial_modelo'] ?? '')),
-            'ldc' => trim((string) ($post['ldc'] ?? '')),
-            'vhn' => trim((string) ($post['vhn'] ?? '')),
-            'ano_modelo' => trim((string) ($post['ano_modelo'] ?? '')),
-            'fecha_servicio' => trim((string) ($post['fecha_servicio'] ?? '')),
-            'tipo_inspeccion' => trim((string) ($post['tipo_inspeccion'] ?? '')),
-            'km_salida' => trim((string) ($post['km_salida'] ?? '')),
-            'km_llegada' => trim((string) ($post['km_llegada'] ?? '')),
-            'observaciones' => trim((string) ($post['observaciones'] ?? '')),
-            'nota_mantenimiento' => trim((string) ($post['nota_mantenimiento'] ?? '')),
-            'fecha_firma_responsable' => trim((string) ($post['fecha_firma_responsable'] ?? '')),
-            'fecha_firma_control' => trim((string) ($post['fecha_firma_control'] ?? '')),
+            'fecha_ingreso' => trim((string) ($post['fecha_ingreso'] ?? '')),
+            'hora_ingreso' => trim((string) ($post['hora_ingreso'] ?? '')),
+            'observaciones_generales' => trim((string) ($post['observaciones_generales'] ?? '')),
+            'firma_tecnico' => trim((string) ($post['firma_tecnico'] ?? '')),
+            'nombre_tecnico' => trim((string) ($post['nombre_tecnico'] ?? '')),
+            'firma_cliente' => trim((string) ($post['firma_cliente'] ?? '')),
         ];
     }
 
@@ -323,25 +313,19 @@ final class ChecklistController extends BaseController
         $errores = [];
 
         $camposRequeridos = [
-            'numero_orden' => 'Número de orden',
-            'tipo_comercial_codigo' => 'Tipo comercial (código)',
-            'matricula' => 'Matrícula',
-            'matriculacion' => 'Matriculación',
-            'bastidor' => 'Número de bastidor',
+            'nombre_cliente' => 'Nombre del cliente',
+            'cedula_nit' => 'Cédula / NIT',
+            'telefono' => 'Teléfono',
+            'correo' => 'Correo',
+            'modelo_vehiculo' => 'Modelo del vehículo',
+            'placa' => 'Placa',
             'kilometraje' => 'Kilometraje',
-            'fecha_servicio' => 'Fecha de servicio',
-            'asesor' => 'Asesor del servicio',
-            'tipo_comercial_modelo' => 'Tipo comercial (modelo)',
-            'ano_modelo' => 'Año de modelos',
-            'tipo_inspeccion' => 'Tipo de inspección',
+            'fecha_ingreso' => 'Fecha de ingreso',
+            'hora_ingreso' => 'Hora',
         ];
 
         if ($finalizado) {
-            $camposRequeridos['km_salida'] = 'Salida (km)';
-            $camposRequeridos['km_llegada'] = 'Llegada (km)';
-            $camposRequeridos['nota_mantenimiento'] = 'Nota de mantenimiento';
-            $camposRequeridos['fecha_firma_responsable'] = 'Fecha/firma (responsable)';
-            $camposRequeridos['fecha_firma_control'] = 'Fecha/firma (control final)';
+            $camposRequeridos['nombre_tecnico'] = 'Nombre del técnico';
         }
 
         foreach ($camposRequeridos as $campo => $etiqueta) {
@@ -350,30 +334,36 @@ final class ChecklistController extends BaseController
                 $errores[] = $etiqueta . ' es obligatorio.';
                 continue;
             }
-            if (in_array($campo, ['kilometraje', 'km_salida', 'km_llegada'], true)) {
+            if ($campo === 'kilometraje') {
                 $n = (int) $v;
                 if ($n < 0) {
                     $errores[] = $etiqueta . ' no puede ser negativo.';
                 }
             }
-            if ($campo === 'ano_modelo') {
-                $n = (int) $v;
-                if ($n < 1950 || $n > 2030) {
-                    $errores[] = $etiqueta . ' debe ser entre 1950 y 2030.';
+            if ($campo === 'telefono') {
+                if (!preg_match('/^3\d{9}$/', $v)) {
+                    $errores[] = $etiqueta . ' debe tener 10 dígitos e iniciar por 3.';
+                }
+            }
+            if ($campo === 'placa') {
+                if (!preg_match('/^[A-Za-z]{3}\d{3}$/i', $v)) {
+                    $errores[] = $etiqueta . ' debe ser 3 letras seguidas de 3 números (ej. ABC123).';
+                }
+            }
+            if ($campo === 'correo') {
+                if (!filter_var($v, FILTER_VALIDATE_EMAIL)) {
+                    $errores[] = $etiqueta . ' no es válido.';
+                }
+            }
+            if ($campo === 'cedula_nit') {
+                if (!preg_match('/^\d+$/', $v)) {
+                    $errores[] = $etiqueta . ' solo debe contener números.';
                 }
             }
         }
 
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($datos['fecha_servicio'] ?? ''))) {
-            $errores[] = 'Fecha de servicio no válida.';
-        }
-
-        if ($finalizado) {
-            foreach (['fecha_firma_responsable', 'fecha_firma_control'] as $f) {
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($datos[$f] ?? ''))) {
-                    $errores[] = ($f === 'fecha_firma_responsable' ? 'Fecha/firma (responsable)' : 'Fecha/firma (control final)') . ' no válida.';
-                }
-            }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($datos['fecha_ingreso'] ?? ''))) {
+            $errores[] = 'Fecha de ingreso no válida.';
         }
 
         return $errores;
