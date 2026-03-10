@@ -1,3 +1,7 @@
+<?php
+$c = $cabeceraPrecargada ?? [];
+$skipCabecera = !empty($skipPasoCabecera);
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,7 +23,11 @@
                 Formato de checklist técnico – vehículos
             </h1>
             <p class="panel__intro">
-                Complete los datos del cliente y vehículo, revise los 25 puntos y finalice con observaciones y firmas. Cada avance se guarda al pulsar "Siguiente".
+                <?php if ($skipCabecera): ?>
+                    Los datos del vehículo ya están registrados. Complete los puntos de inspección; cada avance se guarda al pulsar "Siguiente".
+                <?php else: ?>
+                    Formulario de acceso libre para pruebas. Complete todos los campos obligatorios antes de continuar. Cada avance se guarda al pulsar "Siguiente".
+                <?php endif; ?>
             </p>
 
             <div class="checklist-progress" aria-live="polite">
@@ -44,81 +52,79 @@
                 class="form form--with-icons checklist-form"
                 data-total="<?= (int) ($totalPuntos ?? 0) ?>"
                 data-save-url="/checklist/guardar-paso"
+                <?= !empty($redirectAprendizAlFinalizar) ? ' data-redirect-aprendiz="1"' : '' ?>
+                <?= $skipCabecera ? ' data-skip-cabecera="1"' : '' ?>
                 novalidate
             >
-                <input type="hidden" id="checklistToken" name="token" value="">
+                <input type="hidden" id="checklistToken" name="token" value="<?= htmlspecialchars($tokenInicial ?? '') ?>">
 
-                <section class="checklist-step is-active" data-step="0">
-                    <div class="form__section">
-                        <h3 class="form__section-title">
-                            <i class="fa-solid fa-user form__section-icon" aria-hidden="true"></i>
-                            1. Datos del cliente y vehículo
-                        </h3>
-                        <p class="checklist-step__hint">Todos los campos marcados con * son obligatorios.</p>
-                        <div class="form__section-fields">
-                            <div class="form__group form__group--full">
-                                <label for="nombre_cliente">Nombre del cliente *</label>
-                                <div class="input-wrap">
-                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
-                                    <input type="text" id="nombre_cliente" name="nombre_cliente" required placeholder="Ej. Juan Pérez">
-                                </div>
-                            </div>
-                            <div class="form__group">
-                                <label for="cedula_nit">Cédula / NIT *</label>
-                                <div class="input-wrap">
-                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span>
-                                    <input type="text" id="cedula_nit" name="cedula_nit" required placeholder="Ej. 123456789" inputmode="numeric" pattern="[0-9]+" title="Solo números">
-                                </div>
-                            </div>
-                            <div class="form__group">
-                                <label for="telefono">Teléfono *</label>
-                                <div class="input-wrap">
-                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
-                                    <input type="tel" id="telefono" name="telefono" required placeholder="Ej. 3001234567" maxlength="10" inputmode="numeric" title="10 dígitos iniciando por 3">
-                                </div>
-                            </div>
-                            <div class="form__group form__group--full">
-                                <label for="correo">Correo *</label>
-                                <div class="input-wrap">
-                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-envelope"></i></span>
-                                    <input type="email" id="correo" name="correo" required placeholder="correo@ejemplo.com">
-                                </div>
-                            </div>
-                            <div class="form__group form__group--full">
-                                <label for="modelo_vehiculo">Modelo del vehículo *</label>
-                                <div class="input-wrap">
-                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-car-side"></i></span>
-                                    <input type="text" id="modelo_vehiculo" name="modelo_vehiculo" required placeholder="Ej. Chevrolet Spark 2020">
-                                </div>
-                            </div>
-                            <div class="form__group">
-                                <label for="placa">Placa *</label>
-                                <div class="input-wrap">
-                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-rectangle-list"></i></span>
-                                    <input type="text" id="placa" name="placa" maxlength="6" required placeholder="Ej. ABC123" pattern="[A-Za-z]{3}[0-9]{3}" title="3 letras seguidas de 3 números">
-                                </div>
-                            </div>
-                            <div class="form__group">
-                                <label for="kilometraje">Kilometraje *</label>
-                                <div class="input-wrap">
-                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-gauge-high"></i></span>
-                                    <input type="number" id="kilometraje" name="kilometraje" min="0" required placeholder="Ej. 45000">
-                                </div>
-                            </div>
-                            <div class="form__group">
-                                <label for="fecha_ingreso">Fecha de ingreso *</label>
-                                <div class="input-wrap">
-                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-calendar"></i></span>
-                                    <input type="date" id="fecha_ingreso" name="fecha_ingreso" required>
-                                </div>
-                            </div>
-                            <div class="form__group">
-                                <label for="hora_ingreso">Hora *</label>
-                                <div class="input-wrap">
-                                    <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-clock"></i></span>
-                                    <input type="time" id="hora_ingreso" name="hora_ingreso" required placeholder="Ej. 08:30">
-                                </div>
-                            </div>
+                <section class="checklist-step<?= $skipCabecera ? '' : ' is-active' ?>" data-step="0">
+                    <h2 class="checklist-step__title">Datos generales</h2>
+                    <p class="checklist-step__hint">Todos los campos marcados con * son obligatorios.</p>
+                    <div class="checklist-grid checklist-grid--cabecera">
+                        <div class="form__group">
+                            <label for="numero_orden">Núm. de orden *</label>
+                            <input type="text" id="numero_orden" name="numero_orden" required placeholder="Ej. GAGBCW" value="<?= htmlspecialchars($c['numero_orden'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="tipo_comercial_codigo">Tipo comercial (código) *</label>
+                            <input type="text" id="tipo_comercial_codigo" name="tipo_comercial_codigo" required placeholder="Ej. GAGBCW" value="<?= htmlspecialchars($c['tipo_comercial_codigo'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="matricula">Matrícula *</label>
+                            <input type="text" id="matricula" name="matricula" required placeholder="Ej. NLZ988" value="<?= htmlspecialchars($c['matricula'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="matriculacion">Matriculación *</label>
+                            <input type="date" id="matriculacion" name="matriculacion" required value="<?= htmlspecialchars($c['matriculacion'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="bastidor">Número de bastidor *</label>
+                            <input type="text" id="bastidor" name="bastidor" required placeholder="Ej. WAUZZZGA9PA022533" value="<?= htmlspecialchars($c['bastidor'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="ldm">LDM</label>
+                            <input type="text" id="ldm" name="ldm" placeholder="Opcional" value="<?= htmlspecialchars($c['ldm'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="djka">DJKA</label>
+                            <input type="text" id="djka" name="djka" placeholder="Opcional" value="<?= htmlspecialchars($c['djka'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="kilometraje">Kilometraje *</label>
+                            <input type="number" id="kilometraje" name="kilometraje" min="0" required placeholder="Ej. 44454" value="<?= htmlspecialchars((string) ($c['kilometraje'] ?? '')) ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="asesor">Asesor del servicio *</label>
+                            <input type="text" id="asesor" name="asesor" required placeholder="Ej. Vásquez, Luz Yamile" value="<?= htmlspecialchars($c['asesor'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="tipo_comercial_modelo">Tipo comercial (modelo) *</label>
+                            <input type="text" id="tipo_comercial_modelo" name="tipo_comercial_modelo" required placeholder="Ej. Q2 1,4 L4110 A8" value="<?= htmlspecialchars($c['tipo_comercial_modelo'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="ldc">LDC</label>
+                            <input type="text" id="ldc" name="ldc" placeholder="Opcional" value="<?= htmlspecialchars($c['ldc'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="vhn">VHN</label>
+                            <input type="text" id="vhn" name="vhn" placeholder="Opcional" value="<?= htmlspecialchars($c['vhn'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="ano_modelo">Año de modelos *</label>
+                            <input type="number" id="ano_modelo" name="ano_modelo" min="1950" max="2030" required placeholder="Ej. 2023" value="<?= htmlspecialchars($c['ano_modelo'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="fecha_servicio">Fecha de servicio *</label>
+                            <input type="date" id="fecha_servicio" name="fecha_servicio" required value="<?= htmlspecialchars($c['fecha_servicio'] ?? '') ?>">
+                        </div>
+                        <div class="form__group">
+                            <label for="tipo_inspeccion">Tipo de inspección *</label>
+                            <input type="text" id="tipo_inspeccion" name="tipo_inspeccion" required placeholder="Ej. Inspección con cambio de aceite" value="<?= htmlspecialchars($c['tipo_inspeccion'] ?? '') ?>">
+                        </div>
+                        <div class="form__group form__group--full">
+                            <label for="observaciones">Observaciones</label>
+                            <textarea id="observaciones" name="observaciones" rows="2" placeholder="Opcional"><?= htmlspecialchars($c['observaciones'] ?? '') ?></textarea>
                         </div>
                     </div>
                     <div class="form__actions">
@@ -131,9 +137,12 @@
                     $puntoId = (int) $punto['id'];
                     $numeroPunto = (int) $punto['numero_punto'];
                     $descripcion = (string) $punto['descripcion'];
+                    $unidadMedida = (string) ($punto['unidad_medida'] ?? 'N/A');
+                    $requiereValorMedido = $unidadMedida !== 'N/A';
+                    $esPrimerPunto = $indice === 0;
                     ?>
-                    <section class="checklist-step" data-step="<?= $puntoId ?>" data-punto-id="<?= $puntoId ?>" hidden>
-                        <h2 class="checklist-step__title">2. Punto <?= $numeroPunto ?> de <?= (int) ($totalPuntos ?? 0) ?></h2>
+                    <section class="checklist-step<?= $skipCabecera && $esPrimerPunto ? ' is-active' : '' ?>" data-step="<?= $puntoId ?>" data-punto-id="<?= $puntoId ?>">
+                        <h2 class="checklist-step__title">Punto <?= $numeroPunto ?> de <?= (int) ($totalPuntos ?? 0) ?></h2>
                         <article class="checklist-question">
                             <p class="checklist-question__text"><?= htmlspecialchars($descripcion) ?></p>
                             <div class="checklist-question__options">

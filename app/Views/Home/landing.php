@@ -21,7 +21,7 @@
             </p>
             <div class="home-hero__ctas">
                 <a href="/home/formulario" class="btn btn--primary">Solicitar cita</a>
-                <a href="#" class="btn btn--secondary">Iniciar sesión</a>
+                <a href="/login" class="btn btn--secondary">Iniciar sesión</a>
             </div>
             <div class="home-features">
                 <div class="home-feature">

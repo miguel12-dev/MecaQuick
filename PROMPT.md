@@ -59,7 +59,6 @@ Roles: admin, instructor, aprendiz
   ver estadísticas básicas
 
 ## Estilo visual
-- UI semi-oscura con acentos de color (paleta oscura tipo dashboard)
 - Responsive mobile-first
 - Sin frameworks CSS externos, solo custom CSS
 

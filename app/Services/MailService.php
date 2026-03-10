@@ -125,5 +125,62 @@ final class MailService
             return false;
         }
     }
+
+    /**
+     * Envía al usuario sus credenciales de acceso (correo y contraseña) tras ser dado de alta.
+     */
+    public function enviarCredencialesUsuario(
+        string $destinatario,
+        string $nombre,
+        string $email,
+        string $passwordPlano,
+        string $rol
+    ): bool {
+        if ($destinatario === '') {
+            return false;
+        }
+
+        try {
+            $mail = $this->buildMailer();
+        } catch (\RuntimeException) {
+            return false;
+        }
+
+        $nombreSistema = (string) (ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick');
+        $rolEtiqueta = $rol === 'instructor' ? 'Instructor' : 'Aprendiz';
+        $urlLogin = (isset($_SERVER['HTTP_HOST']) ? ('http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST']) : '') . '/login';
+
+        $mail->addAddress($destinatario, $nombre);
+        $mail->Subject = $nombreSistema . ' - Credenciales de acceso';
+
+        $body = sprintf(
+            '<h2>Credenciales de acceso</h2>
+             <p>Hola <strong>%s</strong>,</p>
+             <p>Se ha creado tu cuenta en <strong>%s</strong> con el rol de <strong>%s</strong>. Puedes acceder con los siguientes datos:</p>
+             <table style="border-collapse: collapse; margin: 1rem 0;">
+               <tr><td style="padding: 0.35rem 0.5rem 0.5rem 0; font-weight: bold;">Correo:</td><td>%s</td></tr>
+               <tr><td style="padding: 0.35rem 0.5rem 0.5rem 0; font-weight: bold;">Contraseña:</td><td><code>%s</code></td></tr>
+               <tr><td style="padding: 0.35rem 0.5rem 0.5rem 0; font-weight: bold;">URL de acceso:</td><td><a href="%s">%s</a></td></tr>
+             </table>
+             <p><strong>Recomendación:</strong> Cambia tu contraseña tras el primer acceso si el sistema lo permite.</p>
+             <p>Saludos cordiales,<br>%s</p>',
+            htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($nombreSistema, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($rolEtiqueta, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($email, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($passwordPlano, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($urlLogin, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($urlLogin, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($nombreSistema, ENT_QUOTES, 'UTF-8')
+        );
+
+        $mail->Body = $body;
+
+        try {
+            return $mail->send();
+        } catch (\Throwable) {
+            return false;
+        }
+    }
 }
 

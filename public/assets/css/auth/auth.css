@@ -1,0 +1,23 @@
+/**
+ * Página de login. Sin registro público.
+ */
+.layout--auth {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+    align-items: center;
+}
+
+.panel--auth {
+    width: 100%;
+}
+
+.form--auth .form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.form--auth .form__group {
+    margin-bottom: 0;
+}
