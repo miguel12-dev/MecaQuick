@@ -56,7 +56,13 @@
 
     const showStep = (stepIndex) => {
         steps.forEach((step, index) => {
-            step.classList.toggle("is-active", index === stepIndex);
+            const isActive = index === stepIndex;
+            step.classList.toggle("is-active", isActive);
+            if (isActive) {
+                step.removeAttribute("hidden");
+            } else {
+                step.setAttribute("hidden", "");
+            }
         });
         currentStep = stepIndex;
         hideMessage();
@@ -65,6 +71,24 @@
     const isFinalStep = () => {
         const step = steps[currentStep];
         return step instanceof HTMLElement && step.dataset.step === "final";
+    };
+
+    const validateField = (input, name) => {
+        const v = input.value.trim();
+        if (v === "") return null;
+        if (name === "placa" && !/^[A-Za-z]{3}\d{3}$/i.test(v)) {
+            return "Placa debe ser 3 letras seguidas de 3 números (ej. ABC123).";
+        }
+        if (name === "telefono") {
+            const digits = v.replace(/\D/g, "");
+            if (digits.length !== 10 || !digits.startsWith("3")) {
+                return "Teléfono debe tener 10 dígitos e iniciar por 3.";
+            }
+        }
+        if (name === "cedula_nit" && !/^\d+$/.test(v)) {
+            return "Cédula / NIT solo debe contener números.";
+        }
+        return null;
     };
 
     const validateCurrentStep = () => {
@@ -82,6 +106,12 @@
                 input.reportValidity();
                 input.focus();
                 showMessage("Complete todos los campos obligatorios antes de continuar.", true);
+                return false;
+            }
+            const fieldError = validateField(input, input.name);
+            if (fieldError) {
+                showMessage(fieldError, true);
+                input.focus();
                 return false;
             }
             if (input.type === "number" && Number(input.value) < 0) {

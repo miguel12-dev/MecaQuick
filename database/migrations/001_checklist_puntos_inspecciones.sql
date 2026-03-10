@@ -1,4 +1,4 @@
--- Migración 001: módulo checklist de mantenimiento
+-- Migración 001: módulo checklist técnico de vehículos (25 puntos)
 -- Requiere: BD creada con database/database.sql
 -- Ejecutar UNA SOLA VEZ. Si puntos_catalogo ya tiene datos, omitir el bloque INSERT final.
 
@@ -8,31 +8,24 @@ ALTER TABLE inspecciones
     MODIFY COLUMN cita_id INT NULL,
     MODIFY COLUMN aprendiz_id INT NULL;
 
--- 2. Crear tabla checklist_datos
-CREATE TABLE IF NOT EXISTS checklist_datos (
+-- 2. Crear tabla checklist_datos (formato técnico vehículos)
+DROP TABLE IF EXISTS checklist_datos;
+CREATE TABLE checklist_datos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     inspeccion_id INT NOT NULL UNIQUE,
-    numero_orden VARCHAR(40) NOT NULL,
-    tipo_comercial_codigo VARCHAR(40),
-    matricula VARCHAR(20) NOT NULL,
-    matriculacion DATE,
-    bastidor VARCHAR(40) NOT NULL,
-    ldm VARCHAR(20),
-    djka VARCHAR(20),
+    nombre_cliente VARCHAR(120) NOT NULL,
+    cedula_nit VARCHAR(20) NOT NULL,
+    telefono VARCHAR(15) NOT NULL,
+    correo VARCHAR(150) NOT NULL,
+    modelo_vehiculo VARCHAR(120) NOT NULL,
+    placa VARCHAR(10) NOT NULL,
     kilometraje INT NOT NULL DEFAULT 0,
-    asesor VARCHAR(120) NOT NULL,
-    tipo_comercial_modelo VARCHAR(120),
-    ldc VARCHAR(20),
-    vhn VARCHAR(20),
-    ano_modelo SMALLINT,
-    fecha_servicio DATE NOT NULL,
-    tipo_inspeccion VARCHAR(80),
-    km_salida INT,
-    km_llegada INT,
-    observaciones TEXT,
-    nota_mantenimiento TEXT,
-    fecha_firma_responsable DATE,
-    fecha_firma_control DATE,
+    fecha_ingreso DATE NOT NULL,
+    hora_ingreso VARCHAR(10) NOT NULL,
+    observaciones_generales TEXT,
+    firma_tecnico VARCHAR(255),
+    nombre_tecnico VARCHAR(120) NOT NULL,
+    firma_cliente VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (inspeccion_id) REFERENCES inspecciones(id) ON DELETE CASCADE
@@ -41,40 +34,44 @@ CREATE TABLE IF NOT EXISTS checklist_datos (
 -- 3. Eliminar tabla antigua si existe
 DROP TABLE IF EXISTS checklist_registros;
 
--- 4. Poblar puntos_catalogo (lista Audi mantenimiento)
--- Ejecutar solo si puntos_catalogo está vacío; si ya tiene datos, omitir este bloque.
+-- 4. Poblar puntos_catalogo (25 puntos de revisión técnica)
+-- Ejecutar solo si desea reemplazar los puntos existentes (se borran resultados previos).
+SET SESSION FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE resultados_puntos;
+TRUNCATE TABLE puntos_catalogo;
+SET SESSION FOREIGN_KEY_CHECKS = 1;
 INSERT INTO puntos_catalogo (numero_punto, categoria, descripcion, unidad_medida) VALUES
-(1, 'Preparación', 'Historial modificaciones, Mantenimiento a la milésima: consultar', 'N/A'),
-(2, 'Exterior', 'Bocina: Comprobar el funcionamiento', 'N/A'),
-(3, 'Interior', 'Cuadro de instrumentos: comprobar testigos', 'N/A'),
-(4, 'Interior', 'Iluminación de la guantera, del habitáculo y luz de lectura: comprobar funcionamiento', 'N/A'),
-(5, 'Exterior', 'Alumbrado de circulación y de marcha atrás, luces de freno, luz de posición, luz de matrícula, intermitentes e intermitentes de emergencia: comprobar funcionamiento', 'N/A'),
-(6, 'Exterior', 'Lavacristales: comprobar el campo de proyección y ajustar si es necesario', 'N/A'),
-(7, 'Exterior', 'Escobillas limpiacristales: comprobar posibles daños', 'N/A'),
-(8, 'Exterior', 'Faros: comprobar el reglaje', 'N/A'),
-(9, 'Interior', 'Filtro del habitáculo: sustituir', 'N/A'),
-(10, 'Interior', 'Cinturones de seguridad: comprobar lengüeta del cinturón, cierre del cinturón y comportamiento del bloqueo del enrollador automático del cinturón', 'N/A'),
-(11, 'Exterior', 'Carrocería: comprobar la pintura del vehículo con las puertas y capós/portón abiertos y de los bajos con respecto a daños y corrosión', 'N/A'),
-(12, 'Exterior', 'Triángulo de preseñalización: comprobar si está', 'N/A'),
-(13, 'Exterior', 'Botiquín de primeros auxilios: comprobar fecha de caducidad y anotarla', 'MM/AAAA'),
-(14, 'Exterior', 'Neumático rueda de repuesto: comprobar presión y corregir si es necesario', 'N/A'),
-(15, 'Interior', 'Luz del maletero: comprobar el funcionamiento', 'N/A'),
-(16, 'Exterior', 'Bisagras con retenedores de puerta separados: limpiar y engrasar', 'N/A'),
-(17, 'Mecánica', 'Sistema de refrigeración: comprobar el nivel de anticongelante y refrigerante, y corregir si es necesario', 'N/A'),
-(18, 'Mecánica', 'Aceite de motor: sustituir el filtro', 'N/A'),
-(19, 'Neumáticos', 'Neumáticos eje delantero: comprobar presiones y corregir si es necesario', 'N/A'),
-(20, 'Neumáticos', 'Neumáticos eje trasero: comprobar presiones de inflado y corregir si es necesario', 'N/A'),
-(21, 'Mecánica', 'Aceite de motor: vaciar', 'N/A'),
-(22, 'Neumáticos', 'Neumático delantero izquierdo: comprobar estado, sentido de giro, desgaste del dibujo y profundidad del perfil y anotar', 'mm'),
-(23, 'Neumáticos', 'Neumático trasero izquierdo: comprobar estado, sentido de giro, desgaste del dibujo y profundidad del perfil y anotar', 'mm'),
-(24, 'Neumáticos', 'Neumático trasero derecho: comprobar estado, sentido de giro, desgaste del dibujo y profundidad del perfil y anotar', 'mm'),
-(25, 'Neumáticos', 'Neumático delantero derecho: comprobar estado, sentido de giro, desgaste del dibujo y profundidad del perfil y anotar', 'mm'),
-(26, 'Frenos', 'Pastillas/zapatas de freno: comprobar el grosor', 'N/A'),
-(27, 'Mecánica', 'Motor, caja de cambios, grupo final y dirección: comprobar estanqueidad y posibles daños', 'N/A'),
-(28, 'Mecánica', 'Componentes del eje delantero y trasero: comprobar el juego, la fijación, los fuelles guardapolvo y en cuanto a daños', 'N/A'),
-(29, 'Frenos', 'Sistema de frenos: comprobar el estado de los tubos flexibles y la integridad de las caperuzas de los tornillos de purga', 'N/A'),
-(30, 'Bajos', 'Bajos del vehículo (carenados, guardabarros, largueros inferiores y tuberías): comprobar con respecto a daños y fijación correcta', 'N/A'),
-(31, 'Mecánica', 'Aceite de motor: cargar - norma del aceite VW 508 00 (0W-20) - Capacidad', 'Litros'),
-(32, 'Mecánica', 'Filtro de aire: sustituir el cartucho, limpiar la carcasa', 'N/A'),
-(33, 'Neumáticos', 'Sistema de control de la presión de los neumáticos: guardar los valores de las presiones modificados', 'N/A'),
-(34, 'Final', 'Indicador de intervalos de servicio: reiniciar la Inspección con Servicio de cambio de aceite - Recorrido de prueba: realizar', 'N/A');
+(1, 'Motor', 'Nivel y estado del aceite de motor', 'N/A'),
+(2, 'Motor', 'Filtro de aceite', 'N/A'),
+(3, 'Motor', 'Filtro de aire', 'N/A'),
+(4, 'Motor', 'Filtro de combustible', 'N/A'),
+(5, 'Motor', 'Fugas de aceite o refrigerante', 'N/A'),
+(6, 'Motor', 'Estado de correas (accesorios/distribución)', 'N/A'),
+(7, 'Motor', 'Nivel y estado del refrigerante', 'N/A'),
+(8, 'Motor', 'Funcionamiento del electroventilador', 'N/A'),
+(9, 'Eléctrico', 'Estado de la batería (voltaje y carga)', 'N/A'),
+(10, 'Eléctrico', 'Sistema de carga (alternador)', 'N/A'),
+(11, 'Eléctrico', 'Escaneo OBD (verificar DTC)', 'N/A'),
+(12, 'Eléctrico', 'Funcionamiento de luces', 'N/A'),
+(13, 'Eléctrico', 'Estado de fusibles y relés', 'N/A'),
+(14, 'Frenos', 'Espesor de pastillas de freno', 'N/A'),
+(15, 'Frenos', 'Estado de discos/campanas', 'N/A'),
+(16, 'Frenos', 'Nivel y estado del líquido de frenos', 'N/A'),
+(17, 'Frenos', 'Funcionamiento freno de estacionamiento', 'N/A'),
+(18, 'Suspensión', 'Estado de amortiguadores', 'N/A'),
+(19, 'Suspensión', 'Rótulas y terminales de dirección', 'N/A'),
+(20, 'Suspensión', 'Bujes y brazos de suspensión', 'N/A'),
+(21, 'Suspensión', 'Alineación y balanceo', 'N/A'),
+(22, 'Neumáticos', 'Estado y presión de neumáticos', 'N/A'),
+(23, 'Transmisión', 'Nivel de aceite de caja', 'N/A'),
+(24, 'Transmisión', 'Funcionamiento embrague/convertidor', 'N/A'),
+(25, 'Climatización', 'Sistema de aire acondicionado', 'N/A');
+
+-- 5. Crear tabla evidencias (referencia a resultados_puntos ya existente)
+CREATE TABLE IF NOT EXISTS evidencias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    resultado_punto_id INT NOT NULL,
+    ruta_archivo VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (resultado_punto_id) REFERENCES resultados_puntos(id) ON DELETE CASCADE
+);
