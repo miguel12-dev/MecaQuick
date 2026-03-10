@@ -36,6 +36,89 @@ final class CitaModel extends BaseModel
         );
     }
 
+    /**
+     * Citas del día actual (para recepción).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function listarCitasHoy(): array
+    {
+        $sql = <<<'SQL'
+            SELECT
+                c.id AS cita_id,
+                c.token,
+                c.estado,
+                c.observaciones_cliente,
+                f.fecha,
+                cli.id AS cliente_id,
+                cli.nombre,
+                cli.apellido,
+                cli.documento,
+                cli.telefono,
+                cli.email,
+                cli.direccion,
+                cli.ciudad,
+                v.id AS vehiculo_id,
+                v.placa,
+                v.marca,
+                v.modelo,
+                v.anio,
+                v.color,
+                v.vin,
+                v.numero_motor,
+                v.kilometraje,
+                v.fecha_venta
+            FROM citas c
+            INNER JOIN fechas_disponibles f ON f.id = c.fecha_id AND f.fecha = CURDATE()
+            INNER JOIN vehiculos v ON v.id = c.vehiculo_id
+            INNER JOIN clientes cli ON cli.id = v.cliente_id
+            WHERE c.estado IN ('pendiente','confirmada','reagendada')
+            ORDER BY c.id ASC
+        SQL;
+
+        return $this->fetchAll($sql);
+    }
+
+    /**
+     * Cita completa con cliente y vehículo (para recepción).
+     */
+    public function obtenerCompletaPorId(int $citaId): ?array
+    {
+        $sql = <<<'SQL'
+            SELECT
+                c.id AS cita_id,
+                c.token,
+                c.estado,
+                c.observaciones_cliente,
+                f.fecha,
+                cli.id AS cliente_id,
+                cli.nombre,
+                cli.apellido,
+                cli.documento,
+                cli.telefono,
+                cli.email,
+                cli.direccion,
+                cli.ciudad,
+                v.id AS vehiculo_id,
+                v.placa,
+                v.marca,
+                v.modelo,
+                v.anio,
+                v.color,
+                v.vin,
+                v.numero_motor,
+                v.kilometraje,
+                v.fecha_venta
+            FROM citas c
+            INNER JOIN fechas_disponibles f ON f.id = c.fecha_id
+            INNER JOIN vehiculos v ON v.id = c.vehiculo_id
+            INNER JOIN clientes cli ON cli.id = v.cliente_id
+            WHERE c.id = :id
+        SQL;
+
+        return $this->fetchOne($sql, [':id' => $citaId]);
+    }
+
     public function obtenerPorToken(string $token): ?array
     {
         $sql = <<<'SQL'

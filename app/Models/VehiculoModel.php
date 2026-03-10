@@ -53,5 +53,24 @@ final class VehiculoModel extends BaseModel
 
         return $this->crear($placa, $marca, $modelo, $anio, $clienteId);
     }
+
+    public function actualizarDatosRecepcion(
+        int $id,
+        ?string $vin,
+        ?string $numeroMotor,
+        ?int $kilometraje,
+        ?string $fechaVenta
+    ): void {
+        $this->executeStatement(
+            'UPDATE vehiculos SET vin = :vin, numero_motor = :numero_motor, kilometraje = :kilometraje, fecha_venta = :fecha_venta WHERE id = :id',
+            [
+                ':vin' => $vin,
+                ':numero_motor' => $numeroMotor,
+                ':kilometraje' => $kilometraje,
+                ':fecha_venta' => $fechaVenta,
+                ':id' => $id,
+            ]
+        );
+    }
 }
 

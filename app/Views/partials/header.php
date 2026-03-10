@@ -8,6 +8,7 @@ $authUsuario = \App\Services\AuthService::getLoggedUser();
             <span class="header__title"><?= htmlspecialchars('MecaQuick') ?></span>
         </a>
         <nav class="header__nav">
+            <a href="/recepcion" class="btn btn--secondary header__btn">Recepción</a>
             <?php if ($authUsuario !== null && ($authUsuario['rol'] ?? '') === 'aprendiz'): ?>
                 <a href="/mantenimiento" class="btn btn--secondary header__btn">Módulo mantenimiento</a>
             <?php else: ?>

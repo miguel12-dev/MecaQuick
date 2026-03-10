@@ -53,5 +53,13 @@ final class ClienteModel extends BaseModel
 
         return $this->crear($nombre, $apellido, $documento, $telefono, $email);
     }
+
+    public function actualizarDireccionCiudad(int $id, ?string $direccion, ?string $ciudad): void
+    {
+        $this->executeStatement(
+            'UPDATE clientes SET direccion = :direccion, ciudad = :ciudad WHERE id = :id',
+            [':direccion' => $direccion, ':ciudad' => $ciudad, ':id' => $id]
+        );
+    }
 }
 

@@ -143,24 +143,25 @@ final class ChecklistController extends BaseController
                 'titulo' => 'MecaQuick - Checklist técnico',
                 'puntos' => [],
                 'totalPuntos' => 0,
+                'tokenInicial' => '',
                 'errorDb' => 'Configure la base de datos: cree el archivo .env con DB_HOST, DB_NAME, DB_USER, DB_PASS y ejecute database/database.sql.',
             ]);
             return;
         }
 
-        $tokenInicial = isset($_GET['token']) ? trim((string) $_GET['token']) : '';
+        $tokenInicial = trim((string) ($_GET['token'] ?? ''));
         $usuario = AuthService::getLoggedUser();
         $redirectAprendizAlFinalizar = $usuario !== null && ($usuario['rol'] ?? '') === 'aprendiz';
 
-        $cabeceraPrecargada = null;
+        $datosPrecargados = [];
         $skipPasoCabecera = false;
         if ($tokenInicial !== '') {
             $inspeccionModel = new InspeccionModel();
             $inspeccion = $inspeccionModel->obtenerPorToken($tokenInicial);
             if ($inspeccion !== null) {
                 $checklistDatosModel = new ChecklistDatosModel();
-                $cabeceraPrecargada = $checklistDatosModel->obtenerPorInspeccionId((int) $inspeccion['id']);
-                $skipPasoCabecera = $cabeceraPrecargada !== null;
+                $datosPrecargados = $checklistDatosModel->obtenerPorInspeccionId((int) $inspeccion['id']) ?? [];
+                $skipPasoCabecera = $datosPrecargados !== [];
             }
         }
 
@@ -170,7 +171,7 @@ final class ChecklistController extends BaseController
             'totalPuntos' => count($puntos),
             'tokenInicial' => $tokenInicial,
             'redirectAprendizAlFinalizar' => $redirectAprendizAlFinalizar,
-            'cabeceraPrecargada' => $cabeceraPrecargada,
+            'datosPrecargados' => $datosPrecargados,
             'skipPasoCabecera' => $skipPasoCabecera,
         ]);
     }

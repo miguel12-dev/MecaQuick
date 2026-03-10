@@ -51,6 +51,34 @@ final class InspeccionModel extends BaseModel
         return (int) $this->lastInsertId();
     }
 
+    /**
+     * Crear inspección desde cita (flujo recepción → checklist).
+     * Si ya existe, devuelve la existente.
+     */
+    public function crearDesdeCita(int $citaId): array
+    {
+        $existente = $this->obtenerPorCitaId($citaId);
+        if ($existente !== null) {
+            return ['id' => (int) $existente['id'], 'token' => (string) $existente['token']];
+        }
+        $token = bin2hex(random_bytes(32));
+        $this->executeStatement(
+            'INSERT INTO inspecciones (token, cita_id, aprendiz_id, estado, porcentaje_avance)
+             VALUES (:token, :cita_id, NULL, :estado, 0)',
+            [':token' => $token, ':cita_id' => $citaId, ':estado' => 'en_proceso']
+        );
+        $id = (int) $this->lastInsertId();
+        return ['id' => $id, 'token' => $token];
+    }
+
+    public function obtenerPorCitaId(int $citaId): ?array
+    {
+        return $this->fetchOne(
+            'SELECT id, token, estado FROM inspecciones WHERE cita_id = :id LIMIT 1',
+            [':id' => $citaId]
+        );
+    }
+
     public function actualizarAvance(int $inspeccionId, int $porcentajeAvance, bool $finalizada): void
     {
         $estado = $finalizada ? 'finalizada' : 'en_proceso';
