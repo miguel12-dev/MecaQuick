@@ -11,6 +11,14 @@ use Core\BaseModel;
  */
 final class ChecklistDatosModel extends BaseModel
 {
+    public function obtenerPorInspeccionId(int $inspeccionId): ?array
+    {
+        return $this->fetchOne(
+            'SELECT * FROM checklist_datos WHERE inspeccion_id = :id LIMIT 1',
+            [':id' => $inspeccionId]
+        );
+    }
+
     /**
      * Obtiene los datos de cabecera por inspección (para precargar el formulario).
      *

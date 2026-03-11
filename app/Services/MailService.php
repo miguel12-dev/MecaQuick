@@ -37,7 +37,11 @@ final class MailService
         $port   = (int) (ConfiguracionModel::get('smtp_port') ?? 587);
         $user   = (string) (ConfiguracionModel::get('smtp_user') ?? '');
         $pass   = (string) (ConfiguracionModel::get('smtp_pass') ?? '');
-        $from   = (string) (ConfiguracionModel::get('smtp_from') ?? $user);
+        $from   = trim((string) (ConfiguracionModel::get('smtp_from') ?? $user));
+
+        if ($from === '' && $user === '') {
+            throw new \RuntimeException('Configuración SMTP incompleta: smtp_from y smtp_user están vacíos.');
+        }
 
         $mail->Host       = $host;
         $mail->Port       = $port;
@@ -53,7 +57,8 @@ final class MailService
             $mail->SMTPSecure = 'tls';
         }
 
-        $mail->setFrom($from !== '' ? $from : $user, (string) (ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick'));
+        $fromEmail = $from !== '' ? $from : $user;
+        $mail->setFrom($fromEmail, (string) (ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick'));
 
         return $mail;
     }
@@ -66,8 +71,8 @@ final class MailService
 
         try {
             $mail = $this->buildMailer();
-        } catch (\RuntimeException) {
-            // Si PHPMailer no está disponible, se omite el envío sin romper el flujo.
+        } catch (\Throwable) {
+            // SMTP no configurado o PHPMailer falla: se omite el envío sin romper el flujo.
             return false;
         }
 

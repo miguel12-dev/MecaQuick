@@ -1,6 +1,6 @@
 -- ===================================
 -- MecaQuick - Schema base
--- Instalación nueva: ejecutar este archivo y luego migrations/001_checklist_puntos_inspecciones.sql
+-- Instalación nueva: ejecutar este archivo, luego migrations/001 y migrations/002
 -- ===================================
 
 -- ===================================

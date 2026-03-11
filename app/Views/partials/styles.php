@@ -15,6 +15,7 @@ $stylesheets = [
     'footer/footer.css',
     'home/home.css',
     'checklist/checklist.css',
+    'recepcion/recepcion.css',
 ];
 foreach ($stylesheets as $file) {
     echo '<link rel="stylesheet" href="' . htmlspecialchars($cssBase . $file) . '">' . "\n";
