@@ -50,6 +50,7 @@
                                 <input type="text" id="nombre" name="nombre" required placeholder="Ej. Juan"
                                        value="<?= htmlspecialchars($old['nombre'] ?? '') ?>">
                             </div>
+                            <span id="error-nombre" class="form__error"></span>
                         </div>
                         <div class="form__group">
                             <label for="apellido">Apellido *</label>
@@ -58,6 +59,7 @@
                                 <input type="text" id="apellido" name="apellido" required placeholder="Ej. Pérez"
                                        value="<?= htmlspecialchars($old['apellido'] ?? '') ?>">
                             </div>
+                            <span id="error-apellido" class="form__error"></span>
                         </div>
                         <div class="form__group form__group--full">
                             <label for="documento">Documento *</label>
@@ -66,6 +68,7 @@
                                 <input type="text" id="documento" name="documento" required placeholder="Número de documento"
                                        value="<?= htmlspecialchars($old['documento'] ?? '') ?>">
                             </div>
+                            <span id="error-documento" class="form__error"></span>
                         </div>
                         <div class="form__group">
                             <label for="telefono">Teléfono</label>
@@ -74,6 +77,7 @@
                                 <input type="tel" id="telefono" name="telefono" placeholder="Opcional"
                                        value="<?= htmlspecialchars($old['telefono'] ?? '') ?>">
                             </div>
+                            <span id="error-telefono" class="form__error"></span>
                         </div>
                         <div class="form__group form__group--full">
                             <label for="email">Correo electrónico *</label>
@@ -82,6 +86,7 @@
                                 <input type="email" id="email" name="email" required placeholder="correo@ejemplo.com"
                                        value="<?= htmlspecialchars($old['email'] ?? '') ?>">
                             </div>
+                            <span id="error-email" class="form__error"></span>
                         </div>
                     </div>
                 </div>
@@ -99,6 +104,7 @@
                                 <input type="text" id="placa" name="placa" maxlength="10" required placeholder="Ej. ABC123"
                                        value="<?= htmlspecialchars($old['placa'] ?? '') ?>">
                             </div>
+                            <span id="error-placa" class="form__error"></span>
                         </div>
                         <div class="form__group">
                             <label for="marca">Marca *</label>
@@ -107,6 +113,7 @@
                                 <input type="text" id="marca" name="marca" required placeholder="Ej. Chevrolet, Mazda"
                                        value="<?= htmlspecialchars($old['marca'] ?? '') ?>">
                             </div>
+                            <span id="error-marca" class="form__error"></span>
                         </div>
                         <div class="form__group">
                             <label for="modelo">Modelo</label>
@@ -172,5 +179,83 @@
     <footer class="footer">
         <span>MecaQuick &mdash; Sistema de gestión de revisión mecánica</span>
     </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.form');
+        const inputs = {
+            nombre: document.getElementById('nombre'),
+            apellido: document.getElementById('apellido'),
+            documento: document.getElementById('documento'),
+            telefono: document.getElementById('telefono'),
+            email: document.getElementById('email'),
+            placa: document.getElementById('placa'),
+            marca: document.getElementById('marca')
+        };
+
+        const validations = {
+            nombre: (val) => val.trim().length > 0 || "El nombre es obligatorio",
+            apellido: (val) => val.trim().length > 0 || "El apellido es obligatorio",
+            documento: (val) => /^\d{6,10}$/.test(val) || "El documento debe tener entre 6 y 10 dígitos (solo números)",
+            telefono: (val) => /^3\d{9}$/.test(val) || "El teléfono debe tener 10 dígitos y empezar por 3",
+            email: (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || "Ingresa un correo electrónico válido",
+            placa: (val) => /^[a-zA-Z]{3}\d{3}$/.test(val) || "La placa debe tener 3 letras seguidas de 3 números (Ej: ABC123)",
+            marca: (val) => val.trim().length > 0 || "La marca es obligatoria"
+        };
+
+        // Strict numeric-only restriction for document and phone
+        ['documento', 'telefono'].forEach(id => {
+            const input = document.getElementById(id);
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        });
+
+        function validateField(name) {
+            const input = inputs[name];
+            const value = input.value;
+            const result = validations[name](value);
+            const errorSpan = document.getElementById(`error-${name}`);
+            const wrap = input.closest('.input-wrap');
+
+            if (result === true) {
+                errorSpan.textContent = '';
+                errorSpan.style.display = 'none';
+                wrap.classList.remove('input-wrap--invalid');
+                return true;
+            } else {
+                errorSpan.textContent = result;
+                errorSpan.style.display = 'block';
+                wrap.classList.add('input-wrap--invalid');
+                return false;
+            }
+        }
+
+        // Real-time validation
+        Object.keys(inputs).forEach(name => {
+            inputs[name].addEventListener('input', () => validateField(name));
+            inputs[name].addEventListener('blur', () => validateField(name));
+        });
+
+        // Form submit validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            Object.keys(inputs).forEach(name => {
+                if (!validateField(name)) {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                // Scroll to first error
+                const firstError = document.querySelector('.form__error[style*="display: block"]');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+    });
+    </script>
 </body>
 </html>

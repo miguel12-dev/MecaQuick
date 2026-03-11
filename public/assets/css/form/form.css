@@ -41,6 +41,21 @@
     color: var(--text-muted);
 }
 
+.form__error {
+    font-size: 0.75rem;
+    color: #e53e3e;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.input-wrap--invalid {
+    border-color: #e53e3e !important;
+}
+
+.input-wrap--invalid .input-wrap__icon {
+    color: #e53e3e;
+}
+
 .form__actions {
     margin-top: 0.5rem;
     display: flex;
