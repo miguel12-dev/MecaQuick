@@ -5,53 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($titulo ?? 'Iniciar sesión') ?></title>
     <link rel="icon" type="image/png" href="/assets/img/logo_sena.png">
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <?php require dirname(__DIR__, 2) . '/Views/partials/styles.php'; ?>
+    <link rel="stylesheet" href="/assets/css/auth/auth.css">
 </head>
-<body class="page">
-    <header class="header">
-        <div class="header__inner">
-            <a href="/" class="header__brand" aria-label="<?= htmlspecialchars($nombreSistema ?? 'MecaQuick') ?> - Inicio">
-                <img src="/assets/img/logo_sena.png" alt="MecaQuick" class="header__logo-img" width="40" height="40">
-                <span class="header__title"><?= htmlspecialchars($nombreSistema ?? 'MecaQuick') ?></span>
-            </a>
-            <nav class="header__nav">
-                <a href="/" class="btn btn--secondary header__btn">Inicio</a>
-                <a href="/home/formulario" class="btn btn--primary header__cta">Solicitar cita</a>
-            </nav>
-        </div>
-    </header>
+<body class="page page--auth">
+    <div class="auth-container">
+        <main class="auth-card">
+            <header class="auth-card__header">
+                <a href="/" class="auth-card__logo" aria-label="Volver al inicio">
+                    <img src="/assets/img/logo_sena.png" alt="SENA Logo" class="auth-card__logo-img">
+                </a>
+                <h1 class="auth-card__title">MecaQuick</h1>
+                <p class="auth-card__subtitle">Gestión de revisión mecánica</p>
+            </header>
 
-    <main class="layout layout--auth">
-        <section class="panel panel--auth">
-            <h1 class="panel__title">Iniciar sesión</h1>
-            <p class="panel__intro">Acceso para usuarios del sistema (admin, instructor, aprendiz).</p>
+            <section class="auth-card__body">
+                <h2 class="auth-card__heading">Iniciar sesión</h2>
+                <p class="auth-card__intro">Ingresa tus credenciales para acceder al panel de control.</p>
 
-            <?php if (!empty($error)): ?>
-                <div class="alert alert--error" role="alert">
-                    <?= htmlspecialchars($error) ?>
-                </div>
-            <?php endif; ?>
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert--error auth-card__alert" role="alert">
+                        <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span><?= htmlspecialchars($error) ?></span>
+                    </div>
+                <?php endif; ?>
 
-            <form action="/login" method="post" class="form form--auth">
-                <div class="form__group">
-                    <label for="email">Correo electrónico</label>
-                    <input type="email" id="email" name="email" required autocomplete="email"
-                           value="<?= htmlspecialchars($email ?? '') ?>">
-                </div>
-                <div class="form__group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" required autocomplete="current-password">
-                </div>
-                <div class="form__actions">
-                    <button type="submit" class="btn btn--primary">Entrar</button>
-                    <a href="/" class="btn btn--secondary">Volver al inicio</a>
-                </div>
-            </form>
-        </section>
-    </main>
+                <form action="/login" method="post" class="form auth-form">
+                    <div class="form__group">
+                        <label for="email" class="form__label">Correo electrónico</label>
+                        <div class="form__input-wrapper">
+                            <input type="email" id="email" name="email" class="form__input" required autocomplete="email"
+                                   placeholder="ejemplo@sena.edu.co" value="<?= htmlspecialchars($email ?? '') ?>">
+                        </div>
+                    </div>
+                    <div class="form__group">
+                        <label for="password" class="form__label">Contraseña</label>
+                        <div class="form__input-wrapper">
+                            <input type="password" id="password" name="password" class="form__input" required autocomplete="current-password"
+                                   placeholder="••••••••">
+                        </div>
+                    </div>
+                    <div class="form__actions auth-form__actions">
+                        <button type="submit" class="btn btn--primary">Entrar al sistema</button>
+                    </div>
+                </form>
+            </section>
 
-    <footer class="footer">
-        <span>MecaQuick &mdash; Sistema de gestión de revisión mecánica</span>
-    </footer>
+            <footer class="auth-card__footer">
+                <a href="/" class="btn btn--secondary header__btn auth-card__back-link">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Volver al inicio
+                </a>
+            </footer>
+        </main>
+    </div>
 </body>
 </html>
