@@ -12,7 +12,7 @@
 
     <main class="layout layout--usuarios">
         <section class="panel panel--usuarios">
-            <h1 class="panel__title"><?= ($rol ?? '') === 'instructor' ? 'Nuevo instructor' : 'Nuevo aprendiz' ?></h1>
+            <h1 class="panel__title"><?= ($rol ?? '') === 'instructor' ? 'Nuevo instructor' : (($rol ?? '') === 'asesor_servicio' ? 'Nuevo asesor' : 'Nuevo aprendiz') ?></h1>
             <p class="panel__intro">Las credenciales (correo y contraseña) se enviarán al email indicado.</p>
 
             <?php if (!empty($error)): ?>
@@ -38,7 +38,14 @@
                 </div>
                 <div class="form__actions">
                     <button type="submit" class="btn btn--primary">Crear y enviar credenciales</button>
-                    <a href="<?= ($rol ?? '') === 'instructor' ? '/usuarios/instructores' : '/usuarios/aprendices' ?>" class="btn btn--secondary">Cancelar</a>
+                    <?php
+                    $cancelUrl = match ($rol ?? '') {
+                        'instructor' => '/usuarios/instructores',
+                        'asesor_servicio' => '/usuarios/asesores',
+                        default => '/usuarios/aprendices',
+                    };
+                    ?>
+                    <a href="<?= $cancelUrl ?>" class="btn btn--secondary">Cancelar</a>
                 </div>
             </form>
         </section>

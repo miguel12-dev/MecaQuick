@@ -152,7 +152,11 @@ final class MailService
         }
 
         $nombreSistema = (string) (ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick');
-        $rolEtiqueta = $rol === 'instructor' ? 'Instructor' : 'Aprendiz';
+        $rolEtiqueta = match ($rol) {
+            'instructor' => 'Instructor',
+            'asesor_servicio' => 'Asesor de servicio',
+            default => 'Aprendiz',
+        };
         $urlLogin = (isset($_SERVER['HTTP_HOST']) ? ('http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 's' : '') . '://' . $_SERVER['HTTP_HOST']) : '') . '/login';
 
         $mail->addAddress($destinatario, $nombre);

@@ -8,7 +8,7 @@ use Core\BaseModel;
 
 /**
  * Acceso a usuarios del sistema (tabla usuarios_sistema).
- * Roles: admin, instructor, aprendiz. El registro se realiza desde la aplicación, no desde formulario público.
+ * v1.0: rol_id FK a roles_usuario. Roles: admin, instructor, aprendiz, asesor_servicio.
  */
 final class UsuarioSistemaModel extends BaseModel
 {
@@ -16,14 +16,17 @@ final class UsuarioSistemaModel extends BaseModel
 
     /**
      * Busca un usuario por email. Solo devuelve activos.
+     * Incluye rol (nombre) desde roles_usuario.
      *
      * @return array{id: int, nombre: string, email: string, password_hash: string, rol: string, activo: int}|null
      */
     public function findByEmail(string $email): ?array
     {
         $fila = $this->fetchOne(
-            'SELECT id, nombre, email, password_hash, rol, activo FROM ' . self::TABLE .
-            ' WHERE email = :email AND activo = 1 LIMIT 1',
+            'SELECT u.id, u.nombre, u.email, u.password_hash, u.activo, r.nombre AS rol
+             FROM ' . self::TABLE . ' u
+             INNER JOIN roles_usuario r ON r.id = u.rol_id
+             WHERE u.email = :email AND u.activo = 1 LIMIT 1',
             [':email' => $email]
         );
 
@@ -44,7 +47,10 @@ final class UsuarioSistemaModel extends BaseModel
     public function findById(int $id): ?array
     {
         $fila = $this->fetchOne(
-            'SELECT id, nombre, email, rol FROM ' . self::TABLE . ' WHERE id = :id AND activo = 1 LIMIT 1',
+            'SELECT u.id, u.nombre, u.email, r.nombre AS rol
+             FROM ' . self::TABLE . ' u
+             INNER JOIN roles_usuario r ON r.id = u.rol_id
+             WHERE u.id = :id AND u.activo = 1 LIMIT 1',
             [':id' => $id]
         );
 
@@ -57,20 +63,34 @@ final class UsuarioSistemaModel extends BaseModel
     }
 
     /**
-     * Lista usuarios por rol (admin, instructor, aprendiz). Incluye inactivos para gestión.
+     * Obtiene rol_id por nombre de rol.
+     */
+    public function obtenerRolIdPorNombre(string $rol): ?int
+    {
+        $fila = $this->fetchOne(
+            'SELECT id FROM roles_usuario WHERE nombre = :rol LIMIT 1',
+            [':rol' => $rol]
+        );
+        return $fila !== null ? (int) $fila['id'] : null;
+    }
+
+    /**
+     * Lista usuarios por rol (admin, instructor, aprendiz, asesor_servicio).
      *
      * @return array<int, array{id: int, nombre: string, email: string, rol: string, activo: int, created_at: string}>
      */
     public function listarPorRol(string $rol): array
     {
-        $rolesPermitidos = ['admin', 'instructor', 'aprendiz'];
+        $rolesPermitidos = ['admin', 'instructor', 'aprendiz', 'asesor_servicio'];
         if (!in_array($rol, $rolesPermitidos, true)) {
             return [];
         }
 
         $filas = $this->fetchAll(
-            'SELECT id, nombre, email, rol, activo, created_at FROM ' . self::TABLE .
-            ' WHERE rol = :rol ORDER BY nombre ASC',
+            'SELECT u.id, u.nombre, u.email, u.activo, u.created_at, r.nombre AS rol
+             FROM ' . self::TABLE . ' u
+             INNER JOIN roles_usuario r ON r.id = u.rol_id
+             WHERE r.nombre = :rol ORDER BY u.nombre ASC',
             [':rol' => $rol]
         );
 
@@ -82,19 +102,24 @@ final class UsuarioSistemaModel extends BaseModel
     }
 
     /**
-     * Crea un usuario desde la aplicación (admin/script). No hay registro público.
-     * Rol: admin | instructor | aprendiz.
+     * Crea un usuario desde la aplicación (admin/script).
+     * Rol: admin | instructor | aprendiz | asesor_servicio.
      */
     public function crear(string $nombre, string $email, string $passwordPlano, string $rol): int
     {
+        $rolId = $this->obtenerRolIdPorNombre($rol);
+        if ($rolId === null) {
+            throw new \InvalidArgumentException("Rol inválido: $rol");
+        }
+
         $hash = password_hash($passwordPlano, PASSWORD_DEFAULT);
         $this->executeStatement(
-            'INSERT INTO ' . self::TABLE . ' (nombre, email, password_hash, rol) VALUES (:nombre, :email, :hash, :rol)',
+            'INSERT INTO ' . self::TABLE . ' (nombre, email, password_hash, rol_id) VALUES (:nombre, :email, :hash, :rol_id)',
             [
                 ':nombre' => $nombre,
                 ':email'  => $email,
                 ':hash'   => $hash,
-                ':rol'    => $rol,
+                ':rol_id' => $rolId,
             ]
         );
         return (int) $this->db->lastInsertId();

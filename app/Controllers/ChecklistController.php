@@ -131,10 +131,11 @@ final class ChecklistController extends BaseController
     }
 
     /**
-     * Formulario público del checklist para pruebas.
+     * Formulario del checklist técnico. Requiere mecánico o mecánico líder.
      */
     public function index(): void
     {
+        AuthService::requireMecanicoOrLider();
         try {
             $puntosModel = new PuntosCatalogoModel();
             $puntos = $puntosModel->listarActivos();
@@ -181,6 +182,7 @@ final class ChecklistController extends BaseController
      */
     public function guardarPaso(): void
     {
+        AuthService::requireMecanicoOrLider();
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             $this->json(['ok' => false, 'message' => 'Método no permitido.'], 405);
         }
