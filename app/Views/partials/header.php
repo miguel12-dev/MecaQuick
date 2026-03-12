@@ -25,7 +25,6 @@ $puedeVerVehiculo = \App\Services\AuthService::puedeVerModuloVehiculo();
                     <a href="/citas" class="btn btn--secondary header__btn">Todas las citas</a>
                     <a href="/usuarios/aprendices" class="btn btn--secondary header__btn">Gestión Aprendices</a>
                     <a href="/usuarios/instructores" class="btn btn--secondary header__btn">Gestión Instructores</a>
-                    <a href="/usuarios/asesores" class="btn btn--secondary header__btn">Gestión Asesores</a>
                 <?php endif; ?>
                 <a href="/logout" class="btn btn--secondary header__btn">Cerrar sesión</a>
             <?php else: ?>

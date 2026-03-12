@@ -11,7 +11,7 @@ use App\Services\AuthService;
 use App\Services\MailService;
 
 /**
- * Gestión de usuarios: solo dos apartados (Gestión Instructores y Gestión Aprendices). Solo admin.
+ * Gestión de usuarios: gestión de instructores y aprendices. Solo admin.
  * Rutas: /usuarios/instructores, /usuarios/aprendices, /usuarios/crear (con ?rol=instructor|aprendiz).
  */
 class UsuariosController extends BaseController
@@ -62,24 +62,6 @@ class UsuariosController extends BaseController
     }
 
     /**
-     * Gestión Asesores de servicio: listado y botón para crear.
-     */
-    public function asesores(): void
-    {
-        AuthService::requireAdmin();
-
-        $model = new UsuarioSistemaModel();
-        $lista = $model->listarPorRol('asesor_servicio');
-        $nombreSistema = ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick';
-
-        $this->view('Usuarios.asesores', [
-            'titulo'        => $nombreSistema . ' - Gestión Asesores',
-            'nombreSistema' => $nombreSistema,
-            'usuarios'      => $lista,
-        ]);
-    }
-
-    /**
      * GET: formulario crear (rol fijo por ?rol=instructor|aprendiz). POST: crear y enviar credenciales por correo.
      */
     public function crear(): void
@@ -88,7 +70,7 @@ class UsuariosController extends BaseController
 
         $nombreSistema = ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick';
         $rol = $_GET['rol'] ?? null;
-        if (in_array($rol, ['instructor', 'aprendiz', 'asesor_servicio'], true)) {
+        if (in_array($rol, ['instructor', 'aprendiz'], true)) {
             // ok
         } else {
             $rol = null;
@@ -101,7 +83,7 @@ class UsuariosController extends BaseController
 
         if (($rol ?? '') === '') {
             $rol = trim((string) ($_POST['rol'] ?? ''));
-            if (!in_array($rol, ['instructor', 'aprendiz', 'asesor_servicio'], true)) {
+            if (!in_array($rol, ['instructor', 'aprendiz'], true)) {
                 $rol = 'aprendiz';
             }
         }
@@ -111,7 +93,7 @@ class UsuariosController extends BaseController
             return;
         }
 
-        $titulos = ['instructor' => 'Nuevo instructor', 'aprendiz' => 'Nuevo aprendiz', 'asesor_servicio' => 'Nuevo asesor'];
+        $titulos = ['instructor' => 'Nuevo instructor', 'aprendiz' => 'Nuevo aprendiz'];
         $tituloCrear = $titulos[$rol] ?? 'Nuevo usuario';
         $this->view('Usuarios.crear', [
             'titulo'        => $nombreSistema . ' - ' . $tituloCrear,
@@ -172,7 +154,7 @@ class UsuariosController extends BaseController
         $mailService = new MailService();
         $mailService->enviarCredencialesUsuario($email, $nombre, $email, $password, $rol);
 
-        $rutas = ['instructor' => '/usuarios/instructores', 'aprendiz' => '/usuarios/aprendices', 'asesor_servicio' => '/usuarios/asesores'];
+        $rutas = ['instructor' => '/usuarios/instructores', 'aprendiz' => '/usuarios/aprendices'];
         $rutaListado = $rutas[$rol] ?? '/usuarios/instructores';
         $this->redirect($rutaListado);
     }

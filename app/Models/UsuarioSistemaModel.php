@@ -75,13 +75,13 @@ final class UsuarioSistemaModel extends BaseModel
     }
 
     /**
-     * Lista usuarios por rol (admin, instructor, aprendiz, asesor_servicio).
+     * Lista usuarios por rol (admin, instructor, aprendiz).
      *
      * @return array<int, array{id: int, nombre: string, email: string, rol: string, activo: int, created_at: string}>
      */
     public function listarPorRol(string $rol): array
     {
-        $rolesPermitidos = ['admin', 'instructor', 'aprendiz', 'asesor_servicio'];
+        $rolesPermitidos = ['admin', 'instructor', 'aprendiz'];
         if (!in_array($rol, $rolesPermitidos, true)) {
             return [];
         }
@@ -103,7 +103,7 @@ final class UsuarioSistemaModel extends BaseModel
 
     /**
      * Crea un usuario desde la aplicación (admin/script).
-     * Rol: admin | instructor | aprendiz | asesor_servicio.
+     * Rol: admin | instructor | aprendiz.
      */
     public function crear(string $nombre, string $email, string $passwordPlano, string $rol): int
     {
