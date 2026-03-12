@@ -8,7 +8,7 @@ use Core\BaseModel;
 
 /**
  * Resultados por punto de inspección (resultados_puntos).
- * Mapeo: OK/realizado=bueno, No OK=malo, Subsanada=regular.
+ * v1.0: estado_id FK a estados_punto. Mapeo: OK/realizado=bueno, No OK=malo, Subsanada=regular.
  */
 final class ResultadosPuntosModel extends BaseModel
 {
@@ -23,6 +23,21 @@ final class ResultadosPuntosModel extends BaseModel
         'subsanado' => 'regular',
     ];
 
+    /** @var array<string, int>|null */
+    private static ?array $estadoIds = null;
+
+    private function obtenerEstadoId(string $nombre): int
+    {
+        if (self::$estadoIds === null) {
+            $rows = $this->fetchAll('SELECT id, nombre FROM estados_punto');
+            self::$estadoIds = [];
+            foreach ($rows as $r) {
+                self::$estadoIds[(string) $r['nombre']] = (int) $r['id'];
+            }
+        }
+        return self::$estadoIds[$nombre] ?? self::$estadoIds['bueno'] ?? 1;
+    }
+
     /**
      * Guarda o actualiza el resultado de un punto.
      */
@@ -34,20 +49,21 @@ final class ResultadosPuntosModel extends BaseModel
         ?string $observacion = null
     ): void {
         $estadoNormalizado = self::MAPEO_ESTADO[strtolower($estado)] ?? 'bueno';
+        $estadoId = $this->obtenerEstadoId($estadoNormalizado);
 
         $this->executeStatement(
-            'INSERT INTO resultados_puntos (inspeccion_id, punto_id, valor_medido, estado, observacion)
-             VALUES (:inspeccion_id, :punto_id, :valor_medido, :estado, :observacion)
+            'INSERT INTO resultados_puntos (inspeccion_id, punto_id, valor_medido, estado_id, observacion)
+             VALUES (:inspeccion_id, :punto_id, :valor_medido, :estado_id, :observacion)
              ON DUPLICATE KEY UPDATE
                 valor_medido = VALUES(valor_medido),
-                estado = VALUES(estado),
+                estado_id = VALUES(estado_id),
                 observacion = VALUES(observacion),
                 registrado_at = CURRENT_TIMESTAMP',
             [
                 ':inspeccion_id' => $inspeccionId,
                 ':punto_id' => $puntoId,
                 ':valor_medido' => $valorMedido,
-                ':estado' => $estadoNormalizado,
+                ':estado_id' => $estadoId,
                 ':observacion' => $observacion,
             ]
         );
@@ -57,7 +73,6 @@ final class ResultadosPuntosModel extends BaseModel
      * Guarda múltiples resultados en batch.
      *
      * @param array<int, array{estado: string, valor_medido?: string, observacion?: string}> $resultados
-     *   clave = punto_id
      */
     public function guardarBatch(int $inspeccionId, array $resultados): void
     {

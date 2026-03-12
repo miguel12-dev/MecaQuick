@@ -43,6 +43,7 @@
 
             <div class="usuarios__links">
                 <a href="/usuarios/aprendices" class="btn btn--secondary">Gestión Aprendices</a>
+                <a href="/usuarios/asesores" class="btn btn--secondary">Gestión Asesores</a>
                 <a href="/dashboard" class="btn btn--secondary">Volver al panel</a>
             </div>
         </section>

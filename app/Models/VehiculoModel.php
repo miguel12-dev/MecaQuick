@@ -16,6 +16,9 @@ final class VehiculoModel extends BaseModel
         );
     }
 
+    /**
+     * v1.0: tipo_vehiculo_id por defecto 1 (automovil).
+     */
     public function crear(
         string $placa,
         string $marca,
@@ -24,8 +27,8 @@ final class VehiculoModel extends BaseModel
         int $clienteId
     ): int {
         $this->executeStatement(
-            'INSERT INTO vehiculos (placa, marca, modelo, anio, cliente_id)
-             VALUES (:placa, :marca, :modelo, :anio, :cliente_id)',
+            'INSERT INTO vehiculos (placa, marca, modelo, anio, cliente_id, tipo_vehiculo_id)
+             VALUES (:placa, :marca, :modelo, :anio, :cliente_id, 1)',
             [
                 ':placa'      => $placa,
                 ':marca'      => $marca,
@@ -54,6 +57,10 @@ final class VehiculoModel extends BaseModel
         return $this->crear($placa, $marca, $modelo, $anio, $clienteId);
     }
 
+    /**
+     * Actualiza datos de recepción. v1.0: vehiculos no tiene kilometraje ni fecha_venta.
+     * Kilometraje se guarda en recepciones_orden_trabajo.kilometros_entrada.
+     */
     public function actualizarDatosRecepcion(
         int $id,
         ?string $vin,
@@ -62,12 +69,10 @@ final class VehiculoModel extends BaseModel
         ?string $fechaVenta
     ): void {
         $this->executeStatement(
-            'UPDATE vehiculos SET vin = :vin, numero_motor = :numero_motor, kilometraje = :kilometraje, fecha_venta = :fecha_venta WHERE id = :id',
+            'UPDATE vehiculos SET vin = :vin, numero_motor = :numero_motor WHERE id = :id',
             [
                 ':vin' => $vin,
                 ':numero_motor' => $numeroMotor,
-                ':kilometraje' => $kilometraje,
-                ':fecha_venta' => $fechaVenta,
                 ':id' => $id,
             ]
         );

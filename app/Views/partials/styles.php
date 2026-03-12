@@ -13,6 +13,8 @@ $stylesheets = [
     'buttons/buttons.css',
     'alerts/alerts.css',
     'footer/footer.css',
+    'auth/auth.css',
+    'dashboard/dashboard.css',
     'home/home.css',
     'checklist/checklist.css',
     'recepcion/recepcion.css',

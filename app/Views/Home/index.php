@@ -4,15 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($titulo ?? 'MecaQuick') ?></title>
-    <?php require dirname(__DIR__, 2) . '/Views/partials/styles.php'; ?>
+    <?php require ROOT_PATH . '/app/Views/partials/styles.php'; ?>
 </head>
 <body class="page">
-    <header class="header">
-        <div class="header__brand">
-            <span class="header__logo">MecaQuick</span>
-            <span class="header__title"><?= htmlspecialchars($nombreSistema ?? 'MecaQuick') ?></span>
-        </div>
-    </header>
+    <?php require ROOT_PATH . '/app/Views/partials/header.php'; ?>
 
     <main class="layout">
         <section class="panel panel--info">

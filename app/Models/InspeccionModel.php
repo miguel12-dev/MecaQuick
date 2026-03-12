@@ -13,21 +13,26 @@ final class InspeccionModel extends BaseModel
 {
     public function obtenerPorToken(string $token): ?array
     {
-        return $this->fetchOne(
-            'SELECT id, token, estado, porcentaje_avance FROM inspecciones WHERE token = :token LIMIT 1',
+        $row = $this->fetchOne(
+            'SELECT i.id, i.token, i.porcentaje_avance, e.nombre AS estado
+             FROM inspecciones i
+             INNER JOIN estados_inspeccion e ON e.id = i.estado_id
+             WHERE i.token = :token LIMIT 1',
             [':token' => $token]
         );
+        return $row;
     }
 
     public function crearStandalone(string $token, ?int $aprendizId = null): int
     {
+        $estadoId = $this->obtenerEstadoInspeccionId('en_proceso');
         $this->executeStatement(
-            'INSERT INTO inspecciones (token, cita_id, aprendiz_id, estado, porcentaje_avance, inicio_at)
-             VALUES (:token, NULL, :aprendiz_id, :estado, 0, CURRENT_TIMESTAMP)',
+            'INSERT INTO inspecciones (token, cita_id, aprendiz_id, estado_id, porcentaje_avance, inicio_at)
+             VALUES (:token, NULL, :aprendiz_id, :estado_id, 0, CURRENT_TIMESTAMP)',
             [
                 ':token' => $token,
                 ':aprendiz_id' => $aprendizId,
-                ':estado' => 'en_proceso',
+                ':estado_id' => $estadoId,
             ]
         );
         return (int) $this->lastInsertId();
@@ -38,14 +43,15 @@ final class InspeccionModel extends BaseModel
      */
     public function crearDesdeMantenimiento(string $token, int $aprendizId, ?int $instructorId = null): int
     {
+        $estadoId = $this->obtenerEstadoInspeccionId('en_proceso');
         $this->executeStatement(
-            'INSERT INTO inspecciones (token, cita_id, aprendiz_id, instructor_id, estado, porcentaje_avance, inicio_at)
-             VALUES (:token, NULL, :aprendiz_id, :instructor_id, :estado, 0, CURRENT_TIMESTAMP)',
+            'INSERT INTO inspecciones (token, cita_id, aprendiz_id, instructor_id, estado_id, porcentaje_avance, inicio_at)
+             VALUES (:token, NULL, :aprendiz_id, :instructor_id, :estado_id, 0, CURRENT_TIMESTAMP)',
             [
                 ':token' => $token,
                 ':aprendiz_id' => $aprendizId,
                 ':instructor_id' => $instructorId,
-                ':estado' => 'en_proceso',
+                ':estado_id' => $estadoId,
             ]
         );
         return (int) $this->lastInsertId();
@@ -62,10 +68,11 @@ final class InspeccionModel extends BaseModel
             return ['id' => (int) $existente['id'], 'token' => (string) $existente['token']];
         }
         $token = bin2hex(random_bytes(32));
+        $estadoId = $this->obtenerEstadoInspeccionId('en_proceso');
         $this->executeStatement(
-            'INSERT INTO inspecciones (token, cita_id, aprendiz_id, estado, porcentaje_avance)
-             VALUES (:token, :cita_id, NULL, :estado, 0)',
-            [':token' => $token, ':cita_id' => $citaId, ':estado' => 'en_proceso']
+            'INSERT INTO inspecciones (token, cita_id, aprendiz_id, estado_id, porcentaje_avance)
+             VALUES (:token, :cita_id, NULL, :estado_id, 0)',
+            [':token' => $token, ':cita_id' => $citaId, ':estado_id' => $estadoId]
         );
         $id = (int) $this->lastInsertId();
         return ['id' => $id, 'token' => $token];
@@ -73,23 +80,41 @@ final class InspeccionModel extends BaseModel
 
     public function obtenerPorCitaId(int $citaId): ?array
     {
-        return $this->fetchOne(
-            'SELECT id, token, estado FROM inspecciones WHERE cita_id = :id LIMIT 1',
+        $row = $this->fetchOne(
+            'SELECT i.id, i.token, e.nombre AS estado
+             FROM inspecciones i
+             INNER JOIN estados_inspeccion e ON e.id = i.estado_id
+             WHERE i.cita_id = :id LIMIT 1',
             [':id' => $citaId]
         );
+        return $row;
     }
 
     public function actualizarAvance(int $inspeccionId, int $porcentajeAvance, bool $finalizada): void
     {
-        $estado = $finalizada ? 'finalizada' : 'en_proceso';
+        $estadoNombre = $finalizada ? 'finalizada' : 'en_proceso';
+        $estadoId = $this->obtenerEstadoInspeccionId($estadoNombre);
         $this->executeStatement(
-            'UPDATE inspecciones SET porcentaje_avance = :porcentaje, estado = :estado WHERE id = :id',
+            'UPDATE inspecciones SET porcentaje_avance = :porcentaje, estado_id = :estado_id WHERE id = :id',
             [
                 ':porcentaje' => $porcentajeAvance,
-                ':estado' => $estado,
+                ':estado_id' => $estadoId,
                 ':id' => $inspeccionId,
             ]
         );
+    }
+
+    private function obtenerEstadoInspeccionId(string $nombre): int
+    {
+        static $cache = null;
+        if ($cache === null) {
+            $rows = $this->fetchAll('SELECT id, nombre FROM estados_inspeccion');
+            $cache = [];
+            foreach ($rows as $r) {
+                $cache[(string) $r['nombre']] = (int) $r['id'];
+            }
+        }
+        return $cache[$nombre] ?? 1;
     }
 
     /**
@@ -128,11 +153,12 @@ final class InspeccionModel extends BaseModel
             return [];
         }
         return $this->fetchAll(
-            'SELECT i.id, i.token, i.porcentaje_avance, i.estado,
+            'SELECT i.id, i.token, i.porcentaje_avance, e.nombre AS estado,
                     COALESCE(i.inicio_at, cd.created_at) AS inicio_at,
-                    cd.matricula AS placa,
-                    COALESCE(u.nombre, NULLIF(TRIM(cd.asesor), \'\'), \'Sin asignar\') AS encargado
+                    cd.placa,
+                    COALESCE(u.nombre, NULLIF(TRIM(cd.nombre_tecnico), \'\'), \'Sin asignar\') AS encargado
              FROM inspecciones i
+             INNER JOIN estados_inspeccion e ON e.id = i.estado_id
              LEFT JOIN checklist_datos cd ON cd.inspeccion_id = i.id
              LEFT JOIN usuarios_sistema u ON u.id = i.aprendiz_id
              WHERE i.token IS NOT NULL
@@ -153,12 +179,13 @@ final class InspeccionModel extends BaseModel
     public function obtenerDetalleParaInstructor(int $id): ?array
     {
         $inspeccion = $this->fetchOne(
-            'SELECT i.id, i.token, i.porcentaje_avance, i.estado,
+            'SELECT i.id, i.token, i.porcentaje_avance, e.nombre AS estado,
                     COALESCE(i.inicio_at, cd.created_at) AS inicio_at,
-                    cd.matricula AS placa,
-                    COALESCE(u.nombre, NULLIF(TRIM(cd.asesor), \'\'), \'Sin asignar\') AS encargado,
-                    cd.numero_orden, cd.fecha_servicio
+                    cd.placa,
+                    COALESCE(u.nombre, NULLIF(TRIM(cd.nombre_tecnico), \'\'), \'Sin asignar\') AS encargado,
+                    cd.placa AS numero_orden, cd.fecha_ingreso AS fecha_servicio
              FROM inspecciones i
+             INNER JOIN estados_inspeccion e ON e.id = i.estado_id
              LEFT JOIN checklist_datos cd ON cd.inspeccion_id = i.id
              LEFT JOIN usuarios_sistema u ON u.id = i.aprendiz_id
              WHERE i.id = :id AND i.token IS NOT NULL',
@@ -169,11 +196,12 @@ final class InspeccionModel extends BaseModel
         }
 
         $resultados = $this->fetchAll(
-            'SELECT rp.id AS resultado_id, rp.punto_id, rp.estado, rp.valor_medido, rp.observacion,
+            'SELECT rp.id AS resultado_id, rp.punto_id, ep.nombre AS estado, rp.valor_medido, rp.observacion,
                     rp.tiene_evidencia, rp.registrado_at,
                     pc.numero_punto, pc.descripcion AS punto_descripcion
              FROM resultados_puntos rp
              INNER JOIN puntos_catalogo pc ON pc.id = rp.punto_id
+             INNER JOIN estados_punto ep ON ep.id = rp.estado_id
              WHERE rp.inspeccion_id = :id
              ORDER BY pc.numero_punto ASC',
             [':id' => $id]
@@ -213,11 +241,12 @@ final class InspeccionModel extends BaseModel
     public function listarPorAprendiz(int $aprendizId): array
     {
         return $this->fetchAll(
-            'SELECT i.id, i.token, i.porcentaje_avance, i.estado,
+            'SELECT i.id, i.token, i.porcentaje_avance, e.nombre AS estado,
                     COALESCE(i.inicio_at, cd.created_at) AS inicio_at,
-                    cd.matricula AS placa,
+                    cd.placa,
                     i.aprendiz_id = :aprendiz_id AS es_responsable
              FROM inspecciones i
+             INNER JOIN estados_inspeccion e ON e.id = i.estado_id
              LEFT JOIN checklist_datos cd ON cd.inspeccion_id = i.id
              LEFT JOIN inspeccion_ayudantes ia ON ia.inspeccion_id = i.id AND ia.aprendiz_id = :aprendiz_id2
              WHERE i.token IS NOT NULL
@@ -267,7 +296,10 @@ final class InspeccionModel extends BaseModel
     public function obtenerBasica(int $id): ?array
     {
         $row = $this->fetchOne(
-            'SELECT id, aprendiz_id, estado FROM inspecciones WHERE id = :id LIMIT 1',
+            'SELECT i.id, i.aprendiz_id, e.nombre AS estado
+             FROM inspecciones i
+             INNER JOIN estados_inspeccion e ON e.id = i.estado_id
+             WHERE i.id = :id LIMIT 1',
             [':id' => $id]
         );
         if ($row === null) {

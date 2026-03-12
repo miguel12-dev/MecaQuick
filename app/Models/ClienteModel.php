@@ -16,6 +16,9 @@ final class ClienteModel extends BaseModel
         );
     }
 
+    /**
+     * v1.0: columnas documento, nombre, apellido, email, telefono, celular, direccion, ciudad.
+     */
     public function crear(
         string $nombre,
         string $apellido,
@@ -24,14 +27,14 @@ final class ClienteModel extends BaseModel
         string $email
     ): int {
         $this->executeStatement(
-            'INSERT INTO clientes (nombre, apellido, documento, telefono, email)
-             VALUES (:nombre, :apellido, :documento, :telefono, :email)',
+            'INSERT INTO clientes (documento, nombre, apellido, email, telefono)
+             VALUES (:documento, :nombre, :apellido, :email, :telefono)',
             [
+                ':documento' => $documento,
                 ':nombre'    => $nombre,
                 ':apellido'  => $apellido,
-                ':documento' => $documento,
-                ':telefono'  => $telefono,
                 ':email'     => $email,
+                ':telefono'  => $telefono,
             ]
         );
 
