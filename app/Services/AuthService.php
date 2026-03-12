@@ -126,4 +126,31 @@ final class AuthService
             exit;
         }
     }
+
+    /**
+     * Exige sesión y rol mecánico o mecánico líder (aprendiz, instructor, asesor_servicio).
+     * Acceso a módulos Recepción y Checklist vehículos.
+     */
+    public static function requireMecanicoOrLider(): void
+    {
+        self::requireAuth();
+        $user = self::getLoggedUser();
+        if ($user === null || !in_array($user['rol'] ?? '', ['aprendiz', 'instructor', 'asesor_servicio', 'admin'], true)) {
+            header('Location: /dashboard', true, 302);
+            exit;
+        }
+    }
+
+    /**
+     * Indica si el usuario puede ver módulos de vehículo (recepción, checklist).
+     * Admin ve todo; mecánicos (aprendiz, instructor, asesor_servicio) ven recepción y checklist.
+     */
+    public static function puedeVerModuloVehiculo(): bool
+    {
+        $user = self::getLoggedUser();
+        if ($user === null) {
+            return false;
+        }
+        return in_array($user['rol'] ?? '', ['admin', 'aprendiz', 'instructor', 'asesor_servicio'], true);
+    }
 }

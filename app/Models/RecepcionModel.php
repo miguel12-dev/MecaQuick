@@ -7,110 +7,145 @@ namespace App\Models;
 use Core\BaseModel;
 
 /**
- * Recepción del vehículo (vinculada a cita).
+ * Recepciones orden de trabajo (v1.0). Vinculada a inspección.
+ * Datos adicionales del formulario se guardan en nota_cliente como JSON.
  */
 final class RecepcionModel extends BaseModel
 {
+    private const TABLE = 'recepciones_orden_trabajo';
+
     public function obtenerPorCitaId(int $citaId): ?array
     {
-        return $this->fetchOne(
-            'SELECT * FROM recepcion WHERE cita_id = :id LIMIT 1',
-            [':id' => $citaId]
+        $row = $this->fetchOne(
+            'SELECT rot.* FROM ' . self::TABLE . ' rot
+             INNER JOIN inspecciones i ON i.id = rot.inspeccion_id
+             WHERE i.cita_id = :cita_id LIMIT 1',
+            [':cita_id' => $citaId]
         );
+        if ($row === null) {
+            return null;
+        }
+        return $this->normalizarParaVista($row);
+    }
+
+    public function obtenerPorInspeccionId(int $inspeccionId): ?array
+    {
+        $row = $this->fetchOne(
+            'SELECT * FROM ' . self::TABLE . ' WHERE inspeccion_id = :id LIMIT 1',
+            [':id' => $inspeccionId]
+        );
+        return $row !== null ? $this->normalizarParaVista($row) : null;
     }
 
     /**
      * @param array<string, mixed> $datos
      */
-    public function guardarOActualizar(int $citaId, array $datos, ?int $inspeccionId = null): void
+    public function guardarOActualizar(int $inspeccionId, array $datos, ?int $asesorServicioId = null): void
     {
-        $existente = $this->obtenerPorCitaId($citaId);
+        $existente = $this->obtenerPorInspeccionId($inspeccionId);
 
-        $accesoriosInt = isset($datos['accesorios_internos']) ? json_encode($datos['accesorios_internos']) : null;
-        $accesoriosExt = isset($datos['accesorios_externos']) ? json_encode($datos['accesorios_externos']) : null;
-
-        $params = [
-            ':cita_id' => $citaId,
-            ':inspeccion_id' => $inspeccionId,
-            ':kilometraje_recepcion' => $this->int($datos['kilometraje_recepcion'] ?? null),
-            ':fecha_servicio_anterior' => $this->date($datos['fecha_servicio_anterior'] ?? null),
-            ':or_numero' => $this->str($datos['or_numero'] ?? null),
-            ':tipo_servicio_anterior' => $this->str($datos['tipo_servicio_anterior'] ?? null),
-            ':km_servicio_anterior' => $this->int($datos['km_servicio_anterior'] ?? null),
-            ':vehiculo_conducido_por' => $this->str($datos['vehiculo_conducido_por'] ?? 'dueno'),
-            ':presupuesto_repuestos' => (float) ($datos['presupuesto_repuestos'] ?? 0),
-            ':presupuesto_mano_obra' => (float) ($datos['presupuesto_mano_obra'] ?? 0),
-            ':presupuesto_total' => (float) ($datos['presupuesto_total'] ?? 0),
-            ':metodo_pago' => $this->str($datos['metodo_pago'] ?? 'efectivo'),
-            ':accesorios_internos' => $accesoriosInt,
-            ':accesorios_externos' => $accesoriosExt,
-            ':recibo_repuesto_cambiados' => (int) (($datos['recibo_repuesto_cambiados'] ?? 0) === 1 || ($datos['recibo_repuesto_cambiados'] ?? '') === 'si'),
-            ':observaciones' => $this->str($datos['observaciones'] ?? null),
-            ':defectos_carroceria' => $this->str($datos['defectos_carroceria'] ?? null),
-            ':inventariado_por' => $this->str($datos['inventariado_por'] ?? null),
-            ':inventariado_cc' => $this->str($datos['inventariado_cc'] ?? null),
-            ':firma_cliente' => $this->str($datos['firma_cliente'] ?? null),
-            ':firma_cliente_cc' => $this->str($datos['firma_cliente_cc'] ?? null),
-            ':autorizacion_adicional' => $this->float($datos['autorizacion_adicional'] ?? null),
+        $datosExtra = [
+            'accesorios_internos' => $datos['accesorios_internos'] ?? [],
+            'accesorios_externos' => $datos['accesorios_externos'] ?? [],
+            'presupuesto_repuestos' => (float) ($datos['presupuesto_repuestos'] ?? 0),
+            'presupuesto_mano_obra' => (float) ($datos['presupuesto_mano_obra'] ?? 0),
+            'presupuesto_total' => (float) ($datos['presupuesto_total'] ?? 0),
+            'metodo_pago' => $datos['metodo_pago'] ?? 'efectivo',
+            'recibo_repuesto_cambiados' => (int) (($datos['recibo_repuesto_cambiados'] ?? 0) === 1),
+            'defectos_carroceria' => $datos['defectos_carroceria'] ?? null,
+            'inventariado_por' => $datos['inventariado_por'] ?? null,
+            'inventariado_cc' => $datos['inventariado_cc'] ?? null,
+            'firma_cliente' => $datos['firma_cliente'] ?? null,
+            'firma_cliente_cc' => $datos['firma_cliente_cc'] ?? null,
+            'autorizacion_adicional' => isset($datos['autorizacion_adicional']) ? (float) $datos['autorizacion_adicional'] : null,
+            'vehiculo_conducido_por' => $datos['vehiculo_conducido_por'] ?? 'dueno',
+            'fecha_servicio_anterior' => $datos['fecha_servicio_anterior'] ?? null,
+            'or_numero' => $datos['or_numero'] ?? null,
+            'tipo_servicio_anterior' => $datos['tipo_servicio_anterior'] ?? null,
+            'km_servicio_anterior' => isset($datos['km_servicio_anterior']) ? (int) $datos['km_servicio_anterior'] : null,
         ];
+        $notaCliente = json_encode($datosExtra, JSON_UNESCAPED_UNICODE);
+
+        $km = $this->int($datos['kilometraje_recepcion'] ?? null);
+        $observaciones = $this->str($datos['observaciones'] ?? null);
+        if (!empty($datosExtra['defectos_carroceria'])) {
+            $observaciones = trim(($observaciones ?? '') . "\nDefectos carrocería: " . $datosExtra['defectos_carroceria']);
+        }
+
+        $numeroOt = $existente['numero_ot'] ?? ('OT-' . date('Ymd') . '-' . str_pad((string) $inspeccionId, 4, '0', STR_PAD_LEFT));
+        $fechaHoy = date('Y-m-d');
+        $horaAhora = date('H:i');
 
         if ($existente === null) {
             $this->executeStatement(
-                'INSERT INTO recepcion (
-                    cita_id, inspeccion_id, kilometraje_recepcion,
-                    fecha_servicio_anterior, or_numero, tipo_servicio_anterior, km_servicio_anterior,
-                    vehiculo_conducido_por, presupuesto_repuestos, presupuesto_mano_obra, presupuesto_total,
-                    metodo_pago, accesorios_internos, accesorios_externos, recibo_repuesto_cambiados,
-                    observaciones, defectos_carroceria, inventariado_por, inventariado_cc,
-                    firma_cliente, firma_cliente_cc, autorizacion_adicional
+                'INSERT INTO ' . self::TABLE . ' (
+                    inspeccion_id, numero_ot, fecha_apertura, hora_apertura,
+                    fecha_entrada, hora_entrada, kilometros_entrada,
+                    observaciones_recepcion, nota_cliente, asesor_servicio_id
                 ) VALUES (
-                    :cita_id, :inspeccion_id, :kilometraje_recepcion,
-                    :fecha_servicio_anterior, :or_numero, :tipo_servicio_anterior, :km_servicio_anterior,
-                    :vehiculo_conducido_por, :presupuesto_repuestos, :presupuesto_mano_obra, :presupuesto_total,
-                    :metodo_pago, :accesorios_internos, :accesorios_externos, :recibo_repuesto_cambiados,
-                    :observaciones, :defectos_carroceria, :inventariado_por, :inventariado_cc,
-                    :firma_cliente, :firma_cliente_cc, :autorizacion_adicional
+                    :inspeccion_id, :numero_ot, :fecha_apertura, :hora_apertura,
+                    :fecha_entrada, :hora_entrada, :kilometros_entrada,
+                    :observaciones_recepcion, :nota_cliente, :asesor_servicio_id
                 )',
-                $params
+                [
+                    ':inspeccion_id' => $inspeccionId,
+                    ':numero_ot' => $numeroOt,
+                    ':fecha_apertura' => $fechaHoy,
+                    ':hora_apertura' => $horaAhora,
+                    ':fecha_entrada' => $fechaHoy,
+                    ':hora_entrada' => $horaAhora,
+                    ':kilometros_entrada' => $km,
+                    ':observaciones_recepcion' => $observaciones,
+                    ':nota_cliente' => $notaCliente,
+                    ':asesor_servicio_id' => $asesorServicioId,
+                ]
             );
             return;
         }
 
         $this->executeStatement(
-            'UPDATE recepcion SET
-                inspeccion_id = :inspeccion_id,
-                kilometraje_recepcion = :kilometraje_recepcion,
-                fecha_servicio_anterior = :fecha_servicio_anterior,
-                or_numero = :or_numero,
-                tipo_servicio_anterior = :tipo_servicio_anterior,
-                km_servicio_anterior = :km_servicio_anterior,
-                vehiculo_conducido_por = :vehiculo_conducido_por,
-                presupuesto_repuestos = :presupuesto_repuestos,
-                presupuesto_mano_obra = :presupuesto_mano_obra,
-                presupuesto_total = :presupuesto_total,
-                metodo_pago = :metodo_pago,
-                accesorios_internos = :accesorios_internos,
-                accesorios_externos = :accesorios_externos,
-                recibo_repuesto_cambiados = :recibo_repuesto_cambiados,
-                observaciones = :observaciones,
-                defectos_carroceria = :defectos_carroceria,
-                inventariado_por = :inventariado_por,
-                inventariado_cc = :inventariado_cc,
-                firma_cliente = :firma_cliente,
-                firma_cliente_cc = :firma_cliente_cc,
-                autorizacion_adicional = :autorizacion_adicional,
-                updated_at = CURRENT_TIMESTAMP
-             WHERE cita_id = :cita_id',
-            $params
+            'UPDATE ' . self::TABLE . ' SET
+                numero_ot = :numero_ot,
+                fecha_entrada = :fecha_entrada,
+                hora_entrada = :hora_entrada,
+                kilometros_entrada = :kilometros_entrada,
+                observaciones_recepcion = :observaciones_recepcion,
+                nota_cliente = :nota_cliente,
+                asesor_servicio_id = COALESCE(:asesor_servicio_id, asesor_servicio_id)
+             WHERE inspeccion_id = :inspeccion_id',
+            [
+                ':inspeccion_id' => $inspeccionId,
+                ':numero_ot' => $numeroOt,
+                ':fecha_entrada' => $fechaHoy,
+                ':hora_entrada' => $horaAhora,
+                ':kilometros_entrada' => $km,
+                ':observaciones_recepcion' => $observaciones,
+                ':nota_cliente' => $notaCliente,
+                ':asesor_servicio_id' => $asesorServicioId,
+            ]
         );
     }
 
-    public function actualizarInspeccionId(int $citaId, int $inspeccionId): void
+    /**
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private function normalizarParaVista(array $row): array
     {
-        $this->executeStatement(
-            'UPDATE recepcion SET inspeccion_id = :inspeccion_id WHERE cita_id = :cita_id',
-            [':inspeccion_id' => $inspeccionId, ':cita_id' => $citaId]
-        );
+        $out = [
+            'kilometraje_recepcion' => $row['kilometros_entrada'] ?? null,
+            'observaciones' => $row['observaciones_recepcion'] ?? null,
+        ];
+        $nota = $row['nota_cliente'] ?? null;
+        if (is_string($nota)) {
+            $extra = json_decode($nota, true);
+            if (is_array($extra)) {
+                $out = array_merge($out, $extra);
+            }
+        }
+        $out['accesorios_internos'] = $out['accesorios_internos'] ?? [];
+        $out['accesorios_externos'] = $out['accesorios_externos'] ?? [];
+        return $out;
     }
 
     private function str(?string $v): ?string
@@ -121,14 +156,6 @@ final class RecepcionModel extends BaseModel
         return trim($v);
     }
 
-    private function date(?string $v): ?string
-    {
-        if ($v === null || $v === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', trim((string) $v))) {
-            return null;
-        }
-        return trim((string) $v);
-    }
-
     private function int(mixed $v): ?int
     {
         if ($v === null || $v === '') {
@@ -136,13 +163,5 @@ final class RecepcionModel extends BaseModel
         }
         $n = (int) $v;
         return $n >= 0 ? $n : null;
-    }
-
-    private function float(mixed $v): ?float
-    {
-        if ($v === null || $v === '') {
-            return null;
-        }
-        return (float) $v;
     }
 }

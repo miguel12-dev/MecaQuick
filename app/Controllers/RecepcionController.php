@@ -10,12 +10,14 @@ use App\Models\VehiculoModel;
 use App\Models\InspeccionModel;
 use App\Models\RecepcionModel;
 use App\Models\ChecklistDatosModel;
+use App\Services\AuthService;
 use Core\BaseController;
 use Throwable;
 
 /**
  * Controlador del módulo de recepción del vehículo.
  * Flujo: Cita (hoy) → Recepción → Checklist.
+ * Requiere rol mecánico o mecánico líder (aprendiz, instructor, asesor_servicio) o admin.
  */
 final class RecepcionController extends BaseController
 {
@@ -24,6 +26,7 @@ final class RecepcionController extends BaseController
      */
     public function index(): void
     {
+        AuthService::requireMecanicoOrLider();
         try {
             $citaModel = new CitaModel();
             $citas = $citaModel->listarCitasHoy();
@@ -48,6 +51,7 @@ final class RecepcionController extends BaseController
      */
     public function form(string $citaId): void
     {
+        AuthService::requireMecanicoOrLider();
         $id = (int) $citaId;
         if ($id <= 0) {
             $this->redirect('/recepcion');
@@ -81,6 +85,7 @@ final class RecepcionController extends BaseController
      */
     public function guardar(): void
     {
+        AuthService::requireMecanicoOrLider();
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             $this->redirect('/recepcion');
         }
@@ -129,9 +134,11 @@ final class RecepcionController extends BaseController
         $inspeccionId = (int) $inspeccion['id'];
         $token = (string) $inspeccion['token'];
 
-        // Guardar recepción
+        // Guardar recepción (recepciones_orden_trabajo)
         $recepcionModel = new RecepcionModel();
-        $recepcionModel->guardarOActualizar($citaId, $this->extraerDatosRecepcion($_POST), $inspeccionId);
+        $user = \App\Services\AuthService::getLoggedUser();
+        $asesorId = $user !== null ? (int) $user['id'] : null;
+        $recepcionModel->guardarOActualizar($inspeccionId, $this->extraerDatosRecepcion($_POST), $asesorId);
 
         // Crear checklist_datos con datos precargados
         $checklistDatosModel = new ChecklistDatosModel();

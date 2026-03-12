@@ -1,5 +1,6 @@
 <?php
 $authUsuario = \App\Services\AuthService::getLoggedUser();
+$puedeVerVehiculo = \App\Services\AuthService::puedeVerModuloVehiculo();
 ?>
 <header class="header">
     <div class="header__inner">
@@ -8,11 +9,12 @@ $authUsuario = \App\Services\AuthService::getLoggedUser();
             <span class="header__title"><?= htmlspecialchars('MecaQuick') ?></span>
         </a>
         <nav class="header__nav">
-            <a href="/recepcion" class="btn btn--secondary header__btn">Recepción</a>
+            <?php if ($puedeVerVehiculo): ?>
+                <a href="/recepcion" class="btn btn--secondary header__btn">Recepción</a>
+                <a href="/checklist" class="btn btn--secondary header__btn">Checklist vehículos</a>
+            <?php endif; ?>
             <?php if ($authUsuario !== null && ($authUsuario['rol'] ?? '') === 'aprendiz'): ?>
                 <a href="/mantenimiento" class="btn btn--secondary header__btn">Módulo mantenimiento</a>
-            <?php else: ?>
-                <a href="/checklist" class="btn btn--secondary header__btn">Checklist vehículos</a>
             <?php endif; ?>
             <?php if ($authUsuario !== null): ?>
                 <a href="/dashboard" class="btn btn--secondary header__btn">Panel</a>
@@ -20,8 +22,10 @@ $authUsuario = \App\Services\AuthService::getLoggedUser();
                     <a href="/checklist/panel" class="btn btn--secondary header__btn">Panel de revisiones</a>
                 <?php endif; ?>
                 <?php if (($authUsuario['rol'] ?? '') === 'admin'): ?>
+                    <a href="/citas" class="btn btn--secondary header__btn">Todas las citas</a>
                     <a href="/usuarios/aprendices" class="btn btn--secondary header__btn">Gestión Aprendices</a>
                     <a href="/usuarios/instructores" class="btn btn--secondary header__btn">Gestión Instructores</a>
+                    <a href="/usuarios/asesores" class="btn btn--secondary header__btn">Gestión Asesores</a>
                 <?php endif; ?>
                 <a href="/logout" class="btn btn--secondary header__btn">Cerrar sesión</a>
             <?php else: ?>

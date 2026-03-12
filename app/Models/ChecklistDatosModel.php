@@ -11,55 +11,17 @@ use Core\BaseModel;
  */
 final class ChecklistDatosModel extends BaseModel
 {
+    /**
+     * Obtiene los datos de cabecera por inspección (para precargar el formulario).
+     *
+     * @return array<string, mixed>|null Claves: nombre_cliente, cedula_nit, placa, kilometraje, etc.
+     */
     public function obtenerPorInspeccionId(int $inspeccionId): ?array
     {
         return $this->fetchOne(
             'SELECT * FROM checklist_datos WHERE inspeccion_id = :id LIMIT 1',
             [':id' => $inspeccionId]
         );
-    }
-
-    /**
-     * Obtiene los datos de cabecera por inspección (para precargar el formulario).
-     *
-     * @return array<string, mixed>|null Claves alineadas con el formulario (numero_orden, matricula, etc.)
-     */
-    public function obtenerPorInspeccionId(int $inspeccionId): ?array
-    {
-        $row = $this->fetchOne(
-            'SELECT numero_orden, tipo_comercial_codigo, matricula, matriculacion, bastidor, ldm, djka,
-                    kilometraje, asesor, tipo_comercial_modelo, ldc, vhn, ano_modelo, fecha_servicio,
-                    tipo_inspeccion, km_salida, km_llegada, observaciones, nota_mantenimiento,
-                    fecha_firma_responsable, fecha_firma_control
-             FROM checklist_datos WHERE inspeccion_id = :id LIMIT 1',
-            [':id' => $inspeccionId]
-        );
-        if ($row === null) {
-            return null;
-        }
-        return [
-            'numero_orden' => (string) ($row['numero_orden'] ?? ''),
-            'tipo_comercial_codigo' => (string) ($row['tipo_comercial_codigo'] ?? ''),
-            'matricula' => (string) ($row['matricula'] ?? ''),
-            'matriculacion' => isset($row['matriculacion']) && $row['matriculacion'] !== null ? (string) $row['matriculacion'] : '',
-            'bastidor' => (string) ($row['bastidor'] ?? ''),
-            'ldm' => (string) ($row['ldm'] ?? ''),
-            'djka' => (string) ($row['djka'] ?? ''),
-            'kilometraje' => (int) ($row['kilometraje'] ?? 0),
-            'asesor' => (string) ($row['asesor'] ?? ''),
-            'tipo_comercial_modelo' => (string) ($row['tipo_comercial_modelo'] ?? ''),
-            'ldc' => (string) ($row['ldc'] ?? ''),
-            'vhn' => (string) ($row['vhn'] ?? ''),
-            'ano_modelo' => $row['ano_modelo'] !== null ? (string) $row['ano_modelo'] : '',
-            'fecha_servicio' => (string) ($row['fecha_servicio'] ?? ''),
-            'tipo_inspeccion' => (string) ($row['tipo_inspeccion'] ?? ''),
-            'km_salida' => $row['km_salida'] !== null ? (string) $row['km_salida'] : '',
-            'km_llegada' => $row['km_llegada'] !== null ? (string) $row['km_llegada'] : '',
-            'observaciones' => (string) ($row['observaciones'] ?? ''),
-            'nota_mantenimiento' => (string) ($row['nota_mantenimiento'] ?? ''),
-            'fecha_firma_responsable' => isset($row['fecha_firma_responsable']) && $row['fecha_firma_responsable'] !== null ? (string) $row['fecha_firma_responsable'] : '',
-            'fecha_firma_control' => isset($row['fecha_firma_control']) && $row['fecha_firma_control'] !== null ? (string) $row['fecha_firma_control'] : '',
-        ];
     }
 
     /**
