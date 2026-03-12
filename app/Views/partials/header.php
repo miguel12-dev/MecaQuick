@@ -1,6 +1,5 @@
 <?php
 $authUsuario = \App\Services\AuthService::getLoggedUser();
-$puedeVerVehiculo = \App\Services\AuthService::puedeVerModuloVehiculo();
 ?>
 <header class="header">
     <div class="header__inner">
@@ -8,30 +7,26 @@ $puedeVerVehiculo = \App\Services\AuthService::puedeVerModuloVehiculo();
             <img src="/assets/img/logo_sena.png" alt="MecaQuick" class="header__logo-img" width="40" height="40">
             <span class="header__title"><?= htmlspecialchars('MecaQuick') ?></span>
         </a>
-        <nav class="header__nav">
-            <?php if ($puedeVerVehiculo): ?>
-                <a href="/recepcion" class="btn btn--secondary header__btn">Recepción</a>
-                <a href="/checklist" class="btn btn--secondary header__btn">Checklist vehículos</a>
-            <?php endif; ?>
-            <?php if ($authUsuario !== null && ($authUsuario['rol'] ?? '') === 'aprendiz'): ?>
-                <a href="/mantenimiento" class="btn btn--secondary header__btn">Módulo mantenimiento</a>
-            <?php endif; ?>
+
+        <div class="header__nav">
             <?php if ($authUsuario !== null): ?>
-                <a href="/dashboard" class="btn btn--secondary header__btn">Panel</a>
-                <?php if (in_array($authUsuario['rol'] ?? '', ['admin', 'instructor'], true)): ?>
-                    <a href="/checklist/panel" class="btn btn--secondary header__btn">Panel de revisiones</a>
-                <?php endif; ?>
-                <?php if (($authUsuario['rol'] ?? '') === 'admin'): ?>
-                    <a href="/citas" class="btn btn--secondary header__btn">Todas las citas</a>
-                    <a href="/usuarios/aprendices" class="btn btn--secondary header__btn">Gestión Aprendices</a>
-                    <a href="/usuarios/instructores" class="btn btn--secondary header__btn">Gestión Instructores</a>
-                    <a href="/usuarios/asesores" class="btn btn--secondary header__btn">Gestión Asesores</a>
-                <?php endif; ?>
-                <a href="/logout" class="btn btn--secondary header__btn">Cerrar sesión</a>
+                <div class="header__user">
+                    <div class="header__user-info">
+                        <span class="header__user-label">Usuario</span>
+                        <span class="header__user-name">
+                            <?= htmlspecialchars($authUsuario['nombre'] ?? 'Usuario') ?>
+                        </span>
+                    </div>
+                    <div class="header__user-actions">
+                        <a href="/cuenta" class="header__user-account" aria-label="Ir a mi cuenta">
+                            <span class="header__user-icon" aria-hidden="true"></span>
+                        </a>
+                        <a href="/logout" class="btn btn--secondary header__btn">Cerrar sesión</a>
+                    </div>
+                </div>
             <?php else: ?>
                 <a href="/login" class="btn btn--secondary header__btn">Iniciar sesión</a>
             <?php endif; ?>
-            <a href="/home/formulario" class="btn btn--primary header__cta">Solicitar cita</a>
-        </nav>
+        </div>
     </div>
 </header>

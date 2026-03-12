@@ -48,6 +48,14 @@
     flex-wrap: wrap;
 }
 
+.form--account {
+    grid-template-columns: 1fr;
+}
+
+.form--account .form__group {
+    grid-column: 1 / -1;
+}
+
 /* Secciones del formulario (página formulario) */
 .form__section {
     padding-bottom: 1.25rem;

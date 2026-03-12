@@ -2,7 +2,7 @@
  * Panel de usuario tras iniciar sesión.
  */
 .layout--dashboard {
-    max-width: 720px;
+    max-width: 1080px;
     margin: 0 auto;
     padding: 2rem 1.25rem;
 }
@@ -11,22 +11,88 @@
     width: 100%;
 }
 
+/* Layout específico para página de cuenta: tarjetas siempre en columna */
+.layout--account .dashboard__grid {
+    grid-template-columns: 1fr;
+}
+
+.dashboard__header {
+    margin-bottom: 1.5rem;
+}
+
 .dashboard__rol {
     text-transform: capitalize;
 }
 
-.dashboard__actions {
+.dashboard__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+}
+
+.dashboard-card {
+    background-color: var(--bg-white);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-soft);
+    padding: 1.15rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: box-shadow 150ms ease, transform 150ms ease, border-color 150ms ease;
+}
+
+.dashboard-card:hover {
+    box-shadow: var(--shadow-soft-lg);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+}
+
+.dashboard-card__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.dashboard-card__text {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.dashboard-card__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin: 1.25rem 0;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.dashboard-card--logout {
+    border: 1px dashed var(--border-soft);
 }
 
 .dashboard__info {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.25rem;
     border-top: 1px solid var(--border-soft);
     font-size: 0.9rem;
     color: var(--text-muted);
     line-height: 1.5;
+}
+
+@media (min-width: 640px) {
+    .dashboard__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 960px) {
+    .layout--dashboard {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .dashboard__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
