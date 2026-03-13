@@ -146,6 +146,29 @@
     white-space: nowrap;
 }
 
+.header__logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: #dc3545;
+    background-color: var(--bg-white);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.header__logout:hover {
+    color: #c82333;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.header__logout i {
+    font-size: 0.9rem;
+}
+
 @media (max-width: 768px) {
     .header {
         padding: 0.75rem 1rem;

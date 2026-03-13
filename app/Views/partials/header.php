@@ -24,6 +24,10 @@ $authUsuario = \App\Services\AuthService::getLoggedUser();
                     <i class="fas fa-user"></i>
                     <span><?= htmlspecialchars($authUsuario['nombre'] ?? 'Usuario') ?></span>
                 </a>
+                <a href="/logout" class="header__logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar sesión
+                </a>
             <?php else: ?>
                 <a href="/login" class="btn btn--header header__btn">
                     <i class="fas fa-sign-in-alt"></i>
