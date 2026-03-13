@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Models\CitaModel;
 use App\Models\ChecklistDatosModel;
 use App\Models\ConfiguracionModel;
 use App\Models\InspeccionAyudantesModel;
@@ -65,13 +66,59 @@ final class RecepcionController extends BaseController
         ]);
     }
 
-    public function crear(): void
+    /**
+     * Panel de citas del día o formulario de recepción.
+     * Sin parámetro: muestra citas de hoy. Con cita_id: formulario prellenado. Con "sin-cita": formulario vacío.
+     */
+    public function crear(?string $citaId = null): void
     {
         AuthService::requireAprendiz();
         $usuario = AuthService::getLoggedUser();
         $nombreSistema = ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick';
 
-        $tutorId = ConfiguracionModel::get('tutor_mantenimiento_id');
+        if ($citaId === null || $citaId === '') {
+            $citaModel = new CitaModel();
+            $citas = $citaModel->listarCitasHoy();
+            $this->view('Recepcion.crear_citas', [
+                'titulo' => $nombreSistema . ' - Citas del día',
+                'usuario' => $usuario,
+                'citas'   => $citas,
+            ]);
+            return;
+        }
+
+        if ($citaId === 'sin-cita') {
+            $this->mostrarFormularioRecepcion($usuario, $nombreSistema, []);
+            return;
+        }
+
+        $citaIdInt = (int) $citaId;
+        if ($citaIdInt < 1) {
+            $this->redirect('/recepcion/crear', 302);
+            return;
+        }
+
+        $citaModel = new CitaModel();
+        $cita = $citaModel->obtenerPorIdParaRecepcion($citaIdInt);
+        if ($cita === null) {
+            $this->redirect('/recepcion/crear', 302);
+            return;
+        }
+
+        $datos = $this->mapearCitaADatosRecepcion($cita);
+        $this->mostrarFormularioRecepcion($usuario, $nombreSistema, $datos, $citaIdInt);
+    }
+
+    /**
+     * @param array<string, mixed> $datosPrellenados
+     */
+    private function mostrarFormularioRecepcion(
+        array $usuario,
+        string $nombreSistema,
+        array $datosPrellenados,
+        ?int $citaId = null
+    ): void {
+        $tutorId = ConfiguracionModel::get('tutor_recepcion_id');
         $nombreTutor = '';
         if (is_numeric($tutorId) && (int) $tutorId > 0) {
             $usuarioModel = new UsuarioSistemaModel();
@@ -79,11 +126,42 @@ final class RecepcionController extends BaseController
             $nombreTutor = $tutor['nombre'] ?? '';
         }
 
+        $datos = array_merge($_SESSION['mantenimiento_crear_datos'] ?? [], $datosPrellenados);
+
         $this->view('Recepcion.crear', [
             'titulo'       => $nombreSistema . ' - Crear recepción',
             'usuario'      => $usuario,
             'nombreTutor'  => $nombreTutor,
+            'datos'        => $datos,
+            'cita_id'      => $citaId,
         ]);
+    }
+
+    /**
+     * @param array<string, mixed> $cita
+     * @return array<string, mixed>
+     */
+    private function mapearCitaADatosRecepcion(array $cita): array
+    {
+        $nombre = trim(($cita['nombre'] ?? '') . ' ' . ($cita['apellido'] ?? ''));
+        $modelo = trim(($cita['marca'] ?? '') . ' ' . ($cita['modelo'] ?? ''));
+        $fechaVenta = '';
+        if (!empty($cita['fecha'])) {
+            $fechaVenta = (string) $cita['fecha'];
+        }
+
+        return [
+            'cliente_nombre'        => $nombre,
+            'cliente_documento'     => (string) ($cita['documento'] ?? ''),
+            'cliente_telefono'      => (string) ($cita['telefono'] ?? ''),
+            'cliente_email'         => (string) ($cita['email'] ?? ''),
+            'matricula'             => (string) ($cita['placa'] ?? ''),
+            'tipo_comercial_modelo' => $modelo !== '' ? $modelo : (string) ($cita['modelo'] ?? ''),
+            'fecha_ingreso'         => $fechaVenta !== '' ? $fechaVenta : date('Y-m-d'),
+            'hora_ingreso'          => date('H:i'),
+            'kilometraje'           => (int) ($cita['kilometraje'] ?? 0),
+            'observaciones'         => (string) ($cita['observaciones_cliente'] ?? ''),
+        ];
     }
 
     public function guardarNuevo(): void
@@ -106,7 +184,9 @@ final class RecepcionController extends BaseController
         if ($errores !== []) {
             $_SESSION['mantenimiento_crear_errores'] = $errores;
             $_SESSION['mantenimiento_crear_datos'] = $datos;
-            $this->redirect('/recepcion/crear', 302);
+            $citaId = trim((string) ($_POST['cita_id'] ?? ''));
+            $suffix = ($citaId !== '' && $citaId !== 'sin-cita' && ctype_digit($citaId)) ? $citaId : 'sin-cita';
+            $this->redirect('/recepcion/crear/' . $suffix, 302);
             return;
         }
 
@@ -125,7 +205,10 @@ final class RecepcionController extends BaseController
             $checklistDatosModel->guardarOActualizar($inspeccionId, $datos);
         } catch (Throwable $e) {
             $_SESSION['mantenimiento_crear_errores'] = ['No se pudo crear la recepción. Intente de nuevo.'];
-            $this->redirect('/recepcion/crear', 302);
+            $_SESSION['mantenimiento_crear_datos'] = $datos;
+            $citaId = trim((string) ($_POST['cita_id'] ?? ''));
+            $suffix = ($citaId !== '' && $citaId !== 'sin-cita' && ctype_digit($citaId)) ? $citaId : 'sin-cita';
+            $this->redirect('/recepcion/crear/' . $suffix, 302);
             return;
         }
 
@@ -173,7 +256,7 @@ final class RecepcionController extends BaseController
         }
 
         $nombreSistema = ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick';
-        $this->view('Mantenimiento.revision', [
+        $this->view('Recepcion.revision', [
             'titulo'               => $nombreSistema . ' - Detalle de revisión',
             'usuario'              => $usuario,
             'detalle'              => $detalle,
@@ -219,33 +302,70 @@ final class RecepcionController extends BaseController
     }
 
     /**
+     * Extrae datos del formato checklist técnico (sección 1) y los mapea al esquema interno.
+     *
      * @return array<string, mixed>
      */
     private function extraerDatosCabecera(array $post): array
     {
+        $clienteNombre = trim((string) ($post['cliente_nombre'] ?? $post['asesor'] ?? ''));
+        if ($clienteNombre === '') {
+            $clienteNombre = 'Cliente';
+        }
+
+        $fechaIngreso = trim((string) ($post['fecha_ingreso'] ?? $post['fecha_servicio'] ?? ''));
+        $horaIngreso = trim((string) ($post['hora_ingreso'] ?? $post['djka'] ?? date('H:i')));
+        if (strlen($horaIngreso) > 20) {
+            $horaIngreso = substr($horaIngreso, 0, 20);
+        }
+
+        $correo = trim((string) ($post['cliente_email'] ?? $post['vhn'] ?? ''));
+        if (strlen($correo) > 20) {
+            $correo = substr($correo, 0, 20);
+        }
+
         return [
-            'numero_orden' => trim((string) ($post['numero_orden'] ?? '')),
-            'tipo_comercial_codigo' => trim((string) ($post['tipo_comercial_codigo'] ?? '')),
+            'numero_orden' => trim((string) ($post['numero_orden'] ?? 'N-' . date('YmdHis'))),
+            'tipo_comercial_codigo' => trim((string) ($post['cliente_documento'] ?? $post['tipo_comercial_codigo'] ?? '')),
             'matricula' => trim((string) ($post['matricula'] ?? '')),
-            'matriculacion' => trim((string) ($post['matriculacion'] ?? '')),
-            'bastidor' => trim((string) ($post['bastidor'] ?? '')),
+            'matriculacion' => $this->date($post['matriculacion'] ?? $fechaIngreso),
+            'bastidor' => trim((string) ($post['bastidor'] ?? '-')),
             'ldm' => trim((string) ($post['ldm'] ?? '')),
-            'djka' => trim((string) ($post['djka'] ?? '')),
+            'djka' => $horaIngreso,
             'kilometraje' => (int) ($post['kilometraje'] ?? 0),
-            'asesor' => trim((string) ($post['asesor'] ?? '')),
+            'asesor' => $clienteNombre,
             'tipo_comercial_modelo' => trim((string) ($post['tipo_comercial_modelo'] ?? '')),
-            'ldc' => trim((string) ($post['ldc'] ?? '')),
-            'vhn' => trim((string) ($post['vhn'] ?? '')),
-            'ano_modelo' => trim((string) ($post['ano_modelo'] ?? '')),
-            'fecha_servicio' => trim((string) ($post['fecha_servicio'] ?? '')),
-            'tipo_inspeccion' => trim((string) ($post['tipo_inspeccion'] ?? '')),
+            'ldc' => trim((string) ($post['cliente_telefono'] ?? $post['ldc'] ?? '')),
+            'vhn' => $correo,
+            'ano_modelo' => $this->int($post['ano_modelo'] ?? null),
+            'fecha_servicio' => $fechaIngreso !== '' ? $fechaIngreso : date('Y-m-d'),
+            'tipo_inspeccion' => trim((string) ($post['tipo_inspeccion'] ?? 'Inspección técnica')),
             'km_salida' => trim((string) ($post['km_salida'] ?? '')),
             'km_llegada' => trim((string) ($post['km_llegada'] ?? '')),
             'observaciones' => trim((string) ($post['observaciones'] ?? '')),
             'nota_mantenimiento' => trim((string) ($post['nota_mantenimiento'] ?? '')),
             'fecha_firma_responsable' => trim((string) ($post['fecha_firma_responsable'] ?? '')),
             'fecha_firma_control' => trim((string) ($post['fecha_firma_control'] ?? '')),
+            'carroceria_json' => null,
+            'nivel_combustible' => null,
         ];
+    }
+
+    private function date(?string $v): ?string
+    {
+        if ($v === null || $v === '' || !preg_match('/^\d{4}-\d{2}-\d{2}/', trim((string) $v))) {
+            return null;
+        }
+        return substr(trim($v), 0, 10);
+    }
+
+    private function int(mixed $v): ?int
+    {
+        if ($v === null || $v === '') {
+            return null;
+        }
+        $n = (int) $v;
+        return $n >= 0 ? $n : null;
     }
 
     /**
@@ -256,17 +376,15 @@ final class RecepcionController extends BaseController
     {
         $errores = [];
         $camposRequeridos = [
-            'numero_orden' => 'Número de orden',
-            'tipo_comercial_codigo' => 'Tipo comercial (código)',
-            'matricula' => 'Matrícula',
-            'matriculacion' => 'Matriculación',
-            'bastidor' => 'Número de bastidor',
+            'asesor' => 'Nombre del cliente',
+            'tipo_comercial_codigo' => 'Cédula / NIT',
+            'ldc' => 'Teléfono',
+            'vhn' => 'Correo',
+            'matricula' => 'Placa',
+            'tipo_comercial_modelo' => 'Modelo del vehículo',
             'kilometraje' => 'Kilometraje',
-            'fecha_servicio' => 'Fecha de servicio',
-            'asesor' => 'Asesor del servicio',
-            'tipo_comercial_modelo' => 'Tipo comercial (modelo)',
-            'ano_modelo' => 'Año de modelos',
-            'tipo_inspeccion' => 'Tipo de inspección',
+            'fecha_servicio' => 'Fecha de ingreso',
+            'djka' => 'Hora',
         ];
 
         foreach ($camposRequeridos as $campo => $etiqueta) {
@@ -275,22 +393,16 @@ final class RecepcionController extends BaseController
                 $errores[] = $etiqueta . ' es obligatorio.';
                 continue;
             }
-            if (in_array($campo, ['kilometraje'], true)) {
+            if ($campo === 'kilometraje') {
                 $n = (int) $v;
                 if ($n < 0) {
                     $errores[] = $etiqueta . ' no puede ser negativo.';
                 }
             }
-            if ($campo === 'ano_modelo') {
-                $n = (int) $v;
-                if ($n < 1950 || $n > 2030) {
-                    $errores[] = $etiqueta . ' debe ser entre 1950 y 2030.';
-                }
-            }
         }
 
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($datos['fecha_servicio'] ?? ''))) {
-            $errores[] = 'Fecha de servicio no válida.';
+            $errores[] = 'Fecha de ingreso no válida.';
         }
 
         return $errores;

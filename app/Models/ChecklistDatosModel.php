@@ -22,6 +22,7 @@ final class ChecklistDatosModel extends BaseModel
             'SELECT numero_orden, tipo_comercial_codigo, matricula, matriculacion, bastidor, ldm, djka,
                     kilometraje, asesor, tipo_comercial_modelo, ldc, vhn, ano_modelo, fecha_servicio,
                     tipo_inspeccion, km_salida, km_llegada, observaciones, nota_mantenimiento,
+                    carroceria_json, nivel_combustible,
                     fecha_firma_responsable, fecha_firma_control
              FROM checklist_datos WHERE inspeccion_id = :id LIMIT 1',
             [':id' => $inspeccionId]
@@ -29,6 +30,16 @@ final class ChecklistDatosModel extends BaseModel
         if ($row === null) {
             return null;
         }
+
+        $nota = (string) ($row['nota_mantenimiento'] ?? '');
+        $firmas = [];
+        if ($nota !== '' && str_starts_with($nota, '{"firma_tecnico"')) {
+            $decoded = json_decode($nota, true);
+            if (is_array($decoded)) {
+                $firmas = $decoded;
+            }
+        }
+
         return [
             'numero_orden' => (string) ($row['numero_orden'] ?? ''),
             'tipo_comercial_codigo' => (string) ($row['tipo_comercial_codigo'] ?? ''),
@@ -48,9 +59,22 @@ final class ChecklistDatosModel extends BaseModel
             'km_salida' => $row['km_salida'] !== null ? (string) $row['km_salida'] : '',
             'km_llegada' => $row['km_llegada'] !== null ? (string) $row['km_llegada'] : '',
             'observaciones' => (string) ($row['observaciones'] ?? ''),
-            'nota_mantenimiento' => (string) ($row['nota_mantenimiento'] ?? ''),
+            'nota_mantenimiento' => $nota,
+            'carroceria_json' => $row['carroceria_json'] ?? null,
+            'nivel_combustible' => $row['nivel_combustible'] ?? null,
             'fecha_firma_responsable' => isset($row['fecha_firma_responsable']) && $row['fecha_firma_responsable'] !== null ? (string) $row['fecha_firma_responsable'] : '',
             'fecha_firma_control' => isset($row['fecha_firma_control']) && $row['fecha_firma_control'] !== null ? (string) $row['fecha_firma_control'] : '',
+            'cliente_nombre' => (string) ($row['asesor'] ?? ''),
+            'cliente_documento' => (string) ($row['tipo_comercial_codigo'] ?? ''),
+            'cliente_telefono' => (string) ($row['ldc'] ?? ''),
+            'cliente_email' => (string) ($row['vhn'] ?? ''),
+            'placa' => (string) ($row['matricula'] ?? ''),
+            'modelo' => (string) ($row['tipo_comercial_modelo'] ?? ''),
+            'fecha_ingreso' => (string) ($row['fecha_servicio'] ?? ''),
+            'hora_ingreso' => (string) ($row['djka'] ?? ''),
+            'firma_tecnico' => (string) ($firmas['firma_tecnico'] ?? ''),
+            'nombre_tecnico' => (string) ($firmas['nombre_tecnico'] ?? ''),
+            'firma_cliente' => (string) ($firmas['firma_cliente'] ?? ''),
         ];
     }
 
@@ -85,6 +109,8 @@ final class ChecklistDatosModel extends BaseModel
             ':km_llegada' => $this->int($datos['km_llegada'] ?? null),
             ':observaciones' => $this->str($datos['observaciones'] ?? null),
             ':nota_mantenimiento' => $this->str($datos['nota_mantenimiento'] ?? null),
+            ':carroceria_json' => $this->str($datos['carroceria_json'] ?? null),
+            ':nivel_combustible' => $this->str($datos['nivel_combustible'] ?? null),
             ':fecha_firma_responsable' => $this->date($datos['fecha_firma_responsable'] ?? null),
             ':fecha_firma_control' => $this->date($datos['fecha_firma_control'] ?? null),
         ];
@@ -95,12 +121,14 @@ final class ChecklistDatosModel extends BaseModel
                     inspeccion_id, numero_orden, tipo_comercial_codigo, matricula, matriculacion,
                     bastidor, ldm, djka, kilometraje, asesor, tipo_comercial_modelo, ldc, vhn,
                     ano_modelo, fecha_servicio, tipo_inspeccion, km_salida, km_llegada,
-                    observaciones, nota_mantenimiento, fecha_firma_responsable, fecha_firma_control
+                    observaciones, nota_mantenimiento, carroceria_json, nivel_combustible,
+                    fecha_firma_responsable, fecha_firma_control
                 ) VALUES (
                     :inspeccion_id, :numero_orden, :tipo_comercial_codigo, :matricula, :matriculacion,
                     :bastidor, :ldm, :djka, :kilometraje, :asesor, :tipo_comercial_modelo, :ldc, :vhn,
                     :ano_modelo, :fecha_servicio, :tipo_inspeccion, :km_salida, :km_llegada,
-                    :observaciones, :nota_mantenimiento, :fecha_firma_responsable, :fecha_firma_control
+                    :observaciones, :nota_mantenimiento, :carroceria_json, :nivel_combustible,
+                    :fecha_firma_responsable, :fecha_firma_control
                 )',
                 $params
             );
@@ -128,6 +156,8 @@ final class ChecklistDatosModel extends BaseModel
                 km_llegada = :km_llegada,
                 observaciones = :observaciones,
                 nota_mantenimiento = :nota_mantenimiento,
+                carroceria_json = :carroceria_json,
+                nivel_combustible = :nivel_combustible,
                 fecha_firma_responsable = :fecha_firma_responsable,
                 fecha_firma_control = :fecha_firma_control,
                 updated_at = CURRENT_TIMESTAMP

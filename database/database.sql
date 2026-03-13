@@ -106,7 +106,7 @@ CREATE TABLE usuarios_sistema (
 
 -- ===================================
 -- CATÁLOGO DE PUNTOS DE INSPECCIÓN
--- Los 34 puntos del checklist se cargan vía migrations/001_checklist_puntos_inspecciones.sql
+-- Los 25 puntos del checklist estándar se cargan vía migrations/001_checklist_puntos_inspecciones.sql
 -- ===================================
 CREATE TABLE puntos_catalogo (
     id INT AUTO_INCREMENT PRIMARY KEY,

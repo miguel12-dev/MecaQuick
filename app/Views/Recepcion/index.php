@@ -27,7 +27,7 @@
                     <i class="fas fa-plus-circle"></i>
                 </div>
                 <h2 class="dashboard__card-title">Nueva Inspección</h2>
-                <p class="dashboard__card-description">Crear checklist o mantenimiento vehicular.</p>
+                <p class="dashboard__card-description">Crear revisión vehicular de recepción y posterior checklist de mantenimiento.</p>
                 <div class="dashboard__card-actions">
                     <a href="/recepcion/crear" class="btn btn--dashboard">
                         <i class="fas fa-car"></i> Crear Inspección
@@ -39,11 +39,27 @@
                 <div class="dashboard__card-icon">
                     <i class="fas fa-history"></i>
                 </div>
-                <h2 class="dashboard__card-title">Mis Revisiones</h2>
-                <p class="dashboard__card-description">Consulta los vehículos y checklists realizados.</p>
+                <h2 class="dashboard__card-title">Mis Recepciones</h2>
+                <p class="dashboard__card-description">Consulta los vehículos recepcionados.</p>
                 <div class="dashboard__card-actions">
                     <a href="/recepcion/mis-revisiones" class="btn btn--dashboard">
                         <i class="fas fa-list-alt"></i> Ver Revisiones
+                    </a>
+                </div>
+            </article>
+
+            <article class="dashboard__card">
+                <div class="dashboard__card-icon">
+                    <i class="fas fa-boxes-stacked"></i>
+                </div>
+                <h2 class="dashboard__card-title">Orden de repuestos</h2>
+                <p class="dashboard__card-description">Crear y gestionar órdenes de repuestos.</p>
+                <div class="dashboard__card-actions">
+                    <a href="/orden-repuestos" class="btn btn--dashboard">
+                        <i class="fas fa-list"></i> Ver órdenes
+                    </a>
+                    <a href="/orden-repuestos/crear" class="btn btn--dashboard">
+                        <i class="fas fa-plus"></i> Nueva orden
                     </a>
                 </div>
             </article>

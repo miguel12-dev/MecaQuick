@@ -30,6 +30,9 @@ if (is_file($envFile) && is_readable($envFile)) {
 error_reporting(E_ALL);
 ini_set('display_errors', getenv('APP_DEBUG') === '1' ? '1' : '0');
 
+$tz = getenv('APP_TIMEZONE') ?: 'America/Bogota';
+date_default_timezone_set($tz);
+
 spl_autoload_register(static function (string $class): void {
     $prefixes = [
         'Core\\' => ROOT_PATH . '/core/',

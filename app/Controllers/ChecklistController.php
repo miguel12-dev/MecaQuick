@@ -198,6 +198,15 @@ final class ChecklistController extends BaseController
 
         $finalizado = (int) ($_POST['finalizado'] ?? 0) === 1;
         $datos = $this->extraerDatosCabecera($_POST);
+        $inspeccionModel = new InspeccionModel();
+        $inspeccion = $inspeccionModel->obtenerPorToken($token);
+        if ($inspeccion !== null) {
+            $checklistDatosModel = new ChecklistDatosModel();
+            $existente = $checklistDatosModel->obtenerPorInspeccionId((int) $inspeccion['id']);
+            if ($existente !== null) {
+                $datos = $this->fusionarConExistente($datos, $existente, $finalizado);
+            }
+        }
         $erroresCabecera = $this->validarCabecera($datos, $finalizado);
         if ($erroresCabecera !== []) {
             $this->json(['ok' => false, 'message' => implode(' ', $erroresCabecera)], 422);
@@ -227,6 +236,11 @@ final class ChecklistController extends BaseController
             if ($valorMedido !== null && trim((string) $valorMedido) !== '') {
                 $resultados[$puntoId]['valor_medido'] = trim((string) $valorMedido);
             }
+
+            $observacion = $_POST['observaciones_puntos'][$puntoIdStr] ?? null;
+            if ($observacion !== null && trim((string) $observacion) !== '') {
+                $resultados[$puntoId]['observacion'] = trim((string) $observacion);
+            }
         }
 
         $preguntasRespondidas = count($resultados);
@@ -245,9 +259,6 @@ final class ChecklistController extends BaseController
             : 0;
 
         try {
-            $inspeccionModel = new InspeccionModel();
-            $inspeccion = $inspeccionModel->obtenerPorToken($token);
-
             if ($inspeccion === null) {
                 $inspeccionModel->crearStandalone($token);
                 $inspeccion = $inspeccionModel->obtenerPorToken($token);
@@ -285,33 +296,84 @@ final class ChecklistController extends BaseController
     }
 
     /**
+     * Extrae datos del formato checklist técnico y los mapea al esquema interno.
+     *
      * @return array<string, mixed>
      */
     private function extraerDatosCabecera(array $post): array
     {
+        $clienteNombre = trim((string) ($post['cliente_nombre'] ?? $post['asesor'] ?? ''));
+        $clienteDoc = trim((string) ($post['cliente_documento'] ?? $post['tipo_comercial_codigo'] ?? ''));
+        $clienteTel = trim((string) ($post['cliente_telefono'] ?? $post['ldc'] ?? ''));
+        $clienteEmail = trim((string) ($post['cliente_email'] ?? $post['vhn'] ?? ''));
+        if (strlen($clienteEmail) > 20) {
+            $clienteEmail = substr($clienteEmail, 0, 20);
+        }
+        $fechaIngreso = trim((string) ($post['fecha_ingreso'] ?? $post['fecha_servicio'] ?? ''));
+        $horaIngreso = trim((string) ($post['hora_ingreso'] ?? $post['djka'] ?? ''));
+        if (strlen($horaIngreso) > 20) {
+            $horaIngreso = substr($horaIngreso, 0, 20);
+        }
+
+        $firmas = [
+            'firma_tecnico' => trim((string) ($post['firma_tecnico'] ?? '')),
+            'nombre_tecnico' => trim((string) ($post['nombre_tecnico'] ?? '')),
+            'firma_cliente' => trim((string) ($post['firma_cliente'] ?? '')),
+        ];
+        $notaMantenimiento = json_encode($firmas, JSON_THROW_ON_ERROR);
+
         return [
-            'numero_orden' => trim((string) ($post['numero_orden'] ?? '')),
-            'tipo_comercial_codigo' => trim((string) ($post['tipo_comercial_codigo'] ?? '')),
+            'numero_orden' => trim((string) ($post['numero_orden'] ?? 'N-' . date('YmdHis'))),
+            'tipo_comercial_codigo' => $clienteDoc,
             'matricula' => trim((string) ($post['matricula'] ?? '')),
-            'matriculacion' => trim((string) ($post['matriculacion'] ?? '')),
-            'bastidor' => trim((string) ($post['bastidor'] ?? '')),
+            'matriculacion' => preg_match('/^\d{4}-\d{2}-\d{2}/', $fechaIngreso) ? substr($fechaIngreso, 0, 10) : null,
+            'bastidor' => trim((string) ($post['bastidor'] ?? '-')),
             'ldm' => trim((string) ($post['ldm'] ?? '')),
-            'djka' => trim((string) ($post['djka'] ?? '')),
+            'djka' => $horaIngreso,
             'kilometraje' => (int) ($post['kilometraje'] ?? 0),
-            'asesor' => trim((string) ($post['asesor'] ?? '')),
+            'asesor' => $clienteNombre !== '' ? $clienteNombre : 'Cliente',
             'tipo_comercial_modelo' => trim((string) ($post['tipo_comercial_modelo'] ?? '')),
-            'ldc' => trim((string) ($post['ldc'] ?? '')),
-            'vhn' => trim((string) ($post['vhn'] ?? '')),
-            'ano_modelo' => trim((string) ($post['ano_modelo'] ?? '')),
-            'fecha_servicio' => trim((string) ($post['fecha_servicio'] ?? '')),
-            'tipo_inspeccion' => trim((string) ($post['tipo_inspeccion'] ?? '')),
+            'ldc' => $clienteTel,
+            'vhn' => $clienteEmail,
+            'ano_modelo' => isset($post['ano_modelo']) && $post['ano_modelo'] !== '' ? (int) $post['ano_modelo'] : null,
+            'fecha_servicio' => $fechaIngreso !== '' ? $fechaIngreso : date('Y-m-d'),
+            'tipo_inspeccion' => trim((string) ($post['tipo_inspeccion'] ?? 'Inspección técnica')),
             'km_salida' => trim((string) ($post['km_salida'] ?? '')),
             'km_llegada' => trim((string) ($post['km_llegada'] ?? '')),
-            'observaciones' => trim((string) ($post['observaciones'] ?? '')),
-            'nota_mantenimiento' => trim((string) ($post['nota_mantenimiento'] ?? '')),
-            'fecha_firma_responsable' => trim((string) ($post['fecha_firma_responsable'] ?? '')),
-            'fecha_firma_control' => trim((string) ($post['fecha_firma_control'] ?? '')),
+            'observaciones' => trim((string) ($post['observaciones_generales'] ?? $post['observaciones'] ?? '')),
+            'nota_mantenimiento' => $notaMantenimiento,
+            'fecha_firma_responsable' => null,
+            'fecha_firma_control' => null,
         ];
+    }
+
+    /**
+     * Fusiona datos del POST con los existentes (cuando viene de recepción y no se enviaron).
+     *
+     * @param array<string, mixed> $datos
+     * @param array<string, mixed> $existente
+     * @return array<string, mixed>
+     */
+    private function fusionarConExistente(array $datos, array $existente, bool $finalizado): array
+    {
+        $camposCabecera = [
+            'numero_orden', 'tipo_comercial_codigo', 'matricula', 'matriculacion', 'bastidor',
+            'ldm', 'djka', 'kilometraje', 'asesor', 'tipo_comercial_modelo', 'ldc', 'vhn',
+            'ano_modelo', 'fecha_servicio', 'tipo_inspeccion', 'observaciones',
+        ];
+        foreach ($camposCabecera as $k) {
+            $v = trim((string) ($datos[$k] ?? ''));
+            if ($v === '' && isset($existente[$k])) {
+                $datos[$k] = $existente[$k];
+            }
+        }
+        if (!$finalizado) {
+            $notaExistente = (string) ($existente['nota_mantenimiento'] ?? '');
+            if ($notaExistente !== '' && str_starts_with($notaExistente, '{"firma_tecnico"')) {
+                $datos['nota_mantenimiento'] = $notaExistente;
+            }
+        }
+        return $datos;
     }
 
     /**
@@ -321,28 +383,17 @@ final class ChecklistController extends BaseController
     private function validarCabecera(array $datos, bool $finalizado): array
     {
         $errores = [];
-
         $camposRequeridos = [
-            'numero_orden' => 'Número de orden',
-            'tipo_comercial_codigo' => 'Tipo comercial (código)',
-            'matricula' => 'Matrícula',
-            'matriculacion' => 'Matriculación',
-            'bastidor' => 'Número de bastidor',
+            'asesor' => 'Nombre del cliente',
+            'tipo_comercial_codigo' => 'Cédula / NIT',
+            'ldc' => 'Teléfono',
+            'vhn' => 'Correo',
+            'matricula' => 'Placa',
+            'tipo_comercial_modelo' => 'Modelo del vehículo',
             'kilometraje' => 'Kilometraje',
-            'fecha_servicio' => 'Fecha de servicio',
-            'asesor' => 'Asesor del servicio',
-            'tipo_comercial_modelo' => 'Tipo comercial (modelo)',
-            'ano_modelo' => 'Año de modelos',
-            'tipo_inspeccion' => 'Tipo de inspección',
+            'fecha_servicio' => 'Fecha de ingreso',
+            'djka' => 'Hora',
         ];
-
-        if ($finalizado) {
-            $camposRequeridos['km_salida'] = 'Salida (km)';
-            $camposRequeridos['km_llegada'] = 'Llegada (km)';
-            $camposRequeridos['nota_mantenimiento'] = 'Nota de mantenimiento';
-            $camposRequeridos['fecha_firma_responsable'] = 'Fecha/firma (responsable)';
-            $camposRequeridos['fecha_firma_control'] = 'Fecha/firma (control final)';
-        }
 
         foreach ($camposRequeridos as $campo => $etiqueta) {
             $v = trim((string) ($datos[$campo] ?? ''));
@@ -350,29 +401,33 @@ final class ChecklistController extends BaseController
                 $errores[] = $etiqueta . ' es obligatorio.';
                 continue;
             }
-            if (in_array($campo, ['kilometraje', 'km_salida', 'km_llegada'], true)) {
+            if ($campo === 'kilometraje') {
                 $n = (int) $v;
                 if ($n < 0) {
                     $errores[] = $etiqueta . ' no puede ser negativo.';
                 }
             }
-            if ($campo === 'ano_modelo') {
-                $n = (int) $v;
-                if ($n < 1950 || $n > 2030) {
-                    $errores[] = $etiqueta . ' debe ser entre 1950 y 2030.';
-                }
-            }
         }
 
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($datos['fecha_servicio'] ?? ''))) {
-            $errores[] = 'Fecha de servicio no válida.';
+            $errores[] = 'Fecha de ingreso no válida.';
         }
 
         if ($finalizado) {
-            foreach (['fecha_firma_responsable', 'fecha_firma_control'] as $f) {
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($datos[$f] ?? ''))) {
-                    $errores[] = ($f === 'fecha_firma_responsable' ? 'Fecha/firma (responsable)' : 'Fecha/firma (control final)') . ' no válida.';
+            $nota = (string) ($datos['nota_mantenimiento'] ?? '');
+            $firmas = json_decode($nota, true);
+            if (is_array($firmas)) {
+                if (trim((string) ($firmas['firma_tecnico'] ?? '')) === '') {
+                    $errores[] = 'Firma del técnico es obligatoria.';
                 }
+                if (trim((string) ($firmas['nombre_tecnico'] ?? '')) === '') {
+                    $errores[] = 'Nombre del técnico es obligatorio.';
+                }
+                if (trim((string) ($firmas['firma_cliente'] ?? '')) === '') {
+                    $errores[] = 'Firma del cliente es obligatoria.';
+                }
+            } else {
+                $errores[] = 'Firmas incompletas.';
             }
         }
 

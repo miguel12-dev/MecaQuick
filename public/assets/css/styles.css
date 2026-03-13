@@ -16,4 +16,5 @@
 @import url('cuenta/cuenta.css');
 @import url('usuarios/usuarios.css');
 @import url('checklist/checklist.css');
-@import url('mantenimiento/mantenimiento.css');
+@import url('recepcion/recepcion.css');
+@import url('orden-repuestos/orden-repuestos.css');

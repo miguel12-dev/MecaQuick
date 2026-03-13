@@ -130,7 +130,7 @@ final class InspeccionModel extends BaseModel
                     COALESCE(i.inicio_at, cd.created_at) AS inicio_at,
                     cd.matricula AS placa,
                     COALESCE(u.nombre, NULLIF(TRIM(cd.asesor), \'\'), \'Sin asignar\') AS encargado,
-                    cd.numero_orden, cd.fecha_servicio
+                    cd.numero_orden, cd.fecha_servicio, cd.observaciones AS observaciones_generales
              FROM inspecciones i
              LEFT JOIN checklist_datos cd ON cd.inspeccion_id = i.id
              LEFT JOIN usuarios_sistema u ON u.id = i.aprendiz_id

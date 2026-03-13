@@ -1,7 +1,7 @@
 <?php
 $errores = $_SESSION['mantenimiento_crear_errores'] ?? [];
-$datos = $_SESSION['mantenimiento_crear_datos'] ?? [];
-$asesorVal = $datos['asesor'] ?? $nombreTutor ?? '';
+$datos = $datos ?? [];
+$citaId = $cita_id ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -24,6 +24,7 @@ $asesorVal = $datos['asesor'] ?? $nombreTutor ?? '';
             </p>
 
             <div class="dashboard__actions" style="margin-bottom: 1rem;">
+                <a href="/recepcion/crear" class="btn btn--secondary">Volver a citas del día</a>
                 <a href="/recepcion" class="btn btn--secondary">Volver al módulo</a>
             </div>
 
@@ -38,70 +39,45 @@ $asesorVal = $datos['asesor'] ?? $nombreTutor ?? '';
             <?php endif; ?>
 
             <form action="/recepcion/guardar-nuevo" method="post" class="mantenimiento-crear-form">
+                <input type="hidden" name="cita_id" value="<?= htmlspecialchars((string) ($citaId ?? 'sin-cita')) ?>">
+
+                <h2 class="panel__subtitle">1. Datos del Cliente y Vehículo</h2>
                 <div class="checklist-grid checklist-grid--cabecera">
                     <div class="form__group">
-                        <label for="numero_orden">Núm. de orden *</label>
-                        <input type="text" id="numero_orden" name="numero_orden" required placeholder="Ej. GAGBCW" value="<?= htmlspecialchars($datos['numero_orden'] ?? '') ?>">
+                        <label for="cliente_nombre">Nombre del Cliente *</label>
+                        <input type="text" id="cliente_nombre" name="cliente_nombre" required placeholder="Nombre completo" value="<?= htmlspecialchars($datos['cliente_nombre'] ?? '') ?>">
                     </div>
                     <div class="form__group">
-                        <label for="tipo_comercial_codigo">Tipo comercial (código) *</label>
-                        <input type="text" id="tipo_comercial_codigo" name="tipo_comercial_codigo" required placeholder="Ej. GAGBCW" value="<?= htmlspecialchars($datos['tipo_comercial_codigo'] ?? '') ?>">
+                        <label for="cliente_documento">Cédula / NIT *</label>
+                        <input type="text" id="cliente_documento" name="cliente_documento" required placeholder="Identificación" value="<?= htmlspecialchars($datos['cliente_documento'] ?? '') ?>">
                     </div>
                     <div class="form__group">
-                        <label for="matricula">Matrícula *</label>
-                        <input type="text" id="matricula" name="matricula" required placeholder="Ej. NLZ988" value="<?= htmlspecialchars($datos['matricula'] ?? '') ?>">
+                        <label for="cliente_telefono">Teléfono *</label>
+                        <input type="text" id="cliente_telefono" name="cliente_telefono" required placeholder="Teléfono" value="<?= htmlspecialchars($datos['cliente_telefono'] ?? $datos['cliente_celular'] ?? '') ?>">
                     </div>
                     <div class="form__group">
-                        <label for="matriculacion">Matriculación *</label>
-                        <input type="date" id="matriculacion" name="matriculacion" required value="<?= htmlspecialchars($datos['matriculacion'] ?? '') ?>">
+                        <label for="cliente_email">Correo *</label>
+                        <input type="email" id="cliente_email" name="cliente_email" required placeholder="correo@ejemplo.com" value="<?= htmlspecialchars($datos['cliente_email'] ?? '') ?>">
                     </div>
                     <div class="form__group">
-                        <label for="bastidor">Número de bastidor *</label>
-                        <input type="text" id="bastidor" name="bastidor" required placeholder="Ej. WAUZZZGA9PA022533" value="<?= htmlspecialchars($datos['bastidor'] ?? '') ?>">
+                        <label for="tipo_comercial_modelo">Modelo del Vehículo *</label>
+                        <input type="text" id="tipo_comercial_modelo" name="tipo_comercial_modelo" required placeholder="Modelo" value="<?= htmlspecialchars($datos['tipo_comercial_modelo'] ?? '') ?>">
                     </div>
                     <div class="form__group">
-                        <label for="ldm">LDM</label>
-                        <input type="text" id="ldm" name="ldm" placeholder="Opcional" value="<?= htmlspecialchars($datos['ldm'] ?? '') ?>">
-                    </div>
-                    <div class="form__group">
-                        <label for="djka">DJKA</label>
-                        <input type="text" id="djka" name="djka" placeholder="Opcional" value="<?= htmlspecialchars($datos['djka'] ?? '') ?>">
+                        <label for="matricula">Placa *</label>
+                        <input type="text" id="matricula" name="matricula" required placeholder="Ej. ABC123" value="<?= htmlspecialchars($datos['matricula'] ?? '') ?>">
                     </div>
                     <div class="form__group">
                         <label for="kilometraje">Kilometraje *</label>
-                        <input type="number" id="kilometraje" name="kilometraje" min="0" required placeholder="Ej. 44454" value="<?= htmlspecialchars((string) ($datos['kilometraje'] ?? '')) ?>">
+                        <input type="number" id="kilometraje" name="kilometraje" min="0" required placeholder="KM actuales" value="<?= htmlspecialchars((string) ($datos['kilometraje'] ?? '')) ?>">
                     </div>
                     <div class="form__group">
-                        <label for="asesor">Asesor del servicio *</label>
-                        <input type="text" id="asesor" name="asesor" required placeholder="Ej. nombre del tutor" value="<?= htmlspecialchars($asesorVal) ?>">
+                        <label for="fecha_ingreso">Fecha de Ingreso *</label>
+                        <input type="date" id="fecha_ingreso" name="fecha_ingreso" required value="<?= htmlspecialchars($datos['fecha_ingreso'] ?? $datos['fecha_servicio'] ?? date('Y-m-d')) ?>">
                     </div>
                     <div class="form__group">
-                        <label for="tipo_comercial_modelo">Tipo comercial (modelo) *</label>
-                        <input type="text" id="tipo_comercial_modelo" name="tipo_comercial_modelo" required placeholder="Ej. Q2 1,4 L4110 A8" value="<?= htmlspecialchars($datos['tipo_comercial_modelo'] ?? '') ?>">
-                    </div>
-                    <div class="form__group">
-                        <label for="ldc">LDC</label>
-                        <input type="text" id="ldc" name="ldc" placeholder="Opcional" value="<?= htmlspecialchars($datos['ldc'] ?? '') ?>">
-                    </div>
-                    <div class="form__group">
-                        <label for="vhn">VHN</label>
-                        <input type="text" id="vhn" name="vhn" placeholder="Opcional" value="<?= htmlspecialchars($datos['vhn'] ?? '') ?>">
-                    </div>
-                    <div class="form__group">
-                        <label for="ano_modelo">Año de modelos *</label>
-                        <input type="number" id="ano_modelo" name="ano_modelo" min="1950" max="2030" required placeholder="Ej. 2023" value="<?= htmlspecialchars($datos['ano_modelo'] ?? '') ?>">
-                    </div>
-                    <div class="form__group">
-                        <label for="fecha_servicio">Fecha de servicio *</label>
-                        <input type="date" id="fecha_servicio" name="fecha_servicio" required value="<?= htmlspecialchars($datos['fecha_servicio'] ?? '') ?>">
-                    </div>
-                    <div class="form__group">
-                        <label for="tipo_inspeccion">Tipo de inspección *</label>
-                        <input type="text" id="tipo_inspeccion" name="tipo_inspeccion" required placeholder="Ej. Inspección con cambio de aceite" value="<?= htmlspecialchars($datos['tipo_inspeccion'] ?? '') ?>">
-                    </div>
-                    <div class="form__group form__group--full">
-                        <label for="observaciones">Observaciones</label>
-                        <textarea id="observaciones" name="observaciones" rows="2" placeholder="Opcional"><?= htmlspecialchars($datos['observaciones'] ?? '') ?></textarea>
+                        <label for="hora_ingreso">Hora *</label>
+                        <input type="time" id="hora_ingreso" name="hora_ingreso" required value="<?= htmlspecialchars($datos['hora_ingreso'] ?? date('H:i')) ?>">
                     </div>
                 </div>
                 <div class="form__actions" style="margin-top: 1.25rem;">

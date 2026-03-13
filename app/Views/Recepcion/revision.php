@@ -50,6 +50,13 @@ $inspeccionId = (int) ($inspeccion_id ?? 0);
                 </dl>
             </div>
 
+            <?php if (!empty($d['observaciones_generales'])): ?>
+                <div class="panel__block">
+                    <p class="panel__subtitle">Observaciones generales del mantenimiento</p>
+                    <p class="panel__text"><?= nl2br(htmlspecialchars($d['observaciones_generales'])) ?></p>
+                </div>
+            <?php endif; ?>
+
             <?php if ($ayudantes !== []): ?>
                 <p class="panel__subtitle">Integrantes del grupo</p>
                 <ul class="panel__list">
@@ -94,6 +101,17 @@ $inspeccionId = (int) ($inspeccion_id ?? 0);
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+
+            <div class="panel__block" style="margin-bottom: 1.25rem;">
+                <p class="panel__subtitle">¿Continuar con orden de repuestos?</p>
+                <p class="panel__text">Puede crear una orden de repuestos con los datos ya registrados o finalizar el mantenimiento.</p>
+                <div class="dashboard__actions">
+                    <a href="/orden-repuestos/crear/<?= $inspeccionId ?>" class="btn btn--primary">
+                        <i class="fas fa-boxes-stacked"></i> Crear orden de repuestos
+                    </a>
+                    <span class="panel__text" style="margin-left: 0.5rem;">o finalizar</span>
+                </div>
             </div>
 
             <?php if ($mostrarFormAyudantes && $inspeccionId > 0): ?>

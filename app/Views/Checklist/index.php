@@ -18,12 +18,12 @@ $skipCabecera = !empty($skipPasoCabecera);
 
     <main class="layout layout--form-page">
         <section class="panel panel--form">
-            <h1 class="panel__title">Checklist de mantenimiento</h1>
+            <h1 class="panel__title">Checklist técnico – vehículos</h1>
             <p class="panel__intro">
                 <?php if ($skipCabecera): ?>
-                    Los datos del vehículo ya están registrados. Complete los puntos de inspección; cada avance se guarda al pulsar "Siguiente".
+                    Los datos del cliente y vehículo ya están registrados. Complete los 25 puntos de revisión; cada avance se guarda al pulsar "Siguiente".
                 <?php else: ?>
-                    Formulario de acceso libre para pruebas. Complete todos los campos obligatorios antes de continuar. Cada avance se guarda al pulsar "Siguiente".
+                    Complete los datos del cliente y vehículo, luego los 25 puntos de revisión. Cada avance se guarda al pulsar "Siguiente".
                 <?php endif; ?>
             </p>
 
@@ -56,72 +56,44 @@ $skipCabecera = !empty($skipPasoCabecera);
                 <input type="hidden" id="checklistToken" name="token" value="<?= htmlspecialchars($tokenInicial ?? '') ?>">
 
                 <section class="checklist-step<?= $skipCabecera ? '' : ' is-active' ?>" data-step="0">
-                    <h2 class="checklist-step__title">Datos generales</h2>
+                    <h2 class="checklist-step__title">1. Datos del Cliente y Vehículo</h2>
                     <p class="checklist-step__hint">Todos los campos marcados con * son obligatorios.</p>
                     <div class="checklist-grid checklist-grid--cabecera">
                         <div class="form__group">
-                            <label for="numero_orden">Núm. de orden *</label>
-                            <input type="text" id="numero_orden" name="numero_orden" required placeholder="Ej. GAGBCW" value="<?= htmlspecialchars($c['numero_orden'] ?? '') ?>">
+                            <label for="cliente_nombre">Nombre del Cliente *</label>
+                            <input type="text" id="cliente_nombre" name="cliente_nombre" required placeholder="Nombre completo" value="<?= htmlspecialchars($c['cliente_nombre'] ?? $c['asesor'] ?? '') ?>">
                         </div>
                         <div class="form__group">
-                            <label for="tipo_comercial_codigo">Tipo comercial (código) *</label>
-                            <input type="text" id="tipo_comercial_codigo" name="tipo_comercial_codigo" required placeholder="Ej. GAGBCW" value="<?= htmlspecialchars($c['tipo_comercial_codigo'] ?? '') ?>">
+                            <label for="cliente_documento">Cédula / NIT *</label>
+                            <input type="text" id="cliente_documento" name="cliente_documento" required placeholder="Identificación" value="<?= htmlspecialchars($c['cliente_documento'] ?? $c['tipo_comercial_codigo'] ?? '') ?>">
                         </div>
                         <div class="form__group">
-                            <label for="matricula">Matrícula *</label>
-                            <input type="text" id="matricula" name="matricula" required placeholder="Ej. NLZ988" value="<?= htmlspecialchars($c['matricula'] ?? '') ?>">
+                            <label for="cliente_telefono">Teléfono *</label>
+                            <input type="text" id="cliente_telefono" name="cliente_telefono" required placeholder="Teléfono" value="<?= htmlspecialchars($c['cliente_telefono'] ?? $c['ldc'] ?? '') ?>">
                         </div>
                         <div class="form__group">
-                            <label for="matriculacion">Matriculación *</label>
-                            <input type="date" id="matriculacion" name="matriculacion" required value="<?= htmlspecialchars($c['matriculacion'] ?? '') ?>">
+                            <label for="cliente_email">Correo *</label>
+                            <input type="email" id="cliente_email" name="cliente_email" required placeholder="correo@ejemplo.com" value="<?= htmlspecialchars($c['cliente_email'] ?? $c['vhn'] ?? '') ?>">
                         </div>
                         <div class="form__group">
-                            <label for="bastidor">Número de bastidor *</label>
-                            <input type="text" id="bastidor" name="bastidor" required placeholder="Ej. WAUZZZGA9PA022533" value="<?= htmlspecialchars($c['bastidor'] ?? '') ?>">
+                            <label for="tipo_comercial_modelo">Modelo del Vehículo *</label>
+                            <input type="text" id="tipo_comercial_modelo" name="tipo_comercial_modelo" required placeholder="Modelo" value="<?= htmlspecialchars($c['modelo'] ?? $c['tipo_comercial_modelo'] ?? '') ?>">
                         </div>
                         <div class="form__group">
-                            <label for="ldm">LDM</label>
-                            <input type="text" id="ldm" name="ldm" placeholder="Opcional" value="<?= htmlspecialchars($c['ldm'] ?? '') ?>">
-                        </div>
-                        <div class="form__group">
-                            <label for="djka">DJKA</label>
-                            <input type="text" id="djka" name="djka" placeholder="Opcional" value="<?= htmlspecialchars($c['djka'] ?? '') ?>">
+                            <label for="matricula">Placa *</label>
+                            <input type="text" id="matricula" name="matricula" required placeholder="Ej. ABC123" value="<?= htmlspecialchars($c['placa'] ?? $c['matricula'] ?? '') ?>">
                         </div>
                         <div class="form__group">
                             <label for="kilometraje">Kilometraje *</label>
-                            <input type="number" id="kilometraje" name="kilometraje" min="0" required placeholder="Ej. 44454" value="<?= htmlspecialchars((string) ($c['kilometraje'] ?? '')) ?>">
+                            <input type="number" id="kilometraje" name="kilometraje" min="0" required placeholder="KM actuales" value="<?= htmlspecialchars((string) ($c['kilometraje'] ?? '')) ?>">
                         </div>
                         <div class="form__group">
-                            <label for="asesor">Asesor del servicio *</label>
-                            <input type="text" id="asesor" name="asesor" required placeholder="Ej. Vásquez, Luz Yamile" value="<?= htmlspecialchars($c['asesor'] ?? '') ?>">
+                            <label for="fecha_ingreso">Fecha de Ingreso *</label>
+                            <input type="date" id="fecha_ingreso" name="fecha_ingreso" required value="<?= htmlspecialchars($c['fecha_ingreso'] ?? $c['fecha_servicio'] ?? '') ?>">
                         </div>
                         <div class="form__group">
-                            <label for="tipo_comercial_modelo">Tipo comercial (modelo) *</label>
-                            <input type="text" id="tipo_comercial_modelo" name="tipo_comercial_modelo" required placeholder="Ej. Q2 1,4 L4110 A8" value="<?= htmlspecialchars($c['tipo_comercial_modelo'] ?? '') ?>">
-                        </div>
-                        <div class="form__group">
-                            <label for="ldc">LDC</label>
-                            <input type="text" id="ldc" name="ldc" placeholder="Opcional" value="<?= htmlspecialchars($c['ldc'] ?? '') ?>">
-                        </div>
-                        <div class="form__group">
-                            <label for="vhn">VHN</label>
-                            <input type="text" id="vhn" name="vhn" placeholder="Opcional" value="<?= htmlspecialchars($c['vhn'] ?? '') ?>">
-                        </div>
-                        <div class="form__group">
-                            <label for="ano_modelo">Año de modelos *</label>
-                            <input type="number" id="ano_modelo" name="ano_modelo" min="1950" max="2030" required placeholder="Ej. 2023" value="<?= htmlspecialchars($c['ano_modelo'] ?? '') ?>">
-                        </div>
-                        <div class="form__group">
-                            <label for="fecha_servicio">Fecha de servicio *</label>
-                            <input type="date" id="fecha_servicio" name="fecha_servicio" required value="<?= htmlspecialchars($c['fecha_servicio'] ?? '') ?>">
-                        </div>
-                        <div class="form__group">
-                            <label for="tipo_inspeccion">Tipo de inspección *</label>
-                            <input type="text" id="tipo_inspeccion" name="tipo_inspeccion" required placeholder="Ej. Inspección con cambio de aceite" value="<?= htmlspecialchars($c['tipo_inspeccion'] ?? '') ?>">
-                        </div>
-                        <div class="form__group form__group--full">
-                            <label for="observaciones">Observaciones</label>
-                            <textarea id="observaciones" name="observaciones" rows="2" placeholder="Opcional"><?= htmlspecialchars($c['observaciones'] ?? '') ?></textarea>
+                            <label for="hora_ingreso">Hora *</label>
+                            <input type="time" id="hora_ingreso" name="hora_ingreso" required value="<?= htmlspecialchars($c['hora_ingreso'] ?? $c['djka'] ?? date('H:i')) ?>">
                         </div>
                     </div>
                     <div class="form__actions">
@@ -139,7 +111,7 @@ $skipCabecera = !empty($skipPasoCabecera);
                     $esPrimerPunto = $indice === 0;
                     ?>
                     <section class="checklist-step<?= $skipCabecera && $esPrimerPunto ? ' is-active' : '' ?>" data-step="<?= $puntoId ?>" data-punto-id="<?= $puntoId ?>">
-                        <h2 class="checklist-step__title">Punto <?= $numeroPunto ?> de <?= (int) ($totalPuntos ?? 0) ?></h2>
+                        <h2 class="checklist-step__title">2. Checklist de 25 Puntos — Punto <?= $numeroPunto ?> de <?= (int) ($totalPuntos ?? 0) ?></h2>
                         <article class="checklist-question">
                             <p class="checklist-question__text"><?= htmlspecialchars($descripcion) ?></p>
                             <?php if ($requiereValorMedido): ?>
@@ -150,17 +122,25 @@ $skipCabecera = !empty($skipPasoCabecera);
                             <?php endif; ?>
                             <div class="checklist-question__options">
                                 <label>
-                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="si" required>
-                                    OK/realizado
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="bueno" required>
+                                    Bueno
                                 </label>
                                 <label>
-                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="no">
-                                    No OK
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="regular">
+                                    Regular
                                 </label>
                                 <label>
-                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="subsanado">
-                                    Subsanada
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="malo">
+                                    Malo
                                 </label>
+                                <label>
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="no_aplica">
+                                    No aplica
+                                </label>
+                            </div>
+                            <div class="form__group checklist-question__observacion">
+                                <label for="observacion_<?= $puntoId ?>">Observaciones</label>
+                                <input type="text" id="observacion_<?= $puntoId ?>" name="observaciones_puntos[<?= $puntoId ?>]" placeholder="Observación específica de este punto (opcional)">
                             </div>
                         </article>
                         <div class="form__actions">
@@ -171,28 +151,27 @@ $skipCabecera = !empty($skipPasoCabecera);
                 <?php endforeach; ?>
 
                 <section class="checklist-step" data-step="final">
-                    <h2 class="checklist-step__title">Datos finales</h2>
-                    <p class="checklist-step__hint">Complete los campos obligatorios antes de finalizar.</p>
+                    <h2 class="checklist-step__title">3. Observaciones Generales</h2>
+                    <p class="checklist-step__hint">Anote observaciones generales del mantenimiento (no por punto).</p>
                     <div class="checklist-grid">
-                        <div class="form__group">
-                            <label for="km_salida">Salida (km) *</label>
-                            <input type="number" id="km_salida" name="km_salida" min="0" required placeholder="Ej. 44454">
-                        </div>
-                        <div class="form__group">
-                            <label for="km_llegada">Llegada (km) *</label>
-                            <input type="number" id="km_llegada" name="km_llegada" min="0" required placeholder="Ej. 44463">
-                        </div>
                         <div class="form__group form__group--full">
-                            <label for="nota_mantenimiento">Nota de mantenimiento *</label>
-                            <textarea id="nota_mantenimiento" name="nota_mantenimiento" rows="4" required placeholder="Describa los trabajos realizados..."></textarea>
+                            <label for="observaciones_generales">Observaciones generales del mantenimiento</label>
+                            <textarea id="observaciones_generales" name="observaciones_generales" rows="4" placeholder="Observaciones generales sobre la revisión (ej. ninguna, cambio de filtros pendiente...)"><?= htmlspecialchars($c['observaciones'] ?? '') ?></textarea>
+                        </div>
+                    </div>
+                    <h2 class="checklist-step__title" style="margin-top: 1.25rem;">4. Firmas</h2>
+                    <div class="checklist-grid checklist-grid--cabecera">
+                        <div class="form__group">
+                            <label for="firma_tecnico">Firma del Técnico *</label>
+                            <input type="text" id="firma_tecnico" name="firma_tecnico" required placeholder="Firma del técnico" value="<?= htmlspecialchars($c['firma_tecnico'] ?? '') ?>">
                         </div>
                         <div class="form__group">
-                            <label for="fecha_firma_responsable">Fecha/firma (responsable) *</label>
-                            <input type="date" id="fecha_firma_responsable" name="fecha_firma_responsable" required>
+                            <label for="nombre_tecnico">Nombre del Técnico *</label>
+                            <input type="text" id="nombre_tecnico" name="nombre_tecnico" required placeholder="Nombre completo" value="<?= htmlspecialchars($c['nombre_tecnico'] ?? '') ?>">
                         </div>
                         <div class="form__group">
-                            <label for="fecha_firma_control">Fecha/firma (control final) *</label>
-                            <input type="date" id="fecha_firma_control" name="fecha_firma_control" required>
+                            <label for="firma_cliente">Firma del Cliente *</label>
+                            <input type="text" id="firma_cliente" name="firma_cliente" required placeholder="Firma del cliente" value="<?= htmlspecialchars($c['firma_cliente'] ?? '') ?>">
                         </div>
                     </div>
                     <div class="form__actions">
