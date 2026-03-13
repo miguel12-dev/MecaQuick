@@ -1,11 +1,17 @@
 /**
- * Estilos de mensajes de alerta (aviso, error).
+ * Estilos de mensajes de alerta (aviso, error, éxito).
  */
 .alert {
     border-radius: var(--radius-sm);
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
     font-size: 0.9rem;
+}
+
+.alert--success {
+    background-color: #e8f5e9;
+    border: 1px solid #81c784;
+    color: #2e7d32;
 }
 
 .alert--warning {

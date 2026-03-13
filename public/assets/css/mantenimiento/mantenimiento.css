@@ -24,12 +24,6 @@
     background-color: var(--bg-light);
 }
 
-.dashboard__actions--grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
 .btn--small {
     font-size: 0.85rem;
     padding: 0.35rem 0.6rem;

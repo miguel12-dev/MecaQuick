@@ -25,7 +25,7 @@ class LoginController extends BaseController
             return;
         }
 
-        $nombreSistema = ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick';
+        $nombreSistema = ConfiguracionModel::get('MecaQuick') ?? 'MecaQuick';
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $this->procesarLogin($nombreSistema);

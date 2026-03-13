@@ -1,32 +1,119 @@
 /**
- * Panel de usuario tras iniciar sesión.
+ * Dashboard con cards verticales en grid.
  */
 .layout--dashboard {
-    max-width: 720px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 1.25rem;
+    flex-direction: column;
+    align-items: stretch;
 }
 
-.panel--dashboard {
+.dashboard__header {
+    text-align: center;
+    margin-bottom: 3rem;
     width: 100%;
 }
 
-.dashboard__rol {
-    text-transform: capitalize;
+.dashboard__header-icon {
+    font-size: 2.5rem;
+    color: var(--sena-green);
+    margin-bottom: 0.5rem;
 }
 
-.dashboard__actions {
+.dashboard__header-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--sena-green);
+    margin: 0 0 0.5rem 0;
+}
+
+.dashboard__header-subtitle {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.dashboard__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .dashboard__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.dashboard__card {
+    background: var(--bg-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-soft);
+    padding: 2rem 1.5rem;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin: 1.25rem 0;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.dashboard__info {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-soft);
+.dashboard__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard__card-icon {
+    font-size: 4rem;
+    color: var(--sena-green);
+    margin-bottom: 1rem;
+}
+
+.dashboard__card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 0.75rem 0;
+}
+
+.dashboard__card-description {
     font-size: 0.9rem;
     color: var(--text-muted);
+    margin: 0 0 1.5rem 0;
     line-height: 1.5;
+}
+
+.dashboard__card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.btn--dashboard {
+    background-color: var(--sena-green);
+    color: var(--bg-white);
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn--dashboard:hover {
+    background-color: var(--sena-green-dark);
+}
+
+.btn--dashboard i {
+    font-size: 0.9rem;
 }

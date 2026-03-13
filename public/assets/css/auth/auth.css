@@ -2,22 +2,81 @@
  * Página de login. Sin registro público.
  */
 .layout--auth {
-    max-width: 420px;
+    max-width: 520px;
     margin: 0 auto;
     padding: 2rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    min-height: calc(100vh - 4.5rem);
 }
 
 .panel--auth {
     width: 100%;
 }
 
-.form--auth .form__actions {
+.auth__brand {
+    text-align: center;
+    padding-top: 0.25rem;
+}
+
+.auth__brand-title {
+    margin: 0;
+    font-size: 1.9rem;
+    line-height: 1.2;
+    font-weight: 800;
+    color: var(--sena-green);
+}
+
+.auth__brand-subtitle {
+    margin: 0.35rem 0 0;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.auth__brand-caption {
+    margin: 0.15rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.auth__divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--border-soft);
+    margin: 1rem 0 1.25rem;
+}
+
+.form--auth {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
 }
 
 .form--auth .form__group {
     margin-bottom: 0;
+    width: 100%;
+    max-width: 360px;
+}
+
+.form--auth .form__group label {
+    text-align: center;
+}
+
+.form--auth .form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    width: 100%;
+    max-width: 360px;
+}
+
+@media (max-width: 480px) {
+    .auth__brand-title {
+        font-size: 1.65rem;
+    }
 }

@@ -99,4 +99,55 @@ final class UsuarioSistemaModel extends BaseModel
         );
         return (int) $this->db->lastInsertId();
     }
+
+    /**
+     * Actualiza los datos personales del usuario.
+     */
+    public function actualizarDatos(int $id, string $nombre, string $email): bool
+    {
+        $filas = $this->executeStatement(
+            'UPDATE ' . self::TABLE . ' SET nombre = :nombre, email = :email WHERE id = :id',
+            [
+                ':id'     => $id,
+                ':nombre' => $nombre,
+                ':email'  => $email,
+            ]
+        );
+        return $filas > 0;
+    }
+
+    /**
+     * Cambia la contraseña del usuario.
+     */
+    public function cambiarPassword(int $id, string $passwordHash): bool
+    {
+        $filas = $this->executeStatement(
+            'UPDATE ' . self::TABLE . ' SET password_hash = :hash WHERE id = :id',
+            [
+                ':id'   => $id,
+                ':hash' => $passwordHash,
+            ]
+        );
+        return $filas > 0;
+    }
+
+    /**
+     * Obtiene los datos completos de un usuario incluyendo password para validación.
+     *
+     * @return array{id: int, nombre: string, email: string, password_hash: string, rol: string}|null
+     */
+    public function findByIdCompleto(int $id): ?array
+    {
+        $fila = $this->fetchOne(
+            'SELECT id, nombre, email, password_hash, rol FROM ' . self::TABLE . ' WHERE id = :id AND activo = 1 LIMIT 1',
+            [':id' => $id]
+        );
+
+        if ($fila === null) {
+            return null;
+        }
+
+        $fila['id'] = (int) $fila['id'];
+        return $fila;
+    }
 }

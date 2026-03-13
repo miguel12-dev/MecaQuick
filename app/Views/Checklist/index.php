@@ -10,6 +10,7 @@ $skipCabecera = !empty($skipPasoCabecera);
     <title><?= htmlspecialchars($titulo ?? 'MecaQuick') ?></title>
     <link rel="icon" type="image/png" href="/assets/img/logo_sena.png">
     <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <script src="/assets/js/checklist/checklist.js" defer></script>
 </head>
 <body class="page">

@@ -6,6 +6,7 @@
     <title><?= htmlspecialchars($titulo ?? 'Iniciar sesión') ?></title>
     <link rel="icon" type="image/png" href="/assets/img/logo_sena.png">
     <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
 </head>
 <body class="page">
     <header class="header">
@@ -23,8 +24,12 @@
 
     <main class="layout layout--auth">
         <section class="panel panel--auth">
-            <h1 class="panel__title">Iniciar sesión</h1>
-            <p class="panel__intro">Acceso para usuarios del sistema (admin, instructor, aprendiz).</p>
+            <div class="auth__brand" aria-label="Identidad del sistema">
+                <h1 class="auth__brand-title"><?= htmlspecialchars($nombreSistema ?? 'MecaQuick') ?></h1>
+                <p class="auth__brand-caption">Acceso para personal y aprendices</p>
+            </div>
+
+            <hr class="auth__divider" aria-hidden="true">
 
             <?php if (!empty($error)): ?>
                 <div class="alert alert--error" role="alert">
@@ -35,15 +40,24 @@
             <form action="/login" method="post" class="form form--auth">
                 <div class="form__group">
                     <label for="email">Correo electrónico</label>
-                    <input type="email" id="email" name="email" required autocomplete="email"
-                           value="<?= htmlspecialchars($email ?? '') ?>">
+                    <div class="input-wrap">
+                        <span class="input-wrap__icon" aria-hidden="true"><i class="fa-regular fa-envelope"></i></span>
+                        <input type="email" id="email" name="email" required autocomplete="email"
+                               value="<?= htmlspecialchars($email ?? '') ?>" placeholder="ejemplo@sena.edu.co">
+                    </div>
                 </div>
                 <div class="form__group">
                     <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                    <div class="input-wrap">
+                        <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="********">
+                    </div>
                 </div>
                 <div class="form__actions">
-                    <button type="submit" class="btn btn--primary">Entrar</button>
+                    <button type="submit" class="btn btn--primary">
+                        <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                        <span>Ingresar</span>
+                    </button>
                     <a href="/" class="btn btn--secondary">Volver al inicio</a>
                 </div>
             </form>

@@ -6,6 +6,7 @@
     <title><?= htmlspecialchars($titulo ?? 'Mis revisiones') ?></title>
     <link rel="icon" type="image/png" href="/assets/img/logo_sena.png">
     <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
 <body class="page">
     <?php require ROOT_PATH . '/app/Views/partials/header.php'; ?>
