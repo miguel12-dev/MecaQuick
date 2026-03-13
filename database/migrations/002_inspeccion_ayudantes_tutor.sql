@@ -1,9 +1,9 @@
 -- Migración 002: tutor del módulo de mantenimiento y ayudantes por inspección
 -- Requiere: BD con database.sql y migrations/001_checklist_puntos_inspecciones.sql
 
--- 1. Configuración: ID del instructor tutor del módulo de mantenimiento
+-- 1. Configuración: ID del instructor tutor del módulo de recepción
 INSERT INTO configuracion (clave, valor, descripcion, tipo) VALUES
-('tutor_mantenimiento_id', '', 'ID del instructor tutor del módulo de mantenimiento', 'numero')
+('tutor_recepcion_id', '', 'ID del instructor tutor del módulo de recepción', 'numero')
 ON DUPLICATE KEY UPDATE descripcion = VALUES(descripcion), tipo = VALUES(tipo);
 
 -- 2. Tabla de ayudantes por inspección (integrantes del grupo de revisión)

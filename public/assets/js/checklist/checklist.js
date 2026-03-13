@@ -148,7 +148,7 @@
 
             showMessage(isFinal ? "Checklist finalizado y guardado correctamente." : "Avance guardado correctamente.");
             if (isFinal && typeof result.inspeccion_id === "number" && form.dataset.redirectAprendiz === "1") {
-                window.location.href = "/mantenimiento/revision/" + result.inspeccion_id;
+                window.location.href = "/recepcion/revision/" + result.inspeccion_id;
                 return true;
             }
             return true;

@@ -29,7 +29,7 @@ $inspeccionId = (int) ($inspeccion_id ?? 0);
     <main class="layout layout--dashboard">
         <section class="panel panel--dashboard">
             <p class="panel__back">
-                <a href="/mantenimiento/mis-revisiones" class="btn btn--secondary">Volver a mis revisiones</a>
+                <a href="/recepcion/mis-revisiones" class="btn btn--secondary">Volver a mis revisiones</a>
             </p>
             <h1 class="panel__title">Detalle de revisión</h1>
 
@@ -100,7 +100,7 @@ $inspeccionId = (int) ($inspeccion_id ?? 0);
                 <div class="ayudantes-form">
                     <p class="panel__subtitle">Agregar ayudantes o integrantes del grupo</p>
                     <p class="panel__text">Seleccione los aprendices que participaron en esta revisión. Usted ya figura como responsable.</p>
-                    <form action="/mantenimiento/agregar-ayudantes" method="post">
+                    <form action="/recepcion/agregar-ayudantes" method="post">
                         <input type="hidden" name="inspeccion_id" value="<?= $inspeccionId ?>">
                         <?php if ($listaAprendices !== []): ?>
                             <ul class="ayudantes-form__list">

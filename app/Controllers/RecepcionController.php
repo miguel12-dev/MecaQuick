@@ -14,9 +14,9 @@ use Core\BaseController;
 use Throwable;
 
 /**
- * Módulo de mantenimiento. Acceso exclusivo para rol aprendiz.
+ * Módulo de recepción. Acceso exclusivo para rol aprendiz.
  */
-final class MantenimientoController extends BaseController
+final class RecepcionController extends BaseController
 {
     public function index(): void
     {
@@ -24,8 +24,8 @@ final class MantenimientoController extends BaseController
         $usuario = AuthService::getLoggedUser();
         $nombreSistema = ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick';
 
-        $this->view('Mantenimiento.index', [
-            'titulo'        => $nombreSistema . ' - Módulo de mantenimiento',
+        $this->view('Recepcion.index', [
+            'titulo'        => $nombreSistema . ' - Módulo de recepción',
             'nombreSistema' => $nombreSistema,
             'usuario'       => $usuario,
         ]);
@@ -37,7 +37,7 @@ final class MantenimientoController extends BaseController
         $usuario = AuthService::getLoggedUser();
         $nombreSistema = ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick';
 
-        $this->view('Mantenimiento.aprendizaje', [
+        $this->view('Recepcion.aprendizaje', [
             'titulo'        => $nombreSistema . ' - Aprendizaje',
             'nombreSistema' => $nombreSistema,
             'usuario'       => $usuario,
@@ -50,7 +50,7 @@ final class MantenimientoController extends BaseController
         $usuario = AuthService::getLoggedUser();
         $aprendizId = (int) ($usuario['id'] ?? 0);
         if ($aprendizId < 1) {
-            $this->redirect('/mantenimiento', 302);
+            $this->redirect('/recepcion', 302);
             return;
         }
 
@@ -58,7 +58,7 @@ final class MantenimientoController extends BaseController
         $revisiones = $inspeccionModel->listarPorAprendiz($aprendizId);
 
         $nombreSistema = ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick';
-        $this->view('Mantenimiento.mis_revisiones', [
+        $this->view('Recepcion.mis_revisiones', [
             'titulo'     => $nombreSistema . ' - Mis revisiones',
             'usuario'    => $usuario,
             'revisiones' => $revisiones,
@@ -79,8 +79,8 @@ final class MantenimientoController extends BaseController
             $nombreTutor = $tutor['nombre'] ?? '';
         }
 
-        $this->view('Mantenimiento.crear', [
-            'titulo'       => $nombreSistema . ' - Crear mantenimiento',
+        $this->view('Recepcion.crear', [
+            'titulo'       => $nombreSistema . ' - Crear recepción',
             'usuario'      => $usuario,
             'nombreTutor'  => $nombreTutor,
         ]);
@@ -90,14 +90,14 @@ final class MantenimientoController extends BaseController
     {
         AuthService::requireAprendiz();
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-            $this->redirect('/mantenimiento/crear', 302);
+            $this->redirect('/recepcion/crear', 302);
             return;
         }
 
         $usuario = AuthService::getLoggedUser();
         $aprendizId = (int) ($usuario['id'] ?? 0);
         if ($aprendizId < 1) {
-            $this->redirect('/mantenimiento', 302);
+            $this->redirect('/recepcion', 302);
             return;
         }
 
@@ -106,11 +106,11 @@ final class MantenimientoController extends BaseController
         if ($errores !== []) {
             $_SESSION['mantenimiento_crear_errores'] = $errores;
             $_SESSION['mantenimiento_crear_datos'] = $datos;
-            $this->redirect('/mantenimiento/crear', 302);
+            $this->redirect('/recepcion/crear', 302);
             return;
         }
 
-        $tutorId = ConfiguracionModel::get('tutor_mantenimiento_id');
+        $tutorId = ConfiguracionModel::get('tutor_recepcion_id');
         $instructorId = null;
         if (is_numeric($tutorId) && (int) $tutorId > 0) {
             $instructorId = (int) $tutorId;
@@ -124,8 +124,8 @@ final class MantenimientoController extends BaseController
             $checklistDatosModel = new ChecklistDatosModel();
             $checklistDatosModel->guardarOActualizar($inspeccionId, $datos);
         } catch (Throwable $e) {
-            $_SESSION['mantenimiento_crear_errores'] = ['No se pudo crear el mantenimiento. Intente de nuevo.'];
-            $this->redirect('/mantenimiento/crear', 302);
+            $_SESSION['mantenimiento_crear_errores'] = ['No se pudo crear la recepción. Intente de nuevo.'];
+            $this->redirect('/recepcion/crear', 302);
             return;
         }
 
@@ -134,7 +134,7 @@ final class MantenimientoController extends BaseController
     }
 
     /**
-     * Detalle de una revisión (solo lectura). Ruta: /mantenimiento/revision/{id}
+     * Detalle de una revisión (solo lectura). Ruta: /recepcion/revision/{id}
      */
     public function revision(string $id): void
     {
@@ -143,14 +143,14 @@ final class MantenimientoController extends BaseController
         $aprendizId = (int) ($usuario['id'] ?? 0);
         $inspeccionId = (int) $id;
         if ($aprendizId < 1 || $inspeccionId < 1) {
-            $this->redirect('/mantenimiento/mis-revisiones', 302);
+            $this->redirect('/recepcion/mis-revisiones', 302);
             return;
         }
 
         $inspeccionModel = new InspeccionModel();
         $detalle = $inspeccionModel->obtenerDetalleParaAprendiz($inspeccionId, $aprendizId);
         if ($detalle === null) {
-            $this->redirect('/mantenimiento/mis-revisiones', 302);
+            $this->redirect('/recepcion/mis-revisiones', 302);
             return;
         }
 
@@ -188,7 +188,7 @@ final class MantenimientoController extends BaseController
     {
         AuthService::requireAprendiz();
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-            $this->redirect('/mantenimiento', 302);
+            $this->redirect('/recepcion', 302);
             return;
         }
 
@@ -201,21 +201,21 @@ final class MantenimientoController extends BaseController
         }
 
         if ($aprendizId < 1 || $inspeccionId < 1) {
-            $this->redirect('/mantenimiento/mis-revisiones', 302);
+            $this->redirect('/recepcion/mis-revisiones', 302);
             return;
         }
 
         $inspeccionModel = new InspeccionModel();
         $inspeccion = $inspeccionModel->obtenerBasica($inspeccionId);
         if ($inspeccion === null || $inspeccion['aprendiz_id'] !== $aprendizId || $inspeccion['estado'] !== 'finalizada') {
-            $this->redirect('/mantenimiento/mis-revisiones', 302);
+            $this->redirect('/recepcion/mis-revisiones', 302);
             return;
         }
 
         $ayudantesModel = new InspeccionAyudantesModel();
         $ayudantesModel->agregarVarios($inspeccionId, $aprendizId, $aprendizIds);
 
-        $this->redirect('/mantenimiento/revision/' . $inspeccionId, 302);
+        $this->redirect('/recepcion/revision/' . $inspeccionId, 302);
     }
 
     /**

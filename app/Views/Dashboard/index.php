@@ -110,10 +110,10 @@
                     <div class="dashboard__card-icon">
                         <i class="fas fa-wrench"></i>
                     </div>
-                    <h2 class="dashboard__card-title">Módulo de Mantenimiento</h2>
-                    <p class="dashboard__card-description">Realizar inspecciones de vehículos.</p>
+                    <h2 class="dashboard__card-title">Módulo de Recepción</h2>
+                    <p class="dashboard__card-description">Realizar recepción de vehículos.</p>
                     <div class="dashboard__card-actions">
-                        <a href="/mantenimiento" class="btn btn--dashboard">
+                        <a href="/recepcion" class="btn btn--dashboard">
                             <i class="fas fa-car-side"></i> Entrar al Módulo
                         </a>
                     </div>

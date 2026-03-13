@@ -34,7 +34,8 @@ final class InspeccionModel extends BaseModel
     }
 
     /**
-     * Crea una inspección desde el módulo de mantenimiento (aprendiz + tutor asignado).
+     * Crea una inspección desde el módulo de recepción (aprendiz + tutor asignado).
+     * Método conservando la firma original por compatibilidad.
      */
     public function crearDesdeMantenimiento(string $token, int $aprendizId, ?int $instructorId = null): int
     {

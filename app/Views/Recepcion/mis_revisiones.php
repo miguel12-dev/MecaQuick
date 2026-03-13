@@ -19,7 +19,7 @@
             </p>
 
             <div class="dashboard__actions">
-                <a href="/mantenimiento" class="btn btn--secondary">Volver al módulo</a>
+                <a href="/recepcion" class="btn btn--secondary">Volver al módulo</a>
             </div>
 
             <?php if (empty($revisiones)): ?>
@@ -51,7 +51,7 @@
                                 <td><?= (int) ($r['porcentaje_avance'] ?? 0) ?>%</td>
                                 <td><?= $esResponsable ? 'Responsable' : 'Ayudante' ?></td>
                                 <td>
-                                    <a href="/mantenimiento/revision/<?= (int) $r['id'] ?>" class="btn btn--secondary btn--small">Ver detalle</a>
+                                    <a href="/recepcion/revision/<?= (int) $r['id'] ?>" class="btn btn--secondary btn--small">Ver detalle</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

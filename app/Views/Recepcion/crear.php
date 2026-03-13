@@ -8,7 +8,7 @@ $asesorVal = $datos['asesor'] ?? $nombreTutor ?? '';
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= htmlspecialchars($titulo ?? 'Crear mantenimiento') ?></title>
+    <title><?= htmlspecialchars($titulo ?? 'Crear recepción') ?></title>
     <link rel="icon" type="image/png" href="/assets/img/logo_sena.png">
     <link rel="stylesheet" href="/assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -18,13 +18,13 @@ $asesorVal = $datos['asesor'] ?? $nombreTutor ?? '';
 
     <main class="layout layout--form-page">
         <section class="panel panel--form">
-            <h1 class="panel__title">Crear nuevo mantenimiento</h1>
+            <h1 class="panel__title">Crear nueva recepción</h1>
             <p class="panel__intro">
                 Complete los datos del vehículo y de la orden. El tutor del módulo será asignado automáticamente. Tras guardar, pasará directamente a completar los puntos del checklist de revisión.
             </p>
 
             <div class="dashboard__actions" style="margin-bottom: 1rem;">
-                <a href="/mantenimiento" class="btn btn--secondary">Volver al módulo</a>
+                <a href="/recepcion" class="btn btn--secondary">Volver al módulo</a>
             </div>
 
             <?php if ($errores !== []): ?>
@@ -37,7 +37,7 @@ $asesorVal = $datos['asesor'] ?? $nombreTutor ?? '';
                 </div>
             <?php endif; ?>
 
-            <form action="/mantenimiento/guardar-nuevo" method="post" class="mantenimiento-crear-form">
+            <form action="/recepcion/guardar-nuevo" method="post" class="mantenimiento-crear-form">
                 <div class="checklist-grid checklist-grid--cabecera">
                     <div class="form__group">
                         <label for="numero_orden">Núm. de orden *</label>
@@ -105,7 +105,7 @@ $asesorVal = $datos['asesor'] ?? $nombreTutor ?? '';
                     </div>
                 </div>
                 <div class="form__actions" style="margin-top: 1.25rem;">
-                    <a href="/mantenimiento" class="btn btn--secondary">Cancelar</a>
+                    <a href="/recepcion" class="btn btn--secondary">Cancelar</a>
                     <button type="submit" class="btn btn--primary">Crear y continuar al checklist</button>
                 </div>
             </form>

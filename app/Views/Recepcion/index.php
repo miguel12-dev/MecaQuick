@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= htmlspecialchars($titulo ?? 'Módulo de mantenimiento') ?></title>
+    <title><?= htmlspecialchars($titulo ?? 'Módulo de recepción') ?></title>
     <link rel="icon" type="image/png" href="/assets/img/logo_sena.png">
     <link rel="stylesheet" href="/assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -14,22 +14,23 @@
     <main class="layout layout--dashboard">
         <div class="dashboard__header">
             <div class="dashboard__header-icon">
-                <i class="fas fa-tools"></i>
+                <i class="fas fa-clipboard-check"></i>
             </div>
-            <h1 class="dashboard__header-title">Módulo de Mantenimiento</h1>
-            <p class="dashboard__header-subtitle">Gestiona tu aprendizaje y realiza inspecciones vehiculares.</p>
+            <h1 class="dashboard__header-title">Módulo de Recepción</h1>
+            <p class="dashboard__header-subtitle">Gestiona la recepción de vehículos y tus inspecciones.</p>
         </div>
 
         <div class="dashboard__grid">
+
             <article class="dashboard__card">
                 <div class="dashboard__card-icon">
-                    <i class="fas fa-book-open"></i>
+                    <i class="fas fa-plus-circle"></i>
                 </div>
-                <h2 class="dashboard__card-title">Aprendizaje</h2>
-                <p class="dashboard__card-description">Accede al contenido formativo del módulo.</p>
+                <h2 class="dashboard__card-title">Nueva Inspección</h2>
+                <p class="dashboard__card-description">Crear checklist o mantenimiento vehicular.</p>
                 <div class="dashboard__card-actions">
-                    <a href="/mantenimiento/aprendizaje" class="btn btn--dashboard">
-                        <i class="fas fa-graduation-cap"></i> Ir a Aprendizaje
+                    <a href="/recepcion/crear" class="btn btn--dashboard">
+                        <i class="fas fa-car"></i> Crear Inspección
                     </a>
                 </div>
             </article>
@@ -41,7 +42,7 @@
                 <h2 class="dashboard__card-title">Mis Revisiones</h2>
                 <p class="dashboard__card-description">Consulta los vehículos y checklists realizados.</p>
                 <div class="dashboard__card-actions">
-                    <a href="/mantenimiento/mis-revisiones" class="btn btn--dashboard">
+                    <a href="/recepcion/mis-revisiones" class="btn btn--dashboard">
                         <i class="fas fa-list-alt"></i> Ver Revisiones
                     </a>
                 </div>
@@ -49,16 +50,17 @@
 
             <article class="dashboard__card">
                 <div class="dashboard__card-icon">
-                    <i class="fas fa-plus-circle"></i>
+                    <i class="fas fa-book-open"></i>
                 </div>
-                <h2 class="dashboard__card-title">Nueva Inspección</h2>
-                <p class="dashboard__card-description">Crear checklist o mantenimiento vehicular.</p>
+                <h2 class="dashboard__card-title">Aprendizaje</h2>
+                <p class="dashboard__card-description">Accede al contenido formativo del módulo.</p>
                 <div class="dashboard__card-actions">
-                    <a href="/mantenimiento/crear" class="btn btn--dashboard">
-                        <i class="fas fa-car"></i> Crear Inspección
+                    <a href="/recepcion/aprendizaje" class="btn btn--dashboard">
+                        <i class="fas fa-graduation-cap"></i> Ir a Aprendizaje
                     </a>
                 </div>
             </article>
+
         </div>
     </main>
 
