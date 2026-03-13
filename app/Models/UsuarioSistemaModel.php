@@ -150,4 +150,54 @@ final class UsuarioSistemaModel extends BaseModel
         $fila['id'] = (int) $fila['id'];
         return $fila;
     }
+
+    /**
+     * Obtiene un usuario por ID para edición (incluye estado activo/inactivo).
+     *
+     * @return array{id: int, nombre: string, email: string, rol: string, activo: int}|null
+     */
+    public function obtenerParaEdicion(int $id): ?array
+    {
+        $fila = $this->fetchOne(
+            'SELECT id, nombre, email, rol, activo FROM ' . self::TABLE . ' WHERE id = :id LIMIT 1',
+            [':id' => $id]
+        );
+
+        if ($fila === null) {
+            return null;
+        }
+
+        $fila['id'] = (int) $fila['id'];
+        $fila['activo'] = (int) $fila['activo'];
+        return $fila;
+    }
+
+    /**
+     * Actualiza un usuario (nombre, email, estado).
+     */
+    public function actualizar(int $id, string $nombre, string $email, int $activo): bool
+    {
+        $filas = $this->executeStatement(
+            'UPDATE ' . self::TABLE . ' SET nombre = :nombre, email = :email, activo = :activo WHERE id = :id',
+            [
+                ':id'     => $id,
+                ':nombre' => $nombre,
+                ':email'  => $email,
+                ':activo' => $activo,
+            ]
+        );
+        return $filas > 0;
+    }
+
+    /**
+     * Elimina un usuario (soft delete: marca como inactivo).
+     */
+    public function eliminar(int $id): bool
+    {
+        $filas = $this->executeStatement(
+            'UPDATE ' . self::TABLE . ' SET activo = 0 WHERE id = :id',
+            [':id' => $id]
+        );
+        return $filas > 0;
+    }
 }
