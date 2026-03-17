@@ -234,7 +234,10 @@
         document.body.appendChild(div);
     };
 
-    const skipCabecera = form.dataset.skipCabecera === "1";
-    showStep(skipCabecera ? 1 : 0);
+    const startStepRaw = Number(form.dataset.startStep || NaN);
+    const startStep = Number.isFinite(startStepRaw)
+        ? Math.max(0, Math.min(Math.trunc(startStepRaw), steps.length - 1))
+        : (form.dataset.skipCabecera === "1" ? 1 : 0);
+    showStep(startStep);
     updateProgress();
 })();

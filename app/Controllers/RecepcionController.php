@@ -197,13 +197,48 @@ final class RecepcionController extends BaseController
             $instructorId = (int) $tutorId;
         }
 
-        $token = bin2hex(random_bytes(32));
+        $citaIdRaw = trim((string) ($_POST['cita_id'] ?? ''));
+        $citaId = ($citaIdRaw !== '' && $citaIdRaw !== 'sin-cita' && ctype_digit($citaIdRaw)) ? (int) $citaIdRaw : null;
+
         try {
             $inspeccionModel = new InspeccionModel();
-            $inspeccionId = $inspeccionModel->crearDesdeMantenimiento($token, $aprendizId, $instructorId);
+            if ($citaId !== null) {
+                $existente = $inspeccionModel->obtenerPorCitaId($citaId);
+                if ($existente !== null) {
+                    $aprendizExistente = (int) ($existente['aprendiz_id'] ?? 0);
+                    if ($aprendizExistente > 0 && $aprendizExistente !== $aprendizId) {
+                        $this->redirect('/recepcion', 302);
+                        return;
+                    }
+
+                    $estado = (string) ($existente['estado'] ?? 'en_proceso');
+                    if ($estado === 'finalizada') {
+                        $citaModel = new CitaModel();
+                        $citaModel->actualizarEstado($citaId, 'completada');
+                        $this->redirect('/recepcion/revision/' . urlencode((string) $existente['id']), 302);
+                        return;
+                    }
+
+                    $tokenExistente = (string) ($existente['token'] ?? '');
+                    if ($tokenExistente !== '') {
+                        $citaModel = new CitaModel();
+                        $citaModel->actualizarEstado($citaId, 'confirmada');
+                        $this->redirect('/checklist?token=' . urlencode($tokenExistente), 302);
+                        return;
+                    }
+                }
+            }
+
+            $token = bin2hex(random_bytes(32));
+            $inspeccionId = $inspeccionModel->crearDesdeMantenimiento($token, $aprendizId, $instructorId, $citaId);
 
             $checklistDatosModel = new ChecklistDatosModel();
             $checklistDatosModel->guardarOActualizar($inspeccionId, $datos);
+
+            if ($citaId !== null) {
+                $citaModel = new CitaModel();
+                $citaModel->actualizarEstado($citaId, 'confirmada');
+            }
         } catch (Throwable $e) {
             $_SESSION['mantenimiento_crear_errores'] = ['No se pudo crear la recepción. Intente de nuevo.'];
             $_SESSION['mantenimiento_crear_datos'] = $datos;

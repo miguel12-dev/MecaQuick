@@ -71,4 +71,41 @@ final class ResultadosPuntosModel extends BaseModel
             );
         }
     }
+
+    /**
+     * Obtiene los resultados guardados por inspección, indexados por punto_id.
+     *
+     * @return array<int, array{estado: string, valor_medido: string|null, observacion: string|null}>
+     */
+    public function obtenerPorInspeccion(int $inspeccionId): array
+    {
+        $rows = $this->fetchAll(
+            'SELECT punto_id, estado, valor_medido, observacion
+             FROM resultados_puntos
+             WHERE inspeccion_id = :id',
+            [':id' => $inspeccionId]
+        );
+        $map = [];
+        foreach ($rows as $r) {
+            $puntoId = (int) ($r['punto_id'] ?? 0);
+            if ($puntoId < 1) {
+                continue;
+            }
+            $map[$puntoId] = [
+                'estado' => (string) ($r['estado'] ?? ''),
+                'valor_medido' => isset($r['valor_medido']) ? (string) $r['valor_medido'] : null,
+                'observacion' => isset($r['observacion']) ? (string) $r['observacion'] : null,
+            ];
+        }
+        return $map;
+    }
+
+    public function contarPorInspeccion(int $inspeccionId): int
+    {
+        $row = $this->fetchOne(
+            'SELECT COUNT(*) AS total FROM resultados_puntos WHERE inspeccion_id = :id',
+            [':id' => $inspeccionId]
+        );
+        return (int) ($row['total'] ?? 0);
+    }
 }

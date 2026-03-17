@@ -1,6 +1,7 @@
 <?php
 $vehiculos = $vehiculos ?? [];
 $usuario = $usuario ?? null;
+$hoy = date('Y-m-d');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -19,23 +20,23 @@ $usuario = $usuario ?? null;
         <section class="panel panel--form">
             <h1 class="panel__title">Checklist técnico – vehículos</h1>
             <p class="panel__intro">
-                Seleccione un vehículo pendiente o con revisión completa para continuar el checklist, o inicie una nueva revisión.
+                Seleccione una recepción asignada para continuar un checklist pendiente o revisar uno finalizado.
             </p>
 
             <div class="checklist-lista__actions">
-                <a href="/checklist/nuevo" class="btn btn--primary">
-                    <i class="fas fa-plus-circle"></i>
-                    Nueva revisión
+                <a href="/recepcion/mis-revisiones" class="btn btn--primary">
+                    <i class="fas fa-history"></i>
+                    Mis recepciones
                 </a>
             </div>
 
             <?php if (empty($vehiculos)): ?>
                 <p class="checklist-lista__vacio">
-                    No hay vehículos pendientes ni con revisión completa registrados.
+                    No hay checklists asignados para hoy.
                     <?php if ($usuario === null): ?>
-                        <a href="/login">Inicie sesión</a> para ver sus inspecciones o cree una <a href="/checklist/nuevo">nueva revisión</a>.
+                        <a href="/login">Inicie sesión</a> para ver sus recepciones asignadas.
                     <?php else: ?>
-                        Cree una nueva revisión desde <a href="/recepcion">recepción</a> o mediante el botón anterior.
+                        Inicie una recepción desde <a href="/recepcion">Recepción</a> o consulte <a href="/recepcion/mis-revisiones">Mis recepciones</a>.
                     <?php endif; ?>
                 </p>
             <?php else: ?>
@@ -55,24 +56,34 @@ $usuario = $usuario ?? null;
                         <tbody>
                             <?php foreach ($vehiculos as $v): ?>
                                 <?php
+                                $fechaIso = isset($v['inicio_at']) ? date('Y-m-d', strtotime($v['inicio_at'])) : '';
                                 $fecha = isset($v['inicio_at']) ? date('d/m/Y H:i', strtotime($v['inicio_at'])) : '—';
                                 $estado = $v['estado'] ?? 'en_proceso';
                                 $estadoLabel = $estado === 'finalizada' ? 'Revisión completa' : 'Pendiente';
                                 $estadoClase = $estado === 'finalizada' ? 'checklist-lista__estado--completa' : 'checklist-lista__estado--pendiente';
                                 $urlChecklist = '/checklist?token=' . urlencode($v['token'] ?? '');
+                                $urlRevision = '/recepcion/revision/' . urlencode((string) ($v['id'] ?? '0'));
+                                $esHoy = $fechaIso !== '' && $fechaIso === $hoy;
                                 ?>
                                 <tr>
                                     <td><?= htmlspecialchars($v['placa'] ?? '—') ?></td>
                                     <td><?= htmlspecialchars($v['modelo'] ?? '—') ?></td>
                                     <td><?= htmlspecialchars($v['encargado'] ?? '—') ?></td>
-                                    <td><?= htmlspecialchars($fecha) ?></td>
+                                    <td><?= htmlspecialchars($fecha) ?><?= $esHoy ? ' (Hoy)' : '' ?></td>
                                     <td><span class="checklist-lista__estado <?= $estadoClase ?>"><?= htmlspecialchars($estadoLabel) ?></span></td>
                                     <td><?= (int) ($v['porcentaje_avance'] ?? 0) ?>%</td>
                                     <td>
-                                        <a href="<?= htmlspecialchars($urlChecklist) ?>" class="btn btn--primary btn--small">
-                                            <i class="fas fa-clipboard-list"></i>
-                                            Ir al checklist
-                                        </a>
+                                        <?php if ($estado === 'finalizada'): ?>
+                                            <a href="<?= htmlspecialchars($urlRevision) ?>" class="btn btn--secondary btn--small">
+                                                <i class="fas fa-eye"></i>
+                                                Revisar
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="<?= htmlspecialchars($urlChecklist) ?>" class="btn btn--primary btn--small">
+                                                <i class="fas fa-play"></i>
+                                                Continuar
+                                            </a>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

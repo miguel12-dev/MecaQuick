@@ -1,6 +1,8 @@
 <?php
 $c = $cabeceraPrecargada ?? [];
 $skipCabecera = !empty($skipPasoCabecera);
+$respuestasGuardadas = $respuestasGuardadas ?? [];
+$startStepIndex = isset($startStepIndex) ? (int) $startStepIndex : ($skipCabecera ? 1 : 0);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -49,13 +51,14 @@ $skipCabecera = !empty($skipPasoCabecera);
                 class="checklist-form"
                 data-total="<?= (int) ($totalPuntos ?? 0) ?>"
                 data-save-url="/checklist/guardar-paso"
+                data-start-step="<?= (int) $startStepIndex ?>"
                 <?= !empty($redirectAprendizAlFinalizar) ? ' data-redirect-aprendiz="1"' : '' ?>
                 <?= $skipCabecera ? ' data-skip-cabecera="1"' : '' ?>
                 novalidate
             >
                 <input type="hidden" id="checklistToken" name="token" value="<?= htmlspecialchars($tokenInicial ?? '') ?>">
 
-                <section class="checklist-step<?= $skipCabecera ? '' : ' is-active' ?>" data-step="0">
+                <section class="checklist-step" data-step="0">
                     <h2 class="checklist-step__title">1. Datos del Cliente y Vehículo</h2>
                     <p class="checklist-step__hint">Todos los campos marcados con * son obligatorios.</p>
                     <div class="checklist-grid checklist-grid--cabecera">
@@ -109,38 +112,54 @@ $skipCabecera = !empty($skipPasoCabecera);
                     $unidadMedida = (string) ($punto['unidad_medida'] ?? 'N/A');
                     $requiereValorMedido = $unidadMedida !== 'N/A';
                     $esPrimerPunto = $indice === 0;
+                    $guardado = $respuestasGuardadas[$puntoId] ?? null;
+                    $estadoGuardado = is_array($guardado) ? (string) ($guardado['estado'] ?? '') : '';
+                    $valorMedidoGuardado = is_array($guardado) ? ($guardado['valor_medido'] ?? null) : null;
+                    $observacionGuardada = is_array($guardado) ? ($guardado['observacion'] ?? null) : null;
                     ?>
-                    <section class="checklist-step<?= $skipCabecera && $esPrimerPunto ? ' is-active' : '' ?>" data-step="<?= $puntoId ?>" data-punto-id="<?= $puntoId ?>">
+                    <section class="checklist-step" data-step="<?= $puntoId ?>" data-punto-id="<?= $puntoId ?>">
                         <h2 class="checklist-step__title">2. Checklist de 25 Puntos — Punto <?= $numeroPunto ?> de <?= (int) ($totalPuntos ?? 0) ?></h2>
                         <article class="checklist-question">
                             <p class="checklist-question__text"><?= htmlspecialchars($descripcion) ?></p>
                             <?php if ($requiereValorMedido): ?>
                                 <div class="form__group checklist-question__valor">
                                     <label for="valor_medido_<?= $puntoId ?>">Valor (<?= htmlspecialchars($unidadMedida) ?>)</label>
-                                    <input type="text" id="valor_medido_<?= $puntoId ?>" name="valor_medido[<?= $puntoId ?>]" placeholder="Ej. 4, 09/2025">
+                                    <input
+                                        type="text"
+                                        id="valor_medido_<?= $puntoId ?>"
+                                        name="valor_medido[<?= $puntoId ?>]"
+                                        placeholder="Ej. 4, 09/2025"
+                                        value="<?= htmlspecialchars((string) ($valorMedidoGuardado ?? '')) ?>"
+                                    >
                                 </div>
                             <?php endif; ?>
                             <div class="checklist-question__options">
                                 <label>
-                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="bueno" required>
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="bueno" required <?= $estadoGuardado === 'bueno' ? 'checked' : '' ?>>
                                     Bueno
                                 </label>
                                 <label>
-                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="regular">
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="regular" <?= $estadoGuardado === 'regular' ? 'checked' : '' ?>>
                                     Regular
                                 </label>
                                 <label>
-                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="malo">
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="malo" <?= $estadoGuardado === 'malo' ? 'checked' : '' ?>>
                                     Malo
                                 </label>
                                 <label>
-                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="no_aplica">
+                                    <input type="radio" name="responses[<?= $puntoId ?>]" value="no_aplica" <?= $estadoGuardado === 'no_aplica' ? 'checked' : '' ?>>
                                     No aplica
                                 </label>
                             </div>
                             <div class="form__group checklist-question__observacion">
                                 <label for="observacion_<?= $puntoId ?>">Observaciones</label>
-                                <input type="text" id="observacion_<?= $puntoId ?>" name="observaciones_puntos[<?= $puntoId ?>]" placeholder="Observación específica de este punto (opcional)">
+                                <input
+                                    type="text"
+                                    id="observacion_<?= $puntoId ?>"
+                                    name="observaciones_puntos[<?= $puntoId ?>]"
+                                    placeholder="Observación específica de este punto (opcional)"
+                                    value="<?= htmlspecialchars((string) ($observacionGuardada ?? '')) ?>"
+                                >
                             </div>
                         </article>
                         <div class="form__actions">

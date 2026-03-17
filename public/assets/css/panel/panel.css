@@ -90,6 +90,39 @@
     margin-bottom: 0.5rem;
 }
 
+/**
+ * Tablas dentro de paneles.
+ * Convención: usar <table class="panel-table"> para estilo consistente.
+ */
+.panel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    background-color: var(--bg-white);
+}
+
+.panel-table th,
+.panel-table td {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.panel-table thead th {
+    color: var(--text-main);
+    font-weight: 600;
+    background-color: var(--bg-page, #f5f5f5);
+}
+
+.panel-table tbody td {
+    color: var(--text-muted);
+}
+
+.panel-table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
 @media (min-width: 768px) {
     .panel--info,
     .panel--form {

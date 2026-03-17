@@ -280,6 +280,15 @@
     margin-top: 0.5rem;
 }
 
+.checklist-lista__tabla {
+    min-width: 720px;
+}
+
+.checklist-lista__tabla th:last-child,
+.checklist-lista__tabla td:last-child {
+    white-space: nowrap;
+}
+
 .checklist-lista__vacio {
     color: var(--text-muted);
     margin: 1rem 0;

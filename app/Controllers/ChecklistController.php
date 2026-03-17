@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Models\ChecklistDatosModel;
+use App\Models\CitaModel;
 use App\Models\FechaDisponibleModel;
 use App\Models\InspeccionModel;
 use App\Models\PuntosCatalogoModel;
@@ -140,10 +141,46 @@ final class ChecklistController extends BaseController
     }
 
     /**
-     * Formulario público del checklist para pruebas.
+     * Acceso principal al checklist.
+     *
+     * - Sin token: lista checklists asignados al aprendiz (hoy primero).
+     * - Con token: abre el formulario del checklist para continuar.
      */
     public function index(): void
     {
+        $tokenInicial = isset($_GET['token']) ? trim((string) $_GET['token']) : '';
+        if ($tokenInicial === '') {
+            AuthService::requireAprendiz();
+            $usuario = AuthService::getLoggedUser();
+            $aprendizId = (int) ($usuario['id'] ?? 0);
+            if ($aprendizId < 1) {
+                header('Location: /login', true, 302);
+                exit;
+            }
+
+            $inspeccionModel = new InspeccionModel();
+            $vehiculos = $inspeccionModel->listarPorAprendiz($aprendizId);
+
+            $hoy = date('Y-m-d');
+            usort($vehiculos, static function (array $a, array $b) use ($hoy): int {
+                $aTs = isset($a['inicio_at']) ? strtotime((string) $a['inicio_at']) : 0;
+                $bTs = isset($b['inicio_at']) ? strtotime((string) $b['inicio_at']) : 0;
+                $aHoy = $aTs > 0 && date('Y-m-d', $aTs) === $hoy;
+                $bHoy = $bTs > 0 && date('Y-m-d', $bTs) === $hoy;
+                if ($aHoy !== $bHoy) {
+                    return $aHoy ? -1 : 1;
+                }
+                return $bTs <=> $aTs;
+            });
+
+            $this->view('Checklist.lista_vehiculos', [
+                'titulo' => 'MecaQuick - Checklist de vehículos',
+                'vehiculos' => $vehiculos,
+                'usuario' => $usuario,
+            ]);
+            return;
+        }
+
         try {
             $puntosModel = new PuntosCatalogoModel();
             $puntos = $puntosModel->listarActivos();
@@ -157,19 +194,55 @@ final class ChecklistController extends BaseController
             return;
         }
 
-        $tokenInicial = isset($_GET['token']) ? trim((string) $_GET['token']) : '';
         $usuario = AuthService::getLoggedUser();
         $redirectAprendizAlFinalizar = $usuario !== null && ($usuario['rol'] ?? '') === 'aprendiz';
 
         $cabeceraPrecargada = null;
         $skipPasoCabecera = false;
+        $respuestasGuardadas = [];
+        $startStepIndex = 0;
         if ($tokenInicial !== '') {
             $inspeccionModel = new InspeccionModel();
             $inspeccion = $inspeccionModel->obtenerPorToken($tokenInicial);
-            if ($inspeccion !== null) {
-                $checklistDatosModel = new ChecklistDatosModel();
-                $cabeceraPrecargada = $checklistDatosModel->obtenerPorInspeccionId((int) $inspeccion['id']);
-                $skipPasoCabecera = $cabeceraPrecargada !== null;
+            if ($inspeccion === null) {
+                header('Location: /checklist', true, 302);
+                exit;
+            }
+
+            if ($usuario !== null && ($usuario['rol'] ?? '') === 'aprendiz') {
+                $aprendizId = (int) ($usuario['id'] ?? 0);
+                $inspeccionId = (int) ($inspeccion['id'] ?? 0);
+                if ($aprendizId < 1 || $inspeccionId < 1 || !$inspeccionModel->puedeVerAprendiz($inspeccionId, $aprendizId)) {
+                    header('Location: /checklist', true, 302);
+                    exit;
+                }
+            }
+
+            $checklistDatosModel = new ChecklistDatosModel();
+            $cabeceraPrecargada = $checklistDatosModel->obtenerPorInspeccionId((int) $inspeccion['id']);
+            $skipPasoCabecera = $cabeceraPrecargada !== null;
+
+            $resultadosModel = new ResultadosPuntosModel();
+            $respuestasGuardadas = $resultadosModel->obtenerPorInspeccion((int) $inspeccion['id']);
+
+            // Reanudar en el primer punto pendiente (o en final si están todos).
+            $startStepIndex = $skipPasoCabecera ? 1 : 0;
+            $primerPendienteIdx = null;
+            foreach (($puntos ?? []) as $idx => $punto) {
+                $pid = (int) ($punto['id'] ?? 0);
+                if ($pid < 1) {
+                    continue;
+                }
+                if (!isset($respuestasGuardadas[$pid]) || trim((string) ($respuestasGuardadas[$pid]['estado'] ?? '')) === '') {
+                    $primerPendienteIdx = $idx;
+                    break;
+                }
+            }
+            if ($primerPendienteIdx !== null) {
+                $startStepIndex = ($skipPasoCabecera ? 1 : 1) + $primerPendienteIdx;
+            } else {
+                // Todas respondidas, saltar a sección final.
+                $startStepIndex = ($skipPasoCabecera ? 1 : 1) + count($puntos);
             }
         }
 
@@ -181,6 +254,8 @@ final class ChecklistController extends BaseController
             'redirectAprendizAlFinalizar' => $redirectAprendizAlFinalizar,
             'cabeceraPrecargada' => $cabeceraPrecargada,
             'skipPasoCabecera' => $skipPasoCabecera,
+            'respuestasGuardadas' => $respuestasGuardadas,
+            'startStepIndex' => $startStepIndex,
         ]);
     }
 
@@ -202,13 +277,16 @@ final class ChecklistController extends BaseController
 
         $token = trim((string) ($_POST['token'] ?? ''));
         if ($token === '') {
-            $token = bin2hex(random_bytes(32));
+            $this->json(['ok' => false, 'message' => 'Token requerido. Inicie la recepción para obtener un checklist asignado.'], 422);
         }
 
         $finalizado = (int) ($_POST['finalizado'] ?? 0) === 1;
         $datos = $this->extraerDatosCabecera($_POST);
         $inspeccionModel = new InspeccionModel();
         $inspeccion = $inspeccionModel->obtenerPorToken($token);
+        if ($inspeccion === null) {
+            $this->json(['ok' => false, 'message' => 'Checklist no asignado. Cree la recepción para obtener un checklist válido.'], 403);
+        }
         if ($inspeccion !== null) {
             $checklistDatosModel = new ChecklistDatosModel();
             $existente = $checklistDatosModel->obtenerPorInspeccionId((int) $inspeccion['id']);
@@ -252,30 +330,10 @@ final class ChecklistController extends BaseController
             }
         }
 
-        $preguntasRespondidas = count($resultados);
         $ultimaPregunta = (int) ($_POST['ultima_pregunta'] ?? 0);
         $ultimaPregunta = max(0, min($ultimaPregunta, $totalPuntos));
 
-        if ($finalizado && $preguntasRespondidas !== $totalPuntos) {
-            $this->json(
-                ['ok' => false, 'message' => 'Debe completar todas las preguntas para finalizar.'],
-                422
-            );
-        }
-
-        $porcentajeAvance = $totalPuntos > 0
-            ? (int) round(($preguntasRespondidas / $totalPuntos) * 100)
-            : 0;
-
         try {
-            if ($inspeccion === null) {
-                $inspeccionModel->crearStandalone($token);
-                $inspeccion = $inspeccionModel->obtenerPorToken($token);
-            }
-            if ($inspeccion === null) {
-                $this->json(['ok' => false, 'message' => 'No se pudo crear la inspección.'], 500);
-            }
-
             $inspeccionId = (int) $inspeccion['id'];
 
             $checklistDatosModel = new ChecklistDatosModel();
@@ -284,7 +342,27 @@ final class ChecklistController extends BaseController
             $resultadosModel = new ResultadosPuntosModel();
             $resultadosModel->guardarBatch($inspeccionId, $resultados);
 
+            $preguntasRespondidas = $resultadosModel->contarPorInspeccion($inspeccionId);
+            if ($finalizado && $preguntasRespondidas !== $totalPuntos) {
+                $this->json(
+                    ['ok' => false, 'message' => 'Debe completar todas las preguntas para finalizar.'],
+                    422
+                );
+            }
+
+            $porcentajeAvance = $totalPuntos > 0
+                ? (int) round(($preguntasRespondidas / $totalPuntos) * 100)
+                : 0;
+
             $inspeccionModel->actualizarAvance($inspeccionId, $porcentajeAvance, $finalizado);
+
+            if ($finalizado) {
+                $citaId = isset($inspeccion['cita_id']) ? (int) $inspeccion['cita_id'] : 0;
+                if ($citaId > 0) {
+                    $citaModel = new CitaModel();
+                    $citaModel->actualizarEstado($citaId, 'completada');
+                }
+            }
         } catch (Throwable $e) {
             $this->json(['ok' => false, 'message' => 'No fue posible guardar el avance.'], 500);
         }

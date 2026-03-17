@@ -37,19 +37,6 @@
 
             <article class="dashboard__card">
                 <div class="dashboard__card-icon">
-                    <i class="fas fa-history"></i>
-                </div>
-                <h2 class="dashboard__card-title">Mis Recepciones</h2>
-                <p class="dashboard__card-description">Consulta los vehículos recepcionados.</p>
-                <div class="dashboard__card-actions">
-                    <a href="/recepcion/mis-revisiones" class="btn btn--dashboard">
-                        <i class="fas fa-list-alt"></i> Ver Revisiones
-                    </a>
-                </div>
-            </article>
-
-            <article class="dashboard__card">
-                <div class="dashboard__card-icon">
                     <i class="fas fa-book-open"></i>
                 </div>
                 <h2 class="dashboard__card-title">Aprendizaje</h2>

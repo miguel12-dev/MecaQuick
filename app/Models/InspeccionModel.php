@@ -14,9 +14,38 @@ final class InspeccionModel extends BaseModel
     public function obtenerPorToken(string $token): ?array
     {
         return $this->fetchOne(
-            'SELECT id, token, estado, porcentaje_avance FROM inspecciones WHERE token = :token LIMIT 1',
+            'SELECT id, token, cita_id, aprendiz_id, estado, porcentaje_avance
+             FROM inspecciones
+             WHERE token = :token
+             LIMIT 1',
             [':token' => $token]
         );
+    }
+
+    /**
+     * Obtiene una inspección vinculada a una cita (si existe).
+     *
+     * @return array{id:int, token:string|null, estado:string, porcentaje_avance:int, aprendiz_id:int|null}|null
+     */
+    public function obtenerPorCitaId(int $citaId): ?array
+    {
+        if ($citaId < 1) {
+            return null;
+        }
+        $row = $this->fetchOne(
+            'SELECT id, token, estado, porcentaje_avance, aprendiz_id
+             FROM inspecciones
+             WHERE cita_id = :cita_id
+             LIMIT 1',
+            [':cita_id' => $citaId]
+        );
+        if ($row === null) {
+            return null;
+        }
+        $row['id'] = (int) $row['id'];
+        $row['porcentaje_avance'] = (int) ($row['porcentaje_avance'] ?? 0);
+        $row['aprendiz_id'] = isset($row['aprendiz_id']) ? (int) $row['aprendiz_id'] : null;
+        return $row;
     }
 
     public function crearStandalone(string $token, ?int $aprendizId = null): int
@@ -37,13 +66,14 @@ final class InspeccionModel extends BaseModel
      * Crea una inspección desde el módulo de recepción (aprendiz + tutor asignado).
      * Método conservando la firma original por compatibilidad.
      */
-    public function crearDesdeMantenimiento(string $token, int $aprendizId, ?int $instructorId = null): int
+    public function crearDesdeMantenimiento(string $token, int $aprendizId, ?int $instructorId = null, ?int $citaId = null): int
     {
         $this->executeStatement(
             'INSERT INTO inspecciones (token, cita_id, aprendiz_id, instructor_id, estado, porcentaje_avance, inicio_at)
-             VALUES (:token, NULL, :aprendiz_id, :instructor_id, :estado, 0, CURRENT_TIMESTAMP)',
+             VALUES (:token, :cita_id, :aprendiz_id, :instructor_id, :estado, 0, CURRENT_TIMESTAMP)',
             [
                 ':token' => $token,
+                ':cita_id' => $citaId,
                 ':aprendiz_id' => $aprendizId,
                 ':instructor_id' => $instructorId,
                 ':estado' => 'en_proceso',
@@ -189,9 +219,12 @@ final class InspeccionModel extends BaseModel
             'SELECT i.id, i.token, i.porcentaje_avance, i.estado,
                     COALESCE(i.inicio_at, cd.created_at) AS inicio_at,
                     cd.matricula AS placa,
+                    cd.tipo_comercial_modelo AS modelo,
+                    COALESCE(u.nombre, NULLIF(TRIM(cd.asesor), \'\'), \'Sin asignar\') AS encargado,
                     i.aprendiz_id = :aprendiz_id AS es_responsable
              FROM inspecciones i
              LEFT JOIN checklist_datos cd ON cd.inspeccion_id = i.id
+             LEFT JOIN usuarios_sistema u ON u.id = i.aprendiz_id
              LEFT JOIN inspeccion_ayudantes ia ON ia.inspeccion_id = i.id AND ia.aprendiz_id = :aprendiz_id2
              WHERE i.token IS NOT NULL
                AND (i.aprendiz_id = :aprendiz_id3 OR ia.inspeccion_id IS NOT NULL)

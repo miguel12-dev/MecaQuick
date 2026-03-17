@@ -36,6 +36,29 @@ final class CitaModel extends BaseModel
         );
     }
 
+    /**
+     * Actualiza el estado de una cita con transición controlada.
+     * Solo permite actualizar si la cita sigue en flujo operativo (pendiente/confirmada).
+     */
+    public function actualizarEstado(int $citaId, string $nuevoEstado): void
+    {
+        if ($citaId < 1) {
+            return;
+        }
+        $permitidos = ['pendiente', 'confirmada', 'completada'];
+        if (!in_array($nuevoEstado, $permitidos, true)) {
+            return;
+        }
+
+        $this->executeStatement(
+            'UPDATE citas
+             SET estado = :estado
+             WHERE id = :id
+               AND estado IN (\'pendiente\', \'confirmada\')',
+            [':estado' => $nuevoEstado, ':id' => $citaId]
+        );
+    }
+
     public function obtenerPorToken(string $token): ?array
     {
         $sql = <<<'SQL'
