@@ -69,10 +69,6 @@
                         <dt>Marca<?= (!empty($cita['modelo']) && $cita['modelo'] !== '-') ? ' / Modelo' : '' ?></dt>
                         <dd><?= htmlspecialchars(trim($cita['marca'] . ((!empty($cita['modelo']) && $cita['modelo'] !== '-') ? ' ' . $cita['modelo'] : ''))) ?></dd>
                     </div>
-                    <div>
-                        <dt>Año</dt>
-                        <dd><?= htmlspecialchars($cita['anio'] ?? '-') ?></dd>
-                    </div>
                 </dl>
             </div>
 

@@ -53,12 +53,12 @@ final class OrdenRepuestosModel extends BaseModel
             'INSERT INTO ordenes_repuestos (
                 inspeccion_id, cliente_nombre, cliente_documento, cliente_direccion, cliente_ciudad,
                 cliente_telefono, cliente_celular, cliente_email, vin, numero_motor, placa, modelo,
-                color, ano, fecha_entrada, hora_entrada, fecha_prometida, hora_prometida,
+                color, fecha_entrada, hora_entrada, fecha_prometida, hora_prometida,
                 mto_km, rep_gral, total, firma_recepcionista, firma_cliente, cc_recepcionista, cc_cliente
             ) VALUES (
                 :inspeccion_id, :cliente_nombre, :cliente_documento, :cliente_direccion, :cliente_ciudad,
                 :cliente_telefono, :cliente_celular, :cliente_email, :vin, :numero_motor, :placa, :modelo,
-                :color, :ano, :fecha_entrada, :hora_entrada, :fecha_prometida, :hora_prometida,
+                :color, :fecha_entrada, :hora_entrada, :fecha_prometida, :hora_prometida,
                 :mto_km, :rep_gral, 0, :firma_recepcionista, :firma_cliente, :cc_recepcionista, :cc_cliente
             )',
             [
@@ -75,7 +75,6 @@ final class OrdenRepuestosModel extends BaseModel
                 ':placa' => $datos['placa'] ?? null,
                 ':modelo' => $datos['modelo'] ?? null,
                 ':color' => $datos['color'] ?? null,
-                ':ano' => $datos['ano'] ?? null,
                 ':fecha_entrada' => $datos['fecha_entrada'] ?? null,
                 ':hora_entrada' => $datos['hora_entrada'] ?? null,
                 ':fecha_prometida' => $datos['fecha_prometida'] ?? null,
@@ -102,7 +101,7 @@ final class OrdenRepuestosModel extends BaseModel
                 cliente_direccion = :cliente_direccion, cliente_ciudad = :cliente_ciudad,
                 cliente_telefono = :cliente_telefono, cliente_celular = :cliente_celular,
                 cliente_email = :cliente_email, vin = :vin, numero_motor = :numero_motor,
-                placa = :placa, modelo = :modelo, color = :color, ano = :ano,
+                placa = :placa, modelo = :modelo, color = :color,
                 fecha_entrada = :fecha_entrada, hora_entrada = :hora_entrada,
                 fecha_prometida = :fecha_prometida, hora_prometida = :hora_prometida,
                 mto_km = :mto_km, rep_gral = :rep_gral, total = :total,
@@ -124,7 +123,6 @@ final class OrdenRepuestosModel extends BaseModel
                 ':placa' => $datos['placa'] ?? null,
                 ':modelo' => $datos['modelo'] ?? null,
                 ':color' => $datos['color'] ?? null,
-                ':ano' => $datos['ano'] ?? null,
                 ':fecha_entrada' => $datos['fecha_entrada'] ?? null,
                 ':hora_entrada' => $datos['hora_entrada'] ?? null,
                 ':fecha_prometida' => $datos['fecha_prometida'] ?? null,

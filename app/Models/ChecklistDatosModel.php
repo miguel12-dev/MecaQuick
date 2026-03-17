@@ -20,7 +20,7 @@ final class ChecklistDatosModel extends BaseModel
     {
         $row = $this->fetchOne(
             'SELECT numero_orden, tipo_comercial_codigo, matricula, matriculacion, bastidor, ldm, djka,
-                    kilometraje, asesor, tipo_comercial_modelo, ldc, vhn, ano_modelo, fecha_servicio,
+                    kilometraje, asesor, tipo_comercial_modelo, ldc, vhn, fecha_servicio,
                     tipo_inspeccion, km_salida, km_llegada, observaciones, nota_mantenimiento,
                     carroceria_json, nivel_combustible,
                     fecha_firma_responsable, fecha_firma_control
@@ -53,7 +53,6 @@ final class ChecklistDatosModel extends BaseModel
             'tipo_comercial_modelo' => (string) ($row['tipo_comercial_modelo'] ?? ''),
             'ldc' => (string) ($row['ldc'] ?? ''),
             'vhn' => (string) ($row['vhn'] ?? ''),
-            'ano_modelo' => $row['ano_modelo'] !== null ? (string) $row['ano_modelo'] : '',
             'fecha_servicio' => (string) ($row['fecha_servicio'] ?? ''),
             'tipo_inspeccion' => (string) ($row['tipo_inspeccion'] ?? ''),
             'km_salida' => $row['km_salida'] !== null ? (string) $row['km_salida'] : '',
@@ -102,7 +101,6 @@ final class ChecklistDatosModel extends BaseModel
             ':tipo_comercial_modelo' => $this->str($datos['tipo_comercial_modelo'] ?? null),
             ':ldc' => $this->str($datos['ldc'] ?? null),
             ':vhn' => $this->str($datos['vhn'] ?? null),
-            ':ano_modelo' => $this->int($datos['ano_modelo'] ?? null),
             ':fecha_servicio' => (string) ($datos['fecha_servicio'] ?? ''),
             ':tipo_inspeccion' => $this->str($datos['tipo_inspeccion'] ?? null),
             ':km_salida' => $this->int($datos['km_salida'] ?? null),
@@ -120,13 +118,13 @@ final class ChecklistDatosModel extends BaseModel
                 'INSERT INTO checklist_datos (
                     inspeccion_id, numero_orden, tipo_comercial_codigo, matricula, matriculacion,
                     bastidor, ldm, djka, kilometraje, asesor, tipo_comercial_modelo, ldc, vhn,
-                    ano_modelo, fecha_servicio, tipo_inspeccion, km_salida, km_llegada,
+                    fecha_servicio, tipo_inspeccion, km_salida, km_llegada,
                     observaciones, nota_mantenimiento, carroceria_json, nivel_combustible,
                     fecha_firma_responsable, fecha_firma_control
                 ) VALUES (
                     :inspeccion_id, :numero_orden, :tipo_comercial_codigo, :matricula, :matriculacion,
                     :bastidor, :ldm, :djka, :kilometraje, :asesor, :tipo_comercial_modelo, :ldc, :vhn,
-                    :ano_modelo, :fecha_servicio, :tipo_inspeccion, :km_salida, :km_llegada,
+                    :fecha_servicio, :tipo_inspeccion, :km_salida, :km_llegada,
                     :observaciones, :nota_mantenimiento, :carroceria_json, :nivel_combustible,
                     :fecha_firma_responsable, :fecha_firma_control
                 )',
@@ -149,7 +147,6 @@ final class ChecklistDatosModel extends BaseModel
                 tipo_comercial_modelo = :tipo_comercial_modelo,
                 ldc = :ldc,
                 vhn = :vhn,
-                ano_modelo = :ano_modelo,
                 fecha_servicio = :fecha_servicio,
                 tipo_inspeccion = :tipo_inspeccion,
                 km_salida = :km_salida,

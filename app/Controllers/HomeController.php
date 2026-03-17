@@ -81,7 +81,6 @@ class HomeController extends BaseController
         $placa     = strtoupper(trim((string) ($_POST['placa'] ?? '')));
         $marca     = trim((string) ($_POST['marca'] ?? ''));
         $modelo    = trim((string) ($_POST['modelo'] ?? ''));
-        $anioRaw   = trim((string) ($_POST['anio'] ?? ''));
         $fechaId   = (int) ($_POST['fecha_id'] ?? 0);
         $observaciones = trim((string) ($_POST['observaciones'] ?? ''));
 
@@ -91,16 +90,8 @@ class HomeController extends BaseController
             $errores[] = 'Nombre, apellido, documento, correo, placa y marca son obligatorios.';
         }
 
-        if ($anioRaw === '') {
-            $errores[] = 'El año del vehículo es obligatorio.';
-        }
-
         if ($placa !== '' && !preg_match('/^[A-Z]{3}[0-9]{3}$/', $placa)) {
             $errores[] = 'La placa debe tener 3 letras y 3 números (ej: ABC123).';
-        }
-
-        if ($documento !== '' && (strlen($documento) > 10 || !ctype_digit($documento))) {
-            $errores[] = 'El documento debe tener máximo 10 dígitos numéricos.';
         }
 
         if ($nombre !== '' && !preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/', $nombre)) {
@@ -113,14 +104,6 @@ class HomeController extends BaseController
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errores[] = 'El correo electrónico no tiene un formato válido.';
-        }
-
-        $anio = null;
-        if ($anioRaw !== '') {
-            $anio = (int) $anioRaw;
-            if ($anio < 1950 || $anio > (int) date('Y') + 1) {
-                $errores[] = 'El año del vehículo debe estar entre 1950 y ' . ((int) date('Y') + 1) . '.';
-            }
         }
 
         if ($fechaId <= 0) {
@@ -155,7 +138,6 @@ class HomeController extends BaseController
             $placa,
             $marca,
             $modelo !== '' ? $modelo : '-',
-            $anio,
             $clienteId
         );
 
@@ -233,7 +215,6 @@ class HomeController extends BaseController
             'placa'         => $_POST['placa'] ?? '',
             'marca'         => $_POST['marca'] ?? '',
             'modelo'        => $_POST['modelo'] ?? '',
-            'anio'          => $_POST['anio'] ?? '',
             'fecha_id'      => $_POST['fecha_id'] ?? '',
             'observaciones' => $_POST['observaciones'] ?? '',
         ];

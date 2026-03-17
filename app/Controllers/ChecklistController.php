@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Models\ChecklistDatosModel;
+use App\Models\FechaDisponibleModel;
 use App\Models\InspeccionModel;
 use App\Models\PuntosCatalogoModel;
 use App\Models\ResultadosPuntosModel;
@@ -32,8 +33,16 @@ final class ChecklistController extends BaseController
     {
         AuthService::requireInstructor();
         $inspeccionModel = new InspeccionModel();
-        $fechas = $inspeccionModel->fechasConRevisiones();
-        $this->json(['fechas' => $fechas]);
+        $fechaDisponibleModel = new FechaDisponibleModel();
+        $fechasInspecciones = $inspeccionModel->fechasConRevisiones();
+        $fechasConfiguradas = $fechaDisponibleModel->listarTodasLasFechas();
+        $fechas = array_unique(array_merge($fechasInspecciones, $fechasConfiguradas));
+        $hoy = date('Y-m-d');
+        if (!in_array($hoy, $fechas, true)) {
+            $fechas[] = $hoy;
+        }
+        rsort($fechas);
+        $this->json(['fechas' => array_values($fechas)]);
     }
 
     /**
@@ -335,7 +344,6 @@ final class ChecklistController extends BaseController
             'tipo_comercial_modelo' => trim((string) ($post['tipo_comercial_modelo'] ?? '')),
             'ldc' => $clienteTel,
             'vhn' => $clienteEmail,
-            'ano_modelo' => isset($post['ano_modelo']) && $post['ano_modelo'] !== '' ? (int) $post['ano_modelo'] : null,
             'fecha_servicio' => $fechaIngreso !== '' ? $fechaIngreso : date('Y-m-d'),
             'tipo_inspeccion' => trim((string) ($post['tipo_inspeccion'] ?? 'Inspección técnica')),
             'km_salida' => trim((string) ($post['km_salida'] ?? '')),
@@ -359,7 +367,7 @@ final class ChecklistController extends BaseController
         $camposCabecera = [
             'numero_orden', 'tipo_comercial_codigo', 'matricula', 'matriculacion', 'bastidor',
             'ldm', 'djka', 'kilometraje', 'asesor', 'tipo_comercial_modelo', 'ldc', 'vhn',
-            'ano_modelo', 'fecha_servicio', 'tipo_inspeccion', 'observaciones',
+            'fecha_servicio', 'tipo_inspeccion', 'observaciones',
         ];
         foreach ($camposCabecera as $k) {
             $v = trim((string) ($datos[$k] ?? ''));

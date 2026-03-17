@@ -16,14 +16,16 @@
         <section class="panel panel--dashboard">
             <h1 class="panel__title">Revisión de checklists</h1>
             <p class="panel__intro">
-                Filtre por día para ver las revisiones activas. Solo se muestran fechas con al menos una revisión.
+                Se cargan por defecto las revisiones activas de hoy. Filtre por día para ver otras fechas.
             </p>
 
             <div class="checklist-panel__filtro">
-                <label for="checklistPanelFecha" class="form__label">Fecha</label>
-                <select id="checklistPanelFecha" class="form__control checklist-panel__select" aria-label="Seleccionar fecha">
-                    <option value="">Seleccione una fecha</option>
-                </select>
+                <div class="form__group">
+                    <label for="checklistPanelFecha" class="form__label">Fecha</label>
+                    <select id="checklistPanelFecha" class="checklist-panel__select" aria-label="Seleccionar fecha">
+                        <option value="">Seleccione una fecha</option>
+                    </select>
+                </div>
             </div>
 
             <div id="checklistPanelMensaje" class="checklist-panel__mensaje checklist-panel__mensaje--hidden" role="status"></div>
@@ -35,6 +37,7 @@
                             <th scope="col">Placa</th>
                             <th scope="col">Encargado</th>
                             <th scope="col">Hora inicio</th>
+                            <th scope="col">Estado</th>
                             <th scope="col">Porcentaje</th>
                             <th scope="col">Acciones</th>
                         </tr>

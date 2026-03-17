@@ -81,10 +81,6 @@ $ordenId = (int) ($orden['id'] ?? 0);
                         <label for="color">Color</label>
                         <input type="text" id="color" name="color" value="<?= htmlspecialchars($orden['color'] ?? '') ?>">
                     </div>
-                    <div class="form__group">
-                        <label for="ano">Año</label>
-                        <input type="number" id="ano" name="ano" min="1950" max="2030" value="<?= htmlspecialchars($orden['ano'] ?? '') ?>">
-                    </div>
                 </div>
 
                 <h2 class="panel__subtitle" style="margin-top: 1.25rem;">Fechas y datos adicionales</h2>

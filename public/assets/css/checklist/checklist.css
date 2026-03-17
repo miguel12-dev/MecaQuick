@@ -124,12 +124,23 @@
     color: var(--text-main);
 }
 
+.checklist-panel__filtro .form__group {
+    max-width: 14rem;
+}
+
+.checklist-panel__filtro .form__group select.checklist-panel__select,
 .checklist-panel__select {
-    max-width: 12rem;
-    padding: 0.5rem 0.75rem;
+    width: 100%;
+    max-width: 14rem;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-md);
     font-size: 0.95rem;
+    font-family: var(--font-main);
+    background-color: var(--bg-page, #fff);
+    color: var(--text-main);
+    cursor: pointer;
+    appearance: auto;
 }
 
 .checklist-panel__mensaje {
@@ -177,6 +188,24 @@
 
 .checklist-panel__vacio--hidden {
     display: none;
+}
+
+.checklist-panel__estado {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.checklist-panel__estado--proceso {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.checklist-panel__estado--finalizada {
+    background-color: #d4edda;
+    color: #155724;
 }
 
 .btn--small {

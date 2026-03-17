@@ -185,7 +185,6 @@ final class OrdenRepuestosController extends BaseController
             'placa'            => $cd['placa'] ?? $cd['matricula'] ?? '',
             'modelo'           => $cd['modelo'] ?? $cd['tipo_comercial_modelo'] ?? '',
             'vin'              => $cd['bastidor'] ?? '',
-            'ano'              => !empty($cd['ano_modelo']) ? (int) $cd['ano_modelo'] : null,
             'mto_km'           => (int) ($cd['kilometraje'] ?? 0),
         ];
     }
@@ -208,7 +207,6 @@ final class OrdenRepuestosController extends BaseController
             'placa'               => trim((string) ($post['placa'] ?? '')),
             'modelo'              => trim((string) ($post['modelo'] ?? '')),
             'color'              => trim((string) ($post['color'] ?? '')),
-            'ano'                 => isset($post['ano']) && $post['ano'] !== '' ? (int) $post['ano'] : null,
             'fecha_entrada'      => $this->date($post['fecha_entrada'] ?? null),
             'hora_entrada'       => trim((string) ($post['hora_entrada'] ?? '')),
             'fecha_prometida'    => $this->date($post['fecha_prometida'] ?? null),

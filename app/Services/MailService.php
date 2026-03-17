@@ -83,7 +83,7 @@ final class MailService
             : date('d/m/Y H:i');
 
         $vehiculoLinea = trim(
-            $cita['marca'] . ' ' . ($cita['modelo'] ?? '') . ($cita['anio'] ? ' (' . $cita['anio'] . ')' : '')
+            $cita['marca'] . ' ' . ($cita['modelo'] ?? '')
         );
         if ($vehiculoLinea === '') {
             $vehiculoLinea = 'Placa ' . $cita['placa'];

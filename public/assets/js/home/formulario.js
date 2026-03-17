@@ -2,7 +2,6 @@
  * Validaciones frontend del formulario de solicitud de cita.
  * Placa: 3 letras + 3 números, mayúsculas.
  * Documento: máx. 10 dígitos numéricos.
- * Año: obligatorio, rango razonable (1950 - año actual + 1).
  * Correo: formato estándar.
  * Nombre/Apellido: solo letras y espacios, sin caracteres especiales ni numéricos.
  * Teléfono: opcional.
@@ -14,9 +13,6 @@
     const DOCUMENTO_REGEX = /^[0-9]{1,10}$/;
     const NOMBRE_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
     const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    const ANIO_MIN = 1950;
-    const ANIO_MAX = new Date().getFullYear() + 1;
 
     const form = document.querySelector('.form--with-icons');
     if (!form || form.getAttribute('action') !== '/home/registrar') return;
@@ -30,7 +26,6 @@
         placa: document.getElementById('placa'),
         marca: document.getElementById('marca'),
         modelo: document.getElementById('modelo'),
-        anio: document.getElementById('anio'),
     };
 
     function getWrap(input) {
@@ -95,14 +90,6 @@
         return null;
     }
 
-    function validarAnio(val) {
-        if (val.trim().length === 0) return 'El año del vehículo es obligatorio.';
-        const n = parseInt(val, 10);
-        if (isNaN(n)) return 'Debe ser un año válido.';
-        if (n < ANIO_MIN || n > ANIO_MAX) return 'Año entre ' + ANIO_MIN + ' y ' + ANIO_MAX + '.';
-        return null;
-    }
-
     function validarTelefono(val) {
         if (val.trim().length === 0) return null;
         if (!/^[0-9+\-\s()]{7,15}$/.test(val)) return 'Formato de teléfono inválido.';
@@ -153,7 +140,6 @@
     setupCampo('apellido', function (v) { return validarNombre(v, 'Apellido'); });
     setupCampo('email', validarEmail);
     setupCampo('telefono', validarTelefono);
-    if (campos.anio) setupCampo('anio', validarAnio);
 
     form.addEventListener('submit', function (e) {
         let valido = true;
@@ -166,10 +152,6 @@
 
         normalizarPlaca(campos.placa);
         valido = validarCampo('placa', campos.placa?.value ?? '', validarPlaca) && valido;
-
-        if (campos.anio) {
-            valido = validarCampo('anio', campos.anio?.value ?? '', validarAnio) && valido;
-        }
 
         if (!valido) {
             e.preventDefault();

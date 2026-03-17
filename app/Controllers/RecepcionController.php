@@ -347,7 +347,6 @@ final class RecepcionController extends BaseController
             'tipo_comercial_modelo' => trim((string) ($post['tipo_comercial_modelo'] ?? '')),
             'ldc' => trim((string) ($post['cliente_telefono'] ?? $post['ldc'] ?? '')),
             'vhn' => $correo,
-            'ano_modelo' => $this->int($post['ano_modelo'] ?? null),
             'fecha_servicio' => $fechaIngreso !== '' ? $fechaIngreso : date('Y-m-d'),
             'tipo_inspeccion' => trim((string) ($post['tipo_inspeccion'] ?? 'Inspección técnica')),
             'km_salida' => trim((string) ($post['km_salida'] ?? '')),

@@ -62,7 +62,7 @@
             <section class="home-content__section">
                 <h2>Pasos para solicitar tu cita</h2>
                 <ul>
-                    <li><strong>Registro:</strong> Completa el formulario con tus datos y los del vehículo (placa y marca obligatorios; modelo y año opcionales).</li>
+                    <li><strong>Registro:</strong> Completa el formulario con tus datos y los del vehículo (placa y marca obligatorios; modelo opcional).</li>
                     <li><strong>Fecha:</strong> Elige una fecha disponible en el calendario; las sin cupos aparecen deshabilitadas.</li>
                     <li><strong>Confirmación:</strong> Recibirás por correo el horario de atención, la zona de reunión y tu token.</li>
                     <li><strong>Día de la cita:</strong> Asiste al centro en la fecha y horario indicados con tu token o el correo de confirmación.</li>

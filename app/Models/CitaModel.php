@@ -54,8 +54,7 @@ final class CitaModel extends BaseModel
                 cli.email,
                 v.placa,
                 v.marca,
-                v.modelo,
-                v.anio
+                v.modelo
             FROM citas c
             INNER JOIN fechas_disponibles f ON f.id = c.fecha_id
             INNER JOIN vehiculos v ON v.id = c.vehiculo_id
@@ -92,7 +91,6 @@ final class CitaModel extends BaseModel
                 v.placa,
                 v.marca,
                 v.modelo,
-                v.anio,
                 v.color,
                 v.numero_licencia_transito
             FROM citas c
@@ -132,7 +130,6 @@ final class CitaModel extends BaseModel
                 v.placa,
                 v.marca,
                 v.modelo,
-                v.anio,
                 v.color,
                 v.numero_licencia_transito
             FROM citas c

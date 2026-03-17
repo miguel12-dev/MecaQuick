@@ -34,6 +34,26 @@ final class FechaDisponibleModel extends BaseModel
         return $this->fetchAll($sql);
     }
 
+    /**
+     * Lista todas las fechas configuradas (para filtros de panel).
+     *
+     * @return array<int, string>
+     */
+    public function listarTodasLasFechas(): array
+    {
+        $rows = $this->fetchAll(
+            'SELECT fecha FROM fechas_disponibles WHERE activa = 1 ORDER BY fecha DESC'
+        );
+        $fechas = [];
+        foreach ($rows as $row) {
+            $f = $row['fecha'] ?? null;
+            if ($f !== null && $f !== '') {
+                $fechas[] = is_object($f) ? $f->format('Y-m-d') : (string) $f;
+            }
+        }
+        return $fechas;
+    }
+
     public function tieneCupo(int $fechaId, int $maxCuposDia): bool
     {
         $sql = <<<'SQL'

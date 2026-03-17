@@ -47,7 +47,7 @@ $fechaHoy = date('d/m/Y');
                         <?php foreach ($citas as $c): ?>
                             <?php
                             $clienteNombre = trim(($c['nombre'] ?? '') . ' ' . ($c['apellido'] ?? ''));
-                            $vehiculoLinea = trim(($c['marca'] ?? '') . ' ' . ($c['modelo'] ?? '') . ($c['anio'] ? ' (' . $c['anio'] . ')' : ''));
+                            $vehiculoLinea = trim(($c['marca'] ?? '') . ' ' . ($c['modelo'] ?? ''));
                             if ($vehiculoLinea === '') {
                                 $vehiculoLinea = '—';
                             }

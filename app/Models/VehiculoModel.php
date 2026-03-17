@@ -20,17 +20,15 @@ final class VehiculoModel extends BaseModel
         string $placa,
         string $marca,
         string $modelo,
-        ?int $anio,
         int $clienteId
     ): int {
         $this->executeStatement(
-            'INSERT INTO vehiculos (placa, marca, modelo, anio, cliente_id)
-             VALUES (:placa, :marca, :modelo, :anio, :cliente_id)',
+            'INSERT INTO vehiculos (placa, marca, modelo, cliente_id)
+             VALUES (:placa, :marca, :modelo, :cliente_id)',
             [
                 ':placa'      => $placa,
                 ':marca'      => $marca,
                 ':modelo'     => $modelo,
-                ':anio'       => $anio,
                 ':cliente_id' => $clienteId,
             ]
         );
@@ -42,7 +40,6 @@ final class VehiculoModel extends BaseModel
         string $placa,
         string $marca,
         string $modelo,
-        ?int $anio,
         int $clienteId
     ): int {
         $existente = $this->obtenerPorPlaca($placa);
@@ -51,7 +48,7 @@ final class VehiculoModel extends BaseModel
             return (int) $existente['id'];
         }
 
-        return $this->crear($placa, $marca, $modelo, $anio, $clienteId);
+        return $this->crear($placa, $marca, $modelo, $clienteId);
     }
 }
 

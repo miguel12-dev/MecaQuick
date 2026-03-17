@@ -88,11 +88,6 @@
                     <input type="text" id="modelo" name="modelo" required
                            value="<?= htmlspecialchars($old['modelo'] ?? '') ?>">
                 </div>
-                <div class="form__group">
-                    <label for="anio">Año</label>
-                    <input type="number" id="anio" name="anio" min="1950" max="<?= (int) date('Y') + 1 ?>"
-                           value="<?= htmlspecialchars($old['anio'] ?? '') ?>">
-                </div>
 
                 <div class="form__group">
                     <label for="fecha_id">Fecha de revisión *</label>
