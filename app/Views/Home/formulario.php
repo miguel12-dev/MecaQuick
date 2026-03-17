@@ -63,7 +63,8 @@
                             <label for="documento">Documento *</label>
                             <div class="input-wrap">
                                 <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span>
-                                <input type="text" id="documento" name="documento" required placeholder="Número de documento"
+                                <input type="text" id="documento" name="documento" required maxlength="10" inputmode="numeric"
+                                       placeholder="Máx. 10 dígitos numéricos"
                                        value="<?= htmlspecialchars($old['documento'] ?? '') ?>">
                             </div>
                         </div>
@@ -96,7 +97,7 @@
                             <label for="placa">Placa *</label>
                             <div class="input-wrap">
                                 <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-rectangle-list"></i></span>
-                                <input type="text" id="placa" name="placa" maxlength="10" required placeholder="Ej. ABC123"
+                                <input type="text" id="placa" name="placa" maxlength="6" required placeholder="3 letras + 3 números (Ej. ABC123)"
                                        value="<?= htmlspecialchars($old['placa'] ?? '') ?>">
                             </div>
                         </div>
@@ -114,6 +115,16 @@
                                 <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-car-side"></i></span>
                                 <input type="text" id="modelo" name="modelo" placeholder="Opcional"
                                        value="<?= htmlspecialchars($old['modelo'] ?? '') ?>">
+                            </div>
+                        </div>
+                        <div class="form__group">
+                            <label for="anio">Año *</label>
+                            <div class="input-wrap">
+                                <span class="input-wrap__icon" aria-hidden="true"><i class="fa-solid fa-calendar"></i></span>
+                                <?php $anioMin = 1950; $anioMax = (int) date('Y') + 1; ?>
+                                <input type="number" id="anio" name="anio" required min="<?= $anioMin ?>" max="<?= $anioMax ?>"
+                                       placeholder="<?= $anioMin ?> - <?= $anioMax ?>"
+                                       value="<?= htmlspecialchars($old['anio'] ?? '') ?>">
                             </div>
                         </div>
                     </div>
@@ -172,5 +183,6 @@
     <footer class="footer">
         <span>MecaQuick &mdash; Sistema de gestión de revisión mecánica</span>
     </footer>
+    <script src="/assets/js/home/formulario.js" defer></script>
 </body>
 </html>

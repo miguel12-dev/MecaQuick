@@ -12,6 +12,9 @@ $ayudantes = $ayudantes ?? [];
 $mostrarFormAyudantes = $mostrarFormAyudantes ?? false;
 $listaAprendices = $listaAprendices ?? [];
 $inspeccionId = (int) ($inspeccion_id ?? 0);
+$tieneOrden = $tieneOrden ?? false;
+$ordenRepuestosId = (int) ($ordenRepuestosId ?? 0);
+$mostrarLinkOrden = $mostrarLinkOrden ?? false;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -49,6 +52,21 @@ $inspeccionId = (int) ($inspeccion_id ?? 0);
                     <dd><?= htmlspecialchars($estadoLabel) ?></dd>
                 </dl>
             </div>
+
+            <?php if ($mostrarLinkOrden && !$tieneOrden): ?>
+                <div class="panel__block">
+                    <a href="/orden-repuestos/crear/<?= $inspeccionId ?>" class="btn btn--primary">
+                        <i class="fas fa-box-open"></i> Crear orden de repuestos
+                    </a>
+                </div>
+            <?php elseif ($mostrarLinkOrden && $tieneOrden): ?>
+                <div class="panel__block dashboard__actions">
+                    <a href="/orden-repuestos/editar/<?= $ordenRepuestosId ?>" class="btn btn--primary">
+                        <i class="fas fa-edit"></i> Ver/Editar orden de repuestos
+                    </a>
+                    <a href="/orden-repuestos" class="btn btn--secondary">Ver todas las órdenes</a>
+                </div>
+            <?php endif; ?>
 
             <?php if (!empty($d['observaciones_generales'])): ?>
                 <div class="panel__block">
@@ -101,17 +119,6 @@ $inspeccionId = (int) ($inspeccion_id ?? 0);
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="panel__block" style="margin-bottom: 1.25rem;">
-                <p class="panel__subtitle">¿Continuar con orden de repuestos?</p>
-                <p class="panel__text">Puede crear una orden de repuestos con los datos ya registrados o finalizar el mantenimiento.</p>
-                <div class="dashboard__actions">
-                    <a href="/orden-repuestos/crear/<?= $inspeccionId ?>" class="btn btn--primary">
-                        <i class="fas fa-boxes-stacked"></i> Crear orden de repuestos
-                    </a>
-                    <span class="panel__text" style="margin-left: 0.5rem;">o finalizar</span>
-                </div>
             </div>
 
             <?php if ($mostrarFormAyudantes && $inspeccionId > 0): ?>

@@ -239,6 +239,18 @@
     box-shadow: none;
 }
 
+.input-wrap--invalid {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 1px rgba(166, 58, 58, 0.2);
+}
+
+.form__error {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-error);
+    margin-top: 0.25rem;
+}
+
 .input-wrap--select .input-wrap__icon {
     border-right: 1px solid var(--border-soft);
 }

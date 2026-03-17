@@ -50,22 +50,6 @@
 
             <article class="dashboard__card">
                 <div class="dashboard__card-icon">
-                    <i class="fas fa-boxes-stacked"></i>
-                </div>
-                <h2 class="dashboard__card-title">Orden de repuestos</h2>
-                <p class="dashboard__card-description">Crear y gestionar órdenes de repuestos.</p>
-                <div class="dashboard__card-actions">
-                    <a href="/orden-repuestos" class="btn btn--dashboard">
-                        <i class="fas fa-list"></i> Ver órdenes
-                    </a>
-                    <a href="/orden-repuestos/crear" class="btn btn--dashboard">
-                        <i class="fas fa-plus"></i> Nueva orden
-                    </a>
-                </div>
-            </article>
-
-            <article class="dashboard__card">
-                <div class="dashboard__card-icon">
                     <i class="fas fa-book-open"></i>
                 </div>
                 <h2 class="dashboard__card-title">Aprendizaje</h2>

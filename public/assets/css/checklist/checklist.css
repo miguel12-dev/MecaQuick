@@ -240,3 +240,95 @@
 .checklist-detalle__tabla td {
     color: var(--text-muted);
 }
+
+/* Lista de vehículos pendientes / revisión completa */
+.checklist-lista__actions {
+    margin-bottom: 1.25rem;
+}
+
+.checklist-lista__tabla-wrap {
+    overflow-x: auto;
+    margin-top: 0.5rem;
+}
+
+.checklist-lista__vacio {
+    color: var(--text-muted);
+    margin: 1rem 0;
+}
+
+.checklist-lista__vacio a {
+    color: var(--sena-green);
+    text-decoration: underline;
+}
+
+.checklist-lista__vacio a:hover {
+    color: var(--sena-green-dark);
+}
+
+.checklist-lista__estado {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.checklist-lista__estado--pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.checklist-lista__estado--completa {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* Modal opción orden de repuestos al finalizar */
+.checklist-opcion-orden {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.checklist-opcion-orden__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+}
+
+.checklist-opcion-orden__modal {
+    position: relative;
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    max-width: 24rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.checklist-opcion-orden__titulo {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+}
+
+.checklist-opcion-orden__texto {
+    margin: 0 0 1.25rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.checklist-opcion-orden__acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.checklist-opcion-orden__acciones .btn {
+    text-align: center;
+    text-decoration: none;
+}

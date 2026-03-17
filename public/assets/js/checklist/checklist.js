@@ -148,7 +148,7 @@
 
             showMessage(isFinal ? "Checklist finalizado y guardado correctamente." : "Avance guardado correctamente.");
             if (isFinal && typeof result.inspeccion_id === "number" && form.dataset.redirectAprendiz === "1") {
-                window.location.href = "/recepcion/revision/" + result.inspeccion_id;
+                mostrarOpcionOrdenRepuestos(result.inspeccion_id);
                 return true;
             }
             return true;
@@ -213,6 +213,26 @@
     form.addEventListener("change", () => {
         updateProgress();
     });
+
+    const mostrarOpcionOrdenRepuestos = (inspeccionId) => {
+        const div = document.createElement("div");
+        div.className = "checklist-opcion-orden";
+        div.setAttribute("role", "dialog");
+        div.setAttribute("aria-label", "Opciones al finalizar");
+        div.innerHTML = `
+            <div class="checklist-opcion-orden__overlay"></div>
+            <div class="checklist-opcion-orden__modal">
+                <h3 class="checklist-opcion-orden__titulo">Checklist finalizado</h3>
+                <p class="checklist-opcion-orden__texto">¿Desea continuar con orden de repuestos o finalizar el mantenimiento?</p>
+                <div class="checklist-opcion-orden__acciones">
+                    <a href="/orden-repuestos/crear/${inspeccionId}" class="btn btn--primary">Orden de repuestos</a>
+                    <a href="/recepcion/revision/${inspeccionId}" class="btn btn--secondary">Finalizar mantenimiento</a>
+                </div>
+            </div>
+        `;
+        div.querySelector(".checklist-opcion-orden__overlay").addEventListener("click", () => div.remove());
+        document.body.appendChild(div);
+    };
 
     const skipCabecera = form.dataset.skipCabecera === "1";
     showStep(skipCabecera ? 1 : 0);

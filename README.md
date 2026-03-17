@@ -28,6 +28,9 @@ Sistema de gestión para revisión mecánica de vehículos (CTA SENA). Permite e
 3. Crear la base de datos y ejecutar los scripts SQL en este orden:
    - `database/database.sql` (esquema base y datos iniciales)
    - `database/migrations/001_checklist_puntos_inspecciones.sql` (módulo checklist)
+   - `database/migrations/002_inspeccion_ayudantes_tutor.sql`
+   - `database/migrations/003_recepcion_carroceria_combustible.sql`
+   - `database/migrations/004_ordenes_repuestos.sql` (orden de repuestos)
 
 4. Punto de entrada: configurar el servidor para que apunte a la carpeta `public/`.
    - **Apache**: DocumentRoot o alias hacia `public/`; el `.htaccess` de la raíz redirige todo a `public/index.php`.

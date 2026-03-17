@@ -91,6 +91,26 @@ class HomeController extends BaseController
             $errores[] = 'Nombre, apellido, documento, correo, placa y marca son obligatorios.';
         }
 
+        if ($anioRaw === '') {
+            $errores[] = 'El año del vehículo es obligatorio.';
+        }
+
+        if ($placa !== '' && !preg_match('/^[A-Z]{3}[0-9]{3}$/', $placa)) {
+            $errores[] = 'La placa debe tener 3 letras y 3 números (ej: ABC123).';
+        }
+
+        if ($documento !== '' && (strlen($documento) > 10 || !ctype_digit($documento))) {
+            $errores[] = 'El documento debe tener máximo 10 dígitos numéricos.';
+        }
+
+        if ($nombre !== '' && !preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/', $nombre)) {
+            $errores[] = 'El nombre solo puede contener letras y espacios.';
+        }
+
+        if ($apellido !== '' && !preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/', $apellido)) {
+            $errores[] = 'El apellido solo puede contener letras y espacios.';
+        }
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errores[] = 'El correo electrónico no tiene un formato válido.';
         }
@@ -99,7 +119,7 @@ class HomeController extends BaseController
         if ($anioRaw !== '') {
             $anio = (int) $anioRaw;
             if ($anio < 1950 || $anio > (int) date('Y') + 1) {
-                $errores[] = 'El año del vehículo no es válido.';
+                $errores[] = 'El año del vehículo debe estar entre 1950 y ' . ((int) date('Y') + 1) . '.';
             }
         }
 

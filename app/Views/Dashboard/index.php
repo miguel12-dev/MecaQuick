@@ -134,16 +134,13 @@
 
                 <article class="dashboard__card">
                     <div class="dashboard__card-icon">
-                        <i class="fas fa-boxes-stacked"></i>
+                        <i class="fas fa-box-open"></i>
                     </div>
                     <h2 class="dashboard__card-title">Orden de repuestos</h2>
-                    <p class="dashboard__card-description">Gestión de órdenes de repuestos.</p>
+                    <p class="dashboard__card-description">Órdenes de repuestos creadas al finalizar el checklist.</p>
                     <div class="dashboard__card-actions">
                         <a href="/orden-repuestos" class="btn btn--dashboard">
                             <i class="fas fa-list"></i> Ver órdenes
-                        </a>
-                        <a href="/orden-repuestos/crear" class="btn btn--dashboard">
-                            <i class="fas fa-plus"></i> Nueva orden
                         </a>
                     </div>
                 </article>

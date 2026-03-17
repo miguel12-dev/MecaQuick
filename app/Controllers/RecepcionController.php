@@ -9,6 +9,7 @@ use App\Models\ChecklistDatosModel;
 use App\Models\ConfiguracionModel;
 use App\Models\InspeccionAyudantesModel;
 use App\Models\InspeccionModel;
+use App\Models\OrdenRepuestosModel;
 use App\Models\UsuarioSistemaModel;
 use App\Services\AuthService;
 use Core\BaseController;
@@ -255,6 +256,12 @@ final class RecepcionController extends BaseController
             }
         }
 
+        $ordenRepuestosModel = new OrdenRepuestosModel();
+        $ordenRepuestos = $ordenRepuestosModel->obtenerPorInspeccionId($inspeccionId);
+        $tieneOrden = $ordenRepuestos !== null;
+        $ordenRepuestosId = $tieneOrden ? (int) $ordenRepuestos['id'] : 0;
+        $mostrarLinkOrden = ($inspeccionBasica['estado'] ?? '') === 'finalizada';
+
         $nombreSistema = ConfiguracionModel::get('nombre_sistema') ?? 'MecaQuick';
         $this->view('Recepcion.revision', [
             'titulo'               => $nombreSistema . ' - Detalle de revisión',
@@ -264,6 +271,9 @@ final class RecepcionController extends BaseController
             'inspeccion_id'        => $inspeccionId,
             'mostrarFormAyudantes' => $mostrarFormAyudantes,
             'listaAprendices'      => $listaAprendices,
+            'tieneOrden'           => $tieneOrden,
+            'ordenRepuestosId'    => $ordenRepuestosId,
+            'mostrarLinkOrden'     => $mostrarLinkOrden,
         ]);
     }
 

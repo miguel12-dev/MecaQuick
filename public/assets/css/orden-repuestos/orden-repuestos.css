@@ -1,15 +1,17 @@
 /**
  * Estilos del módulo orden de repuestos.
  */
-.orden-repuestos-items input {
-    width: 100%;
-    min-width: 4rem;
-    padding: 0.35rem 0.5rem;
-    font-size: 0.9rem;
+.orden-repuestos-items {
+    overflow-x: auto;
+    margin: 1rem 0;
 }
 
-.panel__block {
-    padding: 1rem;
-    background-color: var(--bg-light, #f8f9fa);
-    border-radius: var(--radius-md, 0.375rem);
+.orden-repuestos-items .panel-table input {
+    width: 100%;
+    min-width: 5rem;
+}
+
+.panel-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 1rem;
 }
